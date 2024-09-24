@@ -1,0 +1,391 @@
+.header {
+    padding: 1em 4em;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    border: 1px solid rgba(0, 0, 0, 0.3);
+
+
+    &__usuarioLogado{
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        &_h3{
+            font-weight: bold;
+            display: flex;
+            margin-right: 1em;           
+        }
+
+    }
+
+    &__voltar{
+        display: flex;
+        background-color: white;
+        border: #68655C 1px solid;
+        border-radius: 0.8em;
+        width: 3em;
+        height: 3em;
+        justify-content: center;
+        align-items: center;
+        padding-left: 1em;
+        margin-right: 0.4em;
+
+        &:hover {
+            box-shadow: -3.5px 3.5px 8px rgba(0, 0, 0, 0.2);
+          }
+    }
+    
+
+
+    &__logo {
+        width: 120px;
+    }
+
+    &__button_mural,
+    &__button_home {
+        color: #245501;
+        font-weight: bold;
+        font-size: 1em;
+        border: none;
+        padding: 14px 34px;
+    }
+
+    &__button_mural {
+        background-color: #FFFF;
+        margin-right: 0.8em;
+
+        &:hover {
+            background-color: #245501;
+            border-radius: 0.5em;
+            color: #FFFF;
+            transition: all .4s;
+        }
+
+    }
+
+    &__button_home {
+        background-color: #FFFF;
+
+        &:hover {
+            background-color: #245501;
+            border-radius: 0.5em;
+            color: #FFFF;
+            transition: all .4s;
+        }
+
+    }
+
+    &__button_burguer {
+        display: block;
+        border: none;
+        background-color: transparent;
+        position: absolute;
+        right: 15px;
+    }
+
+    &__side_menu{
+        position: fixed;
+        top: 0;
+        left: 131px;
+        background-color: rgba(204, 204, 204, 0.6);
+        width: 100vw;
+        height: 100vh;
+        z-index: 1;
+        display: flex;
+        box-shadow: -3.5px 3.5px 8px rgba(0, 0, 0, 0.2);
+
+
+        &__conj{
+            padding: 0em 1.2em;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        &__conjBotoes{
+            flex-direction: column;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 1em;
+            margin-bottom: 190px;
+
+            &__botoesNav{
+                display: flex;
+                justify-content: start;
+                align-items: center;
+                margin-left: -1em;
+                width: 20em;
+                height: 3.5em;
+                padding-left: 0.3em;
+
+                
+              }
+              &__link{
+                color: #68655C;
+                text-decoration: none;
+                font-size: 0.9em;
+                font-weight: bold;
+                padding: 1.5em 14em 1.5em 2.8em;
+                margin: -1.5em -14em -1.5em -2.4em;
+              }
+        }
+
+        
+
+        
+
+        &__content{
+            width: 281.95px;
+            height: 100%;
+
+            &__header{
+                height: 184.06px;
+                background-color: #245501;
+                display: flex;
+                align-items: flex-start;
+                justify-content: space-between;
+                
+                div{
+                    padding-top: 20px;
+                    padding-left: 20px;
+                }
+
+                h3{
+                    margin-top: 12px;
+                    color: #FFF;
+                }
+
+                &__button_back{
+                    padding-top: 15px;
+                    background-color: transparent;
+                    border: none;
+                }
+                &_iconLogin{
+                    top: 20px;
+                    right: 20px;
+                    position: fixed;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: end;
+
+                    &_nome{
+                        font-size:0.8em;
+                    }
+                    &_email{
+                        font-size: 0.7em;
+                    }
+                }
+            }
+
+            &__main{
+                height: 100%;
+                background-color: #FFF;
+
+                &__perfil{
+                    display: flex;
+                    align-items: center;
+                    gap: 5px;
+                    border: none;
+                    background-color: transparent;
+                    position: absolute;
+                    bottom: 80px;
+                    left: 5px;
+
+                    p{
+                        color:#68655C;
+                        font-size: 17px;
+                    }
+                }
+
+                &__exit{
+                    display: flex;
+                    align-items: center;
+                    gap: 5px;
+                    border: none;
+                    background-color: transparent;
+                    position: absolute;
+                    bottom: 25px;
+                    left: 5px;
+
+                    p{
+                        color:#970B0B;
+                        font-size: 17px;
+                    }
+                }
+            }
+        }
+
+        &__space{
+            width: calc(100% - 281.95px);
+            height: 100%;
+            cursor: pointer;
+        }
+        
+    }
+
+    &__dropdown{
+        background-color: #FFF;
+        width: 150.65px;
+        height: 90.01px;
+        position:absolute;
+        top: 79px;
+        right: 50px;
+        padding: 22.1px 22.2px 3.1px 22.2px;
+        border-radius: 9.88px;
+        box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+        display: flex;
+        flex-direction: column;
+        align-items: start;
+        gap: 19px;
+
+        &__perfil{
+            border: none;
+            background-color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            width: 11em;
+
+            &:hover{
+                background-color: #f0f0f0d7;
+                width: 11em;
+                height: auto;
+              }
+
+            p{
+                color:#838383;
+            }
+        }
+
+        &__exit{
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            border: none;
+            background-color: transparent;
+            width: 11em;
+            &:hover{
+                background-color: #f0f0f0d7;
+                width: 11em;
+                height: auto;
+              }
+
+            p{
+                color:#970B0B;
+                font-size: 14px;
+            }
+        }
+
+    }
+
+    &__button_link {
+        border: none;
+        background-color: transparent;
+        margin-left: -2em;
+
+    }
+
+    padding: 1em; // Reduzido para melhor ajuste em dispositivos móveis
+    display: flex;
+    flex-direction: row; // Muda a direção para coluna em dispositivos móveis
+    align-items: center; // Centraliza o logo e outros elementos no modo mobile
+    border: 1px solid rgba(0, 0, 0, 0.3);
+
+    &__logo {
+        width: 120px;
+    }
+
+    &__button_perfil {
+        display: none; // Esconde o botão no modo mobile
+    }
+
+    &__button_sistem {
+        display: none; // Esconde o botão no modo mobile
+
+        &:hover {
+            background-color: #245501;
+            border-radius: 5em;
+            color: #FFFF;
+            transition: all .4s;
+        }
+    }
+
+    @media (max-width: 361px) {
+        &__button_link{
+            margin-left: -2em;
+        }
+    }
+
+    // Media query para estilos de telas maiores (por exemplo, tablets e desktops)
+    
+    @media (min-width: 768px) {
+
+        padding: 1em 4em;
+        flex-direction: row; // Restaura a direção da linha para telas maiores
+        justify-content: space-between; // Alinha os elementos nas extremidades para telas maiores
+        box-shadow: 0 0 0.8em rgba(0, 0, 0, 0.1);
+        
+        &__button_burguer {
+            display: none;
+        }        
+
+        &__button_perfil {
+            display: block;
+            border: 0;
+            background-color: #FFFF;
+        }
+
+        &__voltar {
+            display: none;
+        }
+
+        &__button_sistem {
+            display: block;
+            background-color: #FFFF;
+
+            &:hover {
+                background-color: #245501;
+                border-radius: 5em;
+                color: #FFFF;
+                transition: all .4s;
+            }
+
+        }
+    }
+
+}
+
+
+@media all and (max-width: 475px) {
+    .header {
+        display: flex;
+        justify-content:center;
+
+        &__button_home{
+            position: absolute;
+            right: 1.3em;
+        }
+        &__voltar{
+            position: absolute;
+            left: 1.5em;
+        }
+
+        &__usuarioLogado{
+    
+            &_h3{
+                display: none;  
+            }
+    
+        }
+
+        &__logo {
+            width: 120px;
+            margin-left: 0;
+    
+        }
+    }
+}

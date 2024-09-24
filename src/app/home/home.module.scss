@@ -1,0 +1,28 @@
+.container{
+    width: 100%;
+    height: 100vh;
+
+    display: grid;
+    grid-template-columns: 0.8fr 2fr;
+
+
+    background-color: rgba(var(--background));
+
+
+    &__menu{
+        width: 100%;
+        display: flex;
+    }
+    &__main{
+        background-image: url('/assets/logo.svg');
+        background-size: 50% ;
+        background-position: center;
+        background-repeat: no-repeat;
+    }
+    &__construcao{
+        background-image: url('/assets/emConstrução.png');
+        background-size: 20% ;
+        background-position: center;
+        background-repeat: no-repeat;
+    }
+}
