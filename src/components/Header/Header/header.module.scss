@@ -5,9 +5,13 @@
     align-items: center;
     justify-content: space-between;
 
-    border: 1px solid rgba(0, 0, 0, 0.3);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.3);
 
-
+    &__container{
+        display: flex;
+        flex-direction: row;
+        gap: 2em;
+    }
     &__usuarioLogado{
         display: flex;
         align-items: center;
