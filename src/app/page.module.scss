@@ -1,0 +1,47 @@
+.container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    margin: 2em;
+
+    &__content {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: center;
+        gap: 1em;
+
+        &_title {
+            font-size: 2em;
+            font-weight: bold;
+            color: #1A2E4F;
+        }
+
+        &_paragraph {
+            width: 100%;
+            color: #1A2E4F;
+        }
+    }
+}
+
+@media only screen and (max-width: 768px) {
+    .container {
+        flex-direction: column;
+        margin: 0; // Ajusta a margem em telas menores, se necessário
+        gap: 2em;
+        &__content {
+            padding: 2em;
+            align-items: center; // Centraliza o conteúdo para telas menores
+    
+            &_title {
+                font-size: 1.5em; // Reduz um pouco o tamanho da fonte em telas menores
+            }
+            &_paragraph {
+                width: 80%;
+            }
+        }
+    }
+
+}
