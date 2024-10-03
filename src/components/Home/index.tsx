@@ -24,6 +24,7 @@ export default function Home() {
         return <LayoutAgricultor />
       }
     } else {
+      <Card title="Agricultores" icon="/assets/iconAgricultor.svg" description="Agricultores" link="/agricultores" />
       return <LayoutAdmin />
     }
 
@@ -39,8 +40,7 @@ export default function Home() {
       }
       <div className={style.menu} style={!userLogin ? { paddingTop: '0px' } : {}}>
         <div className={style.conjuntoCards}>
-          <h1>asuhaush</h1>
-          {whatIsTypeUser()}
+          <Card title="Solicitar perfil" icon="/solicitarPerfil.svg" description="solcitar perfil" link="/solicitarPerfil" />
         </div>
       </div>
     </div>

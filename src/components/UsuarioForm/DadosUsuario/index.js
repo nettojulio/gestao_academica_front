@@ -1,6 +1,6 @@
 import style from "../agricultorForm.module.scss";
-import { telefoneMask } from "@/utils/Masks/telefoneMask";
-import { cpfMask } from "@/utils/Masks/cpfMask";
+// import { telefoneMask } from "@/utils/Masks/telefoneMask";
+// import { cpfMask } from "@/utils/Masks/cpfMask";
 import { useState } from "react";
 
 

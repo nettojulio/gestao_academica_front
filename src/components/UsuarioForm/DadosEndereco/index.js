@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import style from "../agricultorForm.module.scss";
 import { useMutation } from "react-query";
 import axios from "axios";
-import { getAllBancos } from "@/api/bancoSementes/getAllBancos";
+// import { getAllBancos } from "@/api/bancoSementes/getAllBancos";
 
 export default function DadosEndereco({ formik }) {
   const [bancos, setBancos] = useState([]);
