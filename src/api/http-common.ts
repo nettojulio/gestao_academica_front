@@ -6,7 +6,7 @@ import { getStorageItem } from "@/utils/localStore";
 const token = getStorageItem("token"); 
 
 const api = axios.create({
-    baseURL: "https://go-barber-api.onrender.com",
+    baseURL: "http://localhost:8081",
     headers: {
         "Content-Type": "application/json",
         ...(token && { "Authorization": `Bearer ${token}` }) // Adiciona o cabeçalho Authorization somente se o token existir
