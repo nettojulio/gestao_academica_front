@@ -11,6 +11,7 @@ import { useMutation } from 'react-query';
 //import { getUsuarioEmail } from "@/api/usuarios/getUsuarioEmail";
 import Link from "next/link";
 import { RootState } from "@/redux/store";
+import logo_ufape from "@/assets/logo_ufape.png";
 
 // Interface para usuário
 interface User {
@@ -145,7 +146,7 @@ const LayoutAdmin: React.FC = () => {
           <div className={style.header__side_menu__content}>
             <div className={style.header__side_menu__content__header}>
               <button className={style.header__side_menu__content__header__button_back} onClick={() => setOpen(false)}>
-                <Image src="/assets/BackWhite.svg" alt="Voltar" width={27} height={24} style={{ transform: "scaleX(-1)" }} />
+                <Image src="../" alt="Voltar" width={27} height={24} style={{ transform: "scaleX(-1)" }} />
               </button>
               <div className={style.header__side_menu__content__header_iconLogin}>
                 <Image src="/assets/iconLogadoBranco.svg" alt="Home" width={50} height={50} />
@@ -165,7 +166,7 @@ const LayoutAdmin: React.FC = () => {
         </div>
       )}
       <button className={style.header__button_link} onClick={() => push("/")}>
-        <Image className={style.header__logo} src="/assets/logoCoppabacs.svg" alt="Logo App" width={60} height={60} />
+        <Image className={style.header__logo} src="/logoHeader.svg" alt="Logo App" width={60} height={60} />
       </button>
       <div className={style.header__usuarioLogado}>
         {userLogin ? (
@@ -183,7 +184,7 @@ const LayoutAdmin: React.FC = () => {
         {dropdown && userLogin && (
           <div ref={dropdownRef} className={style.header__dropdown}>
             <button className={style.header__dropdown__perfil} onClick={() => { push("/perfil"); setDropdown(false); setOpen(false); }}>
-              <Image src="/assets/iconLogadoGray.svg" alt="Meu perfil" width={27} height={24} />
+              <Image src="/assets/logo_ufape.svg" alt="Meu perfil" width={27} height={24} />
               <p>Meu perfil</p>
             </button>
             <button className={style.header__dropdown__exit} onClick={exitUser}>
@@ -278,7 +279,7 @@ const LayoutPublic = () => {
   return (
     <div className={style.header}>
       <button className={style.header__button_link} onClick={() => push("/")}>
-        <Image className={style.header__logo} src="/assets/logoCoppabacs.svg" alt="Logo App" width={60} height={60} />
+        <Image className={style.header__logo} src="/logoHeader.svg" alt="Logo App" width={25} height={25} />
       </button>
       <div className={style.header__container}>
         <button className={style.header__button_link} onClick={() => push("/")}>
