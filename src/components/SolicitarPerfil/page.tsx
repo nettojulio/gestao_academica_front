@@ -10,6 +10,7 @@ const SolicitarPerfil = ({}) => {
   const opcoes = [
     { value: 'gestor', label: 'Gestor' },
     { value: 'professor', label: 'Professor' },
+    { value: 'tecnico', label: 'Técnico' },
     { value: 'aluno', label: 'Aluno' },
   ]
 
