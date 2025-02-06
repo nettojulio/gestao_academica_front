@@ -1,12 +1,38 @@
 export const APP_ROUTES = {
     private: {
+
         unauthorized: {
             name: "/unauthorized"
         },
-        home: "/home",
-        solicitarPerfil: "/solicitarPerfil",
+        home: {
+            name: '/home',
+        },
+        solicitacoes: {
+            name: '/solicitacoes',
+        },
+        usuarios: {
+            name: '/usuarios',
+        },
+        cadastrarUsuario: {
+            name: '/usuarios/criar-usuario',
+        },
+        cursos:{
+            name: '/cursos',
+        },
+        cadastrarCurso:{
+            name: '/cursos/registrar',
+        },
+        unidades:{
+            name: '/unidades-administrativas',
+        },
+        cadastrarUnidade:{
+            name: '/unidades-administrativas/registrar',
+        }
+
     },
     public: {
-        login: '/',
+        novoUsuario: '/novo-usuario',
+        login: '/'
+        
     }
 };

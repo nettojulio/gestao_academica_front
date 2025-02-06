@@ -1,8 +1,8 @@
 @import url('https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@100..900&display=swap');
 
-
 body{
   background-color: #FFFFFF;
+
 	font-family: "Roboto Slab", serif;
   font-optical-sizing: auto;
   font-weight: 800;
@@ -14,19 +14,16 @@ body{
 
 
 :root {
-  --navy-blue: #1A2E4F;
-  --green-button: #17610A;
-  --gray-button: #6D6D6D;
-  --red: #A81111;
-  --orange: 217, 126, 8;
-  --white: 244, 237, 232;
-  --gray-hard: 102, 99, 96;
+  --black: 0, 0, 0;
+  --white: 255, 255, 255;
+  --light-gray: 230, 230, 230;
+  --medium-gray: 109, 109, 109;
+  --red: 168,17,17;
+  --gray: 144, 144, 144;
   --shape: 62, 59, 71;
-  --black-medium: 42, 40, 50, 1;
-  --background: 49, 46, 56;
-  --gray: 153, 149, 145;
-  --input: 35, 33, 41;
-  --input-form: 40, 38, 47;
+  --blue: 26, 46, 79;
+  --green: 23, 97, 10;
+  --dark-green: 21, 72, 11;
 }
 
 
