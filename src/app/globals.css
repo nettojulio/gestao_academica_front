@@ -1,77 +1,92 @@
-@import url('https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@100..900&display=swap');
-
-body{
-  background-color: #FFFFFF;
-
-	font-family: "Roboto Slab", serif;
-  font-optical-sizing: auto;
-  font-weight: 800;
-  font-style: normal;
-  width: 100vw;
-  height: 100vh;
-
-}
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 
-:root {
-  --black: 0, 0, 0;
-  --white: 255, 255, 255;
-  --light-gray: 230, 230, 230;
-  --medium-gray: 109, 109, 109;
-  --red: 168,17,17;
-  --gray: 144, 144, 144;
-  --shape: 62, 59, 71;
-  --blue: 26, 46, 79;
-  --green: 23, 97, 10;
-  --dark-green: 21, 72, 11;
+/* :root {
+  --foreground-rgb: 0, 0, 0;
+  --background-start-rgb: 214, 219, 220;
+  --background-end-rgb: 255, 255, 255;
 }
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --foreground-rgb: 255, 255, 255;
+    --background-start-rgb: 0, 0, 0;
+    --background-end-rgb: 0, 0, 0;
+  }
+}
+*/
+
+@layer utilities {
+    .text-balance {
+      text-wrap: balance;
+    }
+  } 
+  
+  .leaflet-popup-content{
+    padding: 0px;
+    margin: 0px;
+  }
+  
+  .fixed-label {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(255, 255, 255, 0.3);
+    padding: 5px 10px;
+    border-radius: 4px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+  
+  .treeselect-container {
+    position: absolute;
+    top: 72px;
+    z-index: 10;
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    padding: 8px;
+  }
+  
+  .treeselect-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 4px 8px;
+    cursor: pointer;
+  }
+  
+  .treeselect-close-btn {
+    background: none;
+    border: none;
+    color: red;
+    font-size: 16px;
+    cursor: pointer;
+  }
 
 
 
-html, body, div, span, applet, object, iframe,
-h1, h2, h3, h4, h5, h6, p, blockquote, pre,
-a, abbr, acronym, address, big, cite, code,
-del, dfn, em, img, ins, kbd, q, s, samp,
-small, strike, strong, sub, sup, tt, var,
-b, u, i, center,
-dl, dt, dd, ol, ul, li,
-fieldset, form, label, legend,
-table, caption, tbody, tfoot, thead, tr, th, td,
-article, aside, canvas, details, embed, 
-figure, figcaption, footer, header, hgroup, 
-menu, nav, output, ruby, section, summary,
-time, mark, audio, video {
-	margin: 0;
-	padding: 0;
-	border: 0;
-	font-size: 100%;
-	font: inherit;
-	vertical-align: baseline;
-}
-/* HTML5 display-role reset for older browsers */
-article, aside, details, figcaption, figure, 
-footer, header, hgroup, menu, nav, section {
-	display: block;
-}
-body {
-	line-height: 1;
-}
-ol, ul {
-	list-style: none;
-}
-blockquote, q {
-	quotes: none;
-}
-blockquote:before, blockquote:after,
-q:before, q:after {
-	content: '';
-	content: none;
-}
-table {
-	border-collapse: collapse;
-	border-spacing: 0;
+/* Popup container */
+.my-swal-popup {
+  background-color: #FFFFFF;           /* ou theme.palette.background.default */
+  border-radius: 8px;                 /* theme.shape.borderRadius */
+  padding: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
 }
 
-button{
-  cursor: pointer;
+/* Título */
+.my-swal-title {
+  font-size: 24px;                    /* theme.typography.h6.fontSize (ex.) */
+  line-height: 32px;
+  font-weight: 600;                   /* SemiBold */
+  color: #2C3438;                     /* theme.palette.grey[700], p.ex. */
+  text-align: center;
+  margin-bottom: 12px;
 }
+
+
