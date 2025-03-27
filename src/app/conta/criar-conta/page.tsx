@@ -9,7 +9,7 @@ import { useRouter } from "next/navigation";
 
 const openPopup = (url: any) => {
     window.open(url, 'popup', 'width=600,height=600,scrollbars=no,resizable=no');
-  };
+};
 
 export default function PageRegister() {
     const router = useRouter();
@@ -19,7 +19,11 @@ export default function PageRegister() {
     const [successMessage, setSuccessMessage] = useState<string>("");
     const [formData, setFormData] = useState<any>({
         nome: "",
+        nomeSocial: "",
+        cpf: "",
+        telefone: "",
         email: "",
+        repetirEmail: "",
         senha: "",
         repetirSenha: "",
         termosUso: false
@@ -29,9 +33,9 @@ export default function PageRegister() {
     const handleClickTermosDeUso = (e: any) => {
         e.preventDefault();
         openPopup('/conta/criar-conta/termos-de-uso');
-      };
+    };
 
-    const handleChange = (e: React.ChangeEvent < HTMLInputElement | HTMLSelectElement > ) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value, type } = e.target;
 
         if (type === 'checkbox' && e.target instanceof HTMLInputElement) {
@@ -47,22 +51,22 @@ export default function PageRegister() {
         }
     };
 
-    const handleSubmit = async (event: FormEvent<HTMLFormElement>) => 
-    {
+    const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         setErrorMessage("");
         setSuccessMessage("");
         setErrorMessageEmail(null);
         setErrorMessageSenha(null);
 
-        if (!formData.termosUso) 
-        {
+        if (!formData.termosUso) {
             setErrorMessage("Você deve ler e aceitar os Termos de Uso antes de criar uma conta");
             return;
         }
-
-        if (!mostrarSenha && formData.senha !== formData.repetirSenha) 
-        {
+        if (formData.email !== formData.repetirEmail) {
+            setErrorMessageEmail("O email e a confirmação não correspondem");
+            return;
+        }
+        if (!mostrarSenha && formData.senha !== formData.repetirSenha) {
             setErrorMessageSenha("A senha e a confirmação não correspondem");
             return;
         }
@@ -71,10 +75,10 @@ export default function PageRegister() {
             ...formData,
         };
 
-        const body = 
+        const body =
         {
             metodo: 'post',
-            uri: '/criarConta',
+            uri: '/usuario',
             params: {},
             data: formDataWithDate
         };
@@ -89,8 +93,7 @@ export default function PageRegister() {
             else
                 setErrorMessage(response.data);
         }
-        if (response.data.errors) 
-        {
+        if (response.data.errors) {
             // Tratando erros individuais para cada campo
             const errors = response.data.errors;
             if (errors.email) setErrorMessageEmail(errors.email);
@@ -98,31 +101,28 @@ export default function PageRegister() {
 
             // setErrorMessage("Por favor, corrija os erros no formulário.");
             console.error("#1 " + JSON.stringify(errors));
-        } 
-        else 
-        if (response.data.error) 
-        {
-            console.error("#2 " + 'Erro ao salvar registro:', response.data.error.message);
-            setErrorMessage("Erro ao criar a conta. " + response.data.error.message);
-        } 
-        else 
-        if (response.data.detail) 
-        {
-            console.error(`Erro: ${response.data.detail}`);
-            setErrorMessage(`${response.data.detail}`);
-        } 
-        else 
-        if (response.status === 200) 
-            router.push('/conta/criar-conta/sucesso');
-        else
-        {
-            console.log(JSON.stringify(response));
-
-            if (response.status === 400)
-                console.log(JSON.stringify(response.data));
-            else
-                console.log(`${response.data.detail}`);
         }
+        else
+            if (response.data.error) {
+                console.error("#2 " + 'Erro ao salvar registro:', response.data.error.message);
+                setErrorMessage("Erro ao criar a conta. " + response.data.error.message);
+            }
+            else
+                if (response.data.detail) {
+                    console.error(`Erro: ${response.data.detail}`);
+                    setErrorMessage(`${response.data.detail}`);
+                }
+                else
+                    if (response.status === 200)
+                        router.push('/conta/criar-conta/sucesso');
+                    else {
+                        console.log(JSON.stringify(response));
+
+                        if (response.status === 400)
+                            console.log(JSON.stringify(response.data));
+                        else
+                            console.log(`${response.data.detail}`);
+                    }
     };
 
     return (
@@ -136,19 +136,39 @@ export default function PageRegister() {
                 <h2 className="text-2xl font-bold custom-text-color">
                     Nova conta
                 </h2>
-                <form onSubmit={handleSubmit} className="mt-2 space-y-2" style={{marginTop:'9px'}}>
+                <form onSubmit={handleSubmit} className="mt-2 space-y-2" style={{ marginTop: '9px' }}>
                     <div>
                         <label htmlFor="nome" className="block mb-2 text-sm font-medium text-gray-900">Nome</label>
-                        <input type="text" name="nome" id="nome" value={formData.nome} onChange={handleChange} className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5" required/>
+                        <input type="text" name="nome" id="nome" value={formData.nome} onChange={handleChange} className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5" required />
                     </div>
                     <div>
-                        <label htmlFor="email" className="block mb-2 text-sm font-medium text-gray-900">E-mail</label>
-                        <input type="email" name="email" id="email" placeholder="email@smartapsus.com.br"  value={formData.email} onChange={handleChange} className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5" required/>
-                        {errorMessageEmail && <p className="text-red-500 text-sm mt-2">{errorMessageEmail}</p>}
+                        <label htmlFor="nomeSocial" className="block mb-2 text-sm font-medium text-gray-900">Nome Social</label>
+                        <input type="text" name="nomeSocial" id="nomeSocial" value={formData.nomeSocial} onChange={handleChange} className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5" required />
+                    </div>
+                    <div>
+                        <label htmlFor="cpf" className="block mb-2 text-sm font-medium text-gray-900">CPF</label>
+                        <input type="text" name="cpf" id="cpf" value={formData.cpf} onChange={handleChange} className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5" required />
+                    </div>
+                    <div>
+                        <label htmlFor="telefone" className="block mb-2 text-sm font-medium text-gray-900">CPF</label>
+                        <input type="text" name="telefone" id="telefone" value={formData.telefone} onChange={handleChange} className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5" required />
                     </div>
                     <div className="relative">
+                        <label htmlFor="email" className="block mb-2 text-sm font-medium text-gray-900">E-mail</label>
+                        <input type="email" name="email" id="email" placeholder="email@ufape.edu.br" value={formData.email} onChange={handleChange} className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5" required />
+                        {errorMessageEmail && <p className="text-red-500 text-sm mt-2">{errorMessageEmail}</p>}
+
+                    </div>
+
+                    {formData.email && (
+                        <div>
+                            <label htmlFor="repetirEmail" className="block mb-2 text-sm font-medium text-gray-900">Repetir E-mail</label>
+                            <input type="email" name="repetirEmail" id="repetirEmail" value={formData.repetirEmail} onChange={handleChange} className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5" required />
+                        </div>
+                    )}
+                    <div className="relative">
                         <label htmlFor="senha" className="block mb-2 text-sm font-medium text-gray-900">Senha</label>
-                        <input type={mostrarSenha ? "text" : "password"} name="senha" id="senha" value={formData.senha} onChange={handleChange} className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5" required/>
+                        <input type={mostrarSenha ? "text" : "password"} name="senha" id="senha" value={formData.senha} onChange={handleChange} className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5" required />
                         <button type="button" className="absolute right-2 top-9 text-sm text-gray-700" onClick={() => setMostrarSenha(!mostrarSenha)}>
                             {mostrarSenha ? 'ocultar' : 'exibir'}
                         </button>
@@ -157,7 +177,7 @@ export default function PageRegister() {
                     {!mostrarSenha && (
                         <div>
                             <label htmlFor="repetirSenha" className="block mb-2 text-sm font-medium text-gray-900">Repetir senha</label>
-                            <input type="password" name="repetirSenha" id="repetirSenha" value={formData.repetirSenha} onChange={handleChange} className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5" required/>
+                            <input type="password" name="repetirSenha" id="repetirSenha" value={formData.repetirSenha} onChange={handleChange} className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5" required />
                         </div>
                     )}
                     <div className="mx-auto  pt:mt-0">
@@ -166,11 +186,11 @@ export default function PageRegister() {
                             Termos de Uso
                         </Link>
                         <div className="flex items-center mt-1">
-                            <input type="checkbox" name="termosUso" id="termosUso" checked={formData.termosUso} onChange={handleChange} className="mr-2"/>
+                            <input type="checkbox" name="termosUso" id="termosUso" checked={formData.termosUso} onChange={handleChange} className="mr-2" />
                             <label htmlFor="termosUso" className="text-sm font-medium text-gray-900">Declaro que li e aceito os Termos de Uso</label>
                         </div>
                     </div>
-                    <button type="submit" 
+                    <button type="submit"
                         className="w-full py-3 px-4 text-sm tracking-wide rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none">
                         Criar Conta</button>
                     {errorMessage && <p className="text-red-500 text-sm">{errorMessage}</p>}
