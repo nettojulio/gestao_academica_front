@@ -1,10 +1,12 @@
+"use client"
 import { genericaApiAuth } from "@/utils/api";
-import router from "next/router";
 import { FormEvent, useEffect, useState } from "react";
 
 import '../auth-styles.css';
+import { useRouter } from "next/navigation";
 
 export default function PageRegister() {
+    const router = useRouter();
     const [errorMessageSenha, setErrorMessageSenha] = useState<string | null>(null);
     const [errorMessage, setErrorMessage] = useState<string>("");
     const [successMessage, setSuccessMessage] = useState<string>("");

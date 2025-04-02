@@ -73,7 +73,7 @@ const PageLista = () => {
     try {
       let body = {
         metodo: 'get',
-        uri: '/' + estrutura.uri ,
+        uri: '/auth/' + estrutura.uri ,
         //+ '/page',
         params: params != null ? params : { size: 25, page: 0 },
         data: {}

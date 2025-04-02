@@ -330,7 +330,7 @@ export default function Layout({ children }: LayoutProps) {
                 {isOpen && (
                   <div className="absolute right-0 w-56 mt-5 origin-top-right bg-white border border-gray-200 divide-y divide-gray-100 rounded-lg shadow-lg">
                     <div className="py-1">
-                      <Link href="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                      <Link href="/conta/perfil" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                         Minha conta
                       </Link>
                       <Link href="/conta/redefinir-senha" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
