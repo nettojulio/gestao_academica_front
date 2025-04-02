@@ -1,6 +1,6 @@
 'use client';
 
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://lmtsteste24.ufape.edu.br";
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://lmtsteste23.ufape.edu.br";
 
 export class AuthService {
     async authenticate({ email, password }: { email: string; password: string }) {

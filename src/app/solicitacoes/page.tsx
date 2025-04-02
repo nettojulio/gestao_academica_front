@@ -38,7 +38,7 @@ const estrutura: any = {
       {
         nome: "Status", chave: "status", tipo: "boolean", selectOptions: [
           { chave: "APROVADA", valor: "Aprovada" },
-          { chave: "PENDENTE", valor: "Pedente" },
+          { chave: "PENDENTE", valor: "Pendente" },
           { chave: "REJEITADA", valor: "Rejeitada" },
         ], sort: false, pesquisar: true
       },  
@@ -86,7 +86,7 @@ const PageLista = () => {
     try {
       let body = {
         metodo: 'get',
-        uri: `/${estrutura.uri}/${isAdmin ? "pendentes" : "usuario"}`,
+        uri: `/auth/${estrutura.uri}/${isAdmin ? "pendentes" : "usuario"}`,
         //+ '/page',
         params: params != null ? params : { size: 25, page: 0 },
         data: {}
@@ -143,7 +143,7 @@ const PageLista = () => {
       try {
         const body = {
           metodo: 'delete',
-          uri: '/' + estrutura.uri + '/' + item.id,
+          uri: '/auth/' + estrutura.uri + '/' + item.id,
           params: {},
           data: {}
         };

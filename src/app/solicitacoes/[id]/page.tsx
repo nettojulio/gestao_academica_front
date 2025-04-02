@@ -8,6 +8,7 @@ import Swal from "sweetalert2";
 import { useEnderecoByCep } from "@/utils/brasilianStates";
 import { generica } from "@/utils/api";
 import Cadastro from "@/components/Cadastro/Estrutura";
+import AplicarMascara from "@/utils/mascaras";
 
 const cadastro = () => {
   const router = useRouter();
@@ -34,7 +35,6 @@ const cadastro = () => {
     }
     return options;
   };
-
 
   const estrutura: any = {
     uri: "solicitacao",
@@ -124,7 +124,8 @@ const cadastro = () => {
           mensagem: "Digite",
           obrigatorio: true,
           bloqueado: isEditMode,
-
+          mascara: "cpf",
+         
         },
         {
           line: 4,
@@ -135,6 +136,7 @@ const cadastro = () => {
           mensagem: "Digite",
           obrigatorio: true,
           bloqueado: isEditMode,
+          mascara: "celular",
 
         },
         {
@@ -245,7 +247,7 @@ const cadastro = () => {
     try {
       let body = {
         metodo: 'get',
-        uri: '/curso',
+        uri: '/auth/curso',
         //+ '/page',
         params: params != null ? params : { size: 25, page: 0 },
         data: {}
@@ -273,7 +275,7 @@ const cadastro = () => {
     try {
       const body = {
         metodo: "post",
-        uri: "/" + estrutura.uri +"/"+ item.id +"/rejeitar",
+        uri: "/auth/" + estrutura.uri +"/"+ item.id +"/rejeitar",
         params: {},
         data: item,
       };
@@ -312,7 +314,7 @@ const cadastro = () => {
     try {
       const body = {
         metodo: "post",
-        uri: "/" + estrutura.uri+"/"+item.id + "/aprovar",
+        uri: "/auth/" + estrutura.uri+"/"+item.id + "/aprovar",
         params: {},
         data: item,
       };
@@ -351,7 +353,7 @@ const cadastro = () => {
     try {
       const body = {
         metodo: "post",
-        uri: "/" + estrutura.uri,
+        uri: "/auth/" + estrutura.uri,
         params: {},
         data: item,
       };
@@ -396,7 +398,7 @@ const editarRegistro = async (item: any) => {
     // 1) Carrega a solicitação principal
     const bodySolicitacao = {
       metodo: "get",
-      uri: `/${estrutura.uri}/${item}`,
+      uri: `/auth/${estrutura.uri}/${item}`,
       params: {},
       data: {},
     };
@@ -429,7 +431,7 @@ const editarRegistro = async (item: any) => {
     // 2) Agora carrega os documentos
     const bodyDocumentos = {
       metodo: "get",
-      uri: `/${estrutura.uri}/${item}/documentos`,
+      uri: `/auth/${estrutura.uri}/${item}/documentos`,
       params: {},
       data: {},
     };

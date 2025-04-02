@@ -35,6 +35,37 @@ export default function PageRegister() {
         openPopup('/conta/criar-conta/termos-de-uso');
     };
 
+    const formatarCPF = (value: string) => {
+        return value
+            .replace(/\D/g, '') 
+            .replace(/(\d{3})(\d)/, '$1.$2') 
+            .replace(/(\d{3})(\d)/, '$1.$2') 
+            .replace(/(\d{3})(\d{1,2})$/, '$1-$2'); 
+    };
+    
+    const formatarTelefone = (value: string) => {
+        return value
+            .replace(/\D/g, '') 
+            .replace(/(\d{2})(\d)/, '($1) $2') 
+            .replace(/(\d{5})(\d)/, '$1-$2'); 
+    };
+
+    const handleMask = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value } = e.target;
+        let newValue = value;
+    
+        if (name === "cpf") {
+            newValue = formatarCPF(value);
+        } else if (name === "telefone") {
+            newValue = formatarTelefone(value);
+        }
+    
+        setFormData({
+            ...formData,
+            [name]: newValue
+        });
+    };
+
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value, type } = e.target;
 
@@ -147,11 +178,11 @@ export default function PageRegister() {
                     </div>
                     <div>
                         <label htmlFor="cpf" className="block mb-2 text-sm font-medium text-gray-900">CPF</label>
-                        <input type="text" name="cpf" id="cpf" value={formData.cpf} onChange={handleChange} className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5" required />
+                        <input type="text" name="cpf" id="cpf" value={formData.cpf} onChange={handleMask} maxLength={14} className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5" required />
                     </div>
                     <div>
-                        <label htmlFor="telefone" className="block mb-2 text-sm font-medium text-gray-900">CPF</label>
-                        <input type="text" name="telefone" id="telefone" value={formData.telefone} onChange={handleChange} className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5" required />
+                        <label htmlFor="telefone" className="block mb-2 text-sm font-medium text-gray-900">Telefone</label>
+                        <input type="text" name="telefone" id="telefone" value={formData.telefone} onChange={handleMask} className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5" placeholder="(00) 00000-0000"maxLength={15} required  />
                     </div>
                     <div className="relative">
                         <label htmlFor="email" className="block mb-2 text-sm font-medium text-gray-900">E-mail</label>
@@ -170,7 +201,7 @@ export default function PageRegister() {
                         <label htmlFor="senha" className="block mb-2 text-sm font-medium text-gray-900">Senha</label>
                         <input type={mostrarSenha ? "text" : "password"} name="senha" id="senha" value={formData.senha} onChange={handleChange} className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5" required />
                         <button type="button" className="absolute right-2 top-9 text-sm text-gray-700" onClick={() => setMostrarSenha(!mostrarSenha)}>
-                            {mostrarSenha ? 'ocultar' : 'exibir'}
+                            {mostrarSenha ? 'ocultar' : 'Exibir'}
                         </button>
                         {errorMessageSenha && <p className="text-red-500 text-sm mt-2">{errorMessageSenha}</p>}
                     </div>
