@@ -7,8 +7,7 @@ import { toast } from 'react-toastify';
 
 const BASE_URL = `${process.env.NEXT_PUBLIC_BASE_URL}` || "http://localhost:8080/api/v1";
 const BASE_URL_API_AUTENTICACAO = process.env.NEXT_PUBLIC_BASE_URL
-    ? `${process.env.NEXT_PUBLIC_BASE_URL}/auth`
-    : "http://localhost:8080/api/v1/auth";
+    ? `${process.env.NEXT_PUBLIC_BASE_URL}/auth`: "http://localhost:8080/api/v1/";
 
 
 

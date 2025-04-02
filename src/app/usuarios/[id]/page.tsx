@@ -261,7 +261,7 @@ const cadastro = () => {
   };
 
   const voltarRegistro = () => {
-    router.push("/e-Frotas/configuracao/cadastro/unidade-gestora");
+    router.push("/unidades-administrativas");
   };
 
   /**
