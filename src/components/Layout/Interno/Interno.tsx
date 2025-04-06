@@ -19,6 +19,9 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import AuthTokenService from "@/app/authentication/auth.token";
 import SidebarMenuItem from "./MenuItem";
 
+// Importa o RoleProvider do seu roleContext
+import { RoleProvider } from "@/context/roleContext";
+
 // Tipos de configuração
 export interface HeaderConfig {
   logo: {
@@ -67,13 +70,14 @@ export default function Layout({ children, layoutConfig }: LayoutProps) {
   const router = useRouter();
   const { isAuthenticated, setIsAuthenticated } = useAuth();
 
-  // Estado do menu lateral e submenus
+  // Estados do menu lateral e submenus
   const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
   const [openSubMenus, setOpenSubMenus] = useState<Record<string, boolean>>({});
 
   // Estados de perfil e roles
   const [usuarioLogado, setUsuarioLogado] = useState<string | null>(null);
   const [userRoles, setUserRoles] = useState<string[]>([]);
+  const [activeRole, setActiveRole] = useState<string>("");
 
   // Dropdown de usuário
   const [isOpen, setIsOpen] = useState<boolean>(false);
@@ -108,34 +112,39 @@ export default function Layout({ children, layoutConfig }: LayoutProps) {
     },
   };
 
-  // Use a configuração passada ou o default
   const config = layoutConfig || defaultConfig;
 
-  // Efeito de autenticação e definição das roles do usuário
+  // Efeito de autenticação e definição das roles
   useEffect(() => {
     const authenticated = AuthTokenService.isAuthenticated(false);
     setIsAuthenticated(authenticated);
-  
+
     if (authenticated) {
       setUsuarioLogado(AuthTokenService.getUsuarioLogado(false));
-  
+
+      // Extração das roles
       const roles: string[] = [];
-      if (AuthTokenService.isAdmin(false)) roles.push("admin");
+      if (AuthTokenService.isAdmin(false)) roles.push("administrador");
       if (AuthTokenService.isGestor(false)) roles.push("gestor");
       if (AuthTokenService.isTecnico(false)) roles.push("tecnico");
       if (AuthTokenService.isProfessor(false)) roles.push("professor");
       if (AuthTokenService.isAluno(false)) roles.push("aluno");
       if (AuthTokenService.isVisitante(false)) roles.push("visitante");
-      
-      console.log("Roles do usuário:", roles); // Verifique aqui se "aluno" está presente
+
       setUserRoles(roles);
+
+      // Define o activeRole se ainda não estiver definido
+      if (roles.length > 0 && activeRole === "") {
+        setActiveRole(roles[0]);
+      }
     } else {
       setUsuarioLogado(null);
       setUserRoles([]);
+      setActiveRole("");
     }
-  }, [isAuthenticated, setIsAuthenticated]);
-  
-  // Efeito para detectar popup e clicks fora do dropdown
+  }, [isAuthenticated]);
+
+  // Efeito para detectar clicks fora do dropdown
   useEffect(() => {
     function isPopup() {
       if (typeof window !== "undefined") {
@@ -171,7 +180,6 @@ export default function Layout({ children, layoutConfig }: LayoutProps) {
   const handleToggleMenu = () => {
     setIsMenuOpen((prev) => {
       if (!prev) {
-        // Ao abrir o menu, reinicia os submenus abertos
         setOpenSubMenus({});
       }
       return !prev;
@@ -219,7 +227,7 @@ export default function Layout({ children, layoutConfig }: LayoutProps) {
                 {isMenuOpen ? <MenuOpen /> : <MenuIcon />}
               </button>
             </div>
-            {/* Logo (header) - exibe somente em telas sm ou maiores */}
+            {/* Logo (header) */}
             <div className="hidden sm:flex items-center">
               {isMenuOpen ? (
                 <div className="flex items-center">
@@ -238,7 +246,21 @@ export default function Layout({ children, layoutConfig }: LayoutProps) {
               )}
             </div>
           </div>
-          {/* Menu de Ações (Entrar / Sair / Sobre) */}
+          {/* Seletor de Role (se houver mais de uma) */}
+          {userRoles.length > 1 && (
+            <select
+              className="border rounded px-2 py-1 text-sm"
+              value={activeRole}
+              onChange={(e) => setActiveRole(e.target.value)}
+            >
+              {userRoles.map((role) => (
+                <option key={role} value={role}>
+                  {role.charAt(0).toUpperCase() + role.slice(1)}
+                </option>
+              ))}
+            </select>
+          )}
+          {/* Menu de Ações */}
           <div className="flex items-center space-x-1">
             {isAuthenticated && (
               <div className="relative" ref={dropdownRef}>
@@ -285,7 +307,6 @@ export default function Layout({ children, layoutConfig }: LayoutProps) {
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
       >
-        {/* Logo do menu lateral */}
         <div
           className={`border-b border-gray-500 overflow-hidden transition-all duration-300 flex items-center justify-center ${
             isMenuOpen ? "w-60" : "w-12"
@@ -296,7 +317,6 @@ export default function Layout({ children, layoutConfig }: LayoutProps) {
           </a>
           {isMenuOpen && <span className="ml-3 text-white">{config.sidebar.logo.text}</span>}
         </div>
-        {/* Itens do Menu */}
         <div className="flex flex-col h-[calc(100vh-3rem)]">
           <div className="pt-4 px-2 flex-1 overflow-y-auto">
             <ul className="space-y-4 text-gray-500">
@@ -307,12 +327,11 @@ export default function Layout({ children, layoutConfig }: LayoutProps) {
                   isMenuOpen={isMenuOpen}
                   openSubMenus={openSubMenus}
                   toggleSubMenu={toggleSubMenu}
-                  userRoles={userRoles}
+                  activeRole={activeRole} // Passa a role ativa para filtrar os itens
                 />
               ))}
             </ul>
           </div>
-          {/* Link de Ajuda fixado no rodapé */}
           <div className="p-2">
             <Link
               href="/home"
@@ -329,7 +348,10 @@ export default function Layout({ children, layoutConfig }: LayoutProps) {
 
       {/* CONTEÚDO PRINCIPAL */}
       <div className="pt-12">
-        <div>{children}</div>
+        {/* Agora, os children são envoltos pelo RoleProvider para repassar activeRole e userRoles */}
+        <RoleProvider activeRole={activeRole} userRoles={userRoles}>
+          {children}
+        </RoleProvider>
       </div>
     </>
   );

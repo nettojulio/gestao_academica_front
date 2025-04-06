@@ -3,8 +3,10 @@ import { generica } from "@/utils/api";
 import aplicarMascara from "@/utils/mascaras";
 import {
   AccountCircleOutlined,
+  Delete,
   Edit,
   PersonOutlineOutlined,
+  RemoveRedEye,
   VisibilityOffOutlined,
   VisibilityOutlined
 } from "@mui/icons-material";
@@ -79,6 +81,26 @@ const Cadastro = ({
   const [filteredUnidadesGestoras, setFilteredUnidadesGestoras] = useState<any[]>([]);
   const [lastMunicipioQuery, setLastMunicipioQuery] = useState("");
 
+  const [expandedDocUrl, setExpandedDocUrl] = useState<string | null>(null);
+  const [expandedDocType, setExpandedDocType] = useState<string | null>(null);
+
+  const handleExpand = (docUrl: string, docType: string) => {
+    setExpandedDocUrl(docUrl);
+    setExpandedDocType(docType);
+  };
+
+  const closeModal = () => {
+    setExpandedDocUrl(null);
+    setExpandedDocType(null);
+  };
+  const downloadFile = (url: string) => {
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = url.split("/").pop() || "documento";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
   // -------------------------------------------------------------
   // Estado para pré-visualização de imagem (campo "foto")
   // -------------------------------------------------------------
@@ -452,14 +474,14 @@ const Cadastro = ({
                           )}
                         </div>
                         {(isEditMode || id === "criar") && (
-                          <>
+                          <>{!isEditMode &&
                             <label
                               htmlFor={`fotoInput-${campo.chave}`}
                               className="absolute bottom-0 right-0 mb-1 mr-1 bg-white p-1 rounded-full cursor-pointer shadow-sm z-10"
                             >
                               <Edit fontSize="small" className="text-primary-500" />
                             </label>
-
+                          }
                             <input
                               id={`fotoInput-${campo.chave}`}
                               type="file"
@@ -474,122 +496,222 @@ const Cadastro = ({
                       </div>
                     </div>
                   )}
+                  {campo.tipo === "documento" && (
+                    <div className="flex flex-col">
+                      <label className="block mb-1 text-label-medium text-primary-500">
+                        {campo.nome}
+                        {campo.obrigatorio && <span className="text-danger-500 ml-1">*</span>}
+                      </label>
 
-{campo.tipo === "documento" && (
-  <div className="flex flex-col">
-    <label className="block mb-1 text-label-medium text-primary-500">
-      {campo.nome}
-      {campo.obrigatorio && <span className="text-danger-500 ml-1">*</span>}
-    </label>
+                      {/* Input de arquivo (somente se estiver em modo edição ou "criar") */}
+                      {(isEditMode || id === "criar") && (
+                        <>
+                          <label
+                            htmlFor={`docInput-${campo.chave}`}
+                            className="bg-white p-2 rounded cursor-pointer shadow-sm inline-block text-sm text-primary-500 mt-2"
+                          >
+                            Adicionar Documento(s)
+                          </label>
+                          <input
+                            id={`docInput-${campo.chave}`}
+                            type="file"
+                            accept=".pdf,.doc,.docx,.png,.jpeg,.jpg"
+                            className="hidden"
+                            multiple
+                            onChange={(e) => {
+                              const files = e.target.files;
+                              if (files && files.length > 0) {
+                                const fileArray = Array.from(files);
+                                setDadosPreenchidos((prev: any) => ({
+                                  ...prev,
+                                  [campo.chave]: prev[campo.chave]
+                                    ? [...prev[campo.chave], ...fileArray]
+                                    : fileArray,
+                                }));
+                              }
+                            }}
+                            disabled={campo.bloqueado}
+                            required={
+                              campo.obrigatorio &&
+                              (!dadosPreenchidos[campo.chave] ||
+                                dadosPreenchidos[campo.chave].length === 0)
+                            }
+                          />
+                        </>
+                      )}
 
-    {(isEditMode || id === "criar") && (
-      <>
-        <label
-          htmlFor={`docInput-${campo.chave}`}
-          className="bg-white p-2 rounded cursor-pointer shadow-sm inline-block text-sm text-primary-500 mt-2"
-        >
-          Adicionar Documento(s)
-        </label>
-        <input
-          id={`docInput-${campo.chave}`}
-          type="file"
-          accept=".pdf,.doc,.docx"
-          className="hidden"
-          multiple
-          onChange={(e) => {
-            const files = e.target.files;
-            if (files && files.length > 0) {
-              const fileArray = Array.from(files);
+                      {/* Cards de documentos */}
+                      {dadosPreenchidos[campo.chave] && dadosPreenchidos[campo.chave].length > 0 ? (
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mt-2">
+                          {dadosPreenchidos[campo.chave].map((doc: any, index: number) => {
+                            // Gera a URL do documento (caso seja File)
+                            const docUrl =
+                              typeof doc === "string" ? doc : URL.createObjectURL(doc);
 
-              // Atualiza o estado adicionando os novos arquivos
-              setDadosPreenchidos((prev: any) => {
-                const novoEstado = {
-                  ...prev,
-                  [campo.chave]: prev[campo.chave]
-                    ? [...prev[campo.chave], ...fileArray]
-                    : fileArray,
-                };
-                console.log("DEBUG => ao adicionar arquivos:", novoEstado);
-                return novoEstado;
-              });
-            }
-          }}
-          disabled={campo.bloqueado}
-          required={
-            campo.obrigatorio &&
-            (!dadosPreenchidos[campo.chave] ||
-              dadosPreenchidos[campo.chave].length === 0)
-          }
-        />
-      </>
-    )}
+                            // Detecta PDF ou imagem
+                            const isPdf =
+                              doc instanceof File
+                                ? doc.type === "application/pdf"
+                                : docUrl.toLowerCase().endsWith(".pdf");
+                            const isImage =
+                              doc instanceof File
+                                ? doc.type.startsWith("image/")
+                                : /\.(png|jpe?g)$/i.test(docUrl);
 
-    {/** Exibe os documentos já carregados */}
-    {dadosPreenchidos[campo.chave] && dadosPreenchidos[campo.chave].length > 0 ? (
-      <div className="flex flex-col space-y-4 mt-2">
-        {dadosPreenchidos[campo.chave].map((doc: any, index: number) => {
-          // Se for string (URL) ou File
-          const docUrl =
-            typeof doc === "string" ? doc : URL.createObjectURL(doc);
+                            const docType = isPdf ? "pdf" : isImage ? "image" : "other";
 
-          // Checagem se é PDF
-          const isPdf = doc instanceof File
-            ? doc.type === "application/pdf"
-            : docUrl.toLowerCase().endsWith(".pdf");
+                            return (
+                              <div
+                                key={index}
+                                className="relative border border-gray-300 rounded cursor-pointer hover:shadow-lg transition-all p-1"
+                                onClick={() => handleExpand(docUrl, docType)}
+                              >
+                                {/* Container fixo para preview (sem scroll) */}
+                                <div className="pointer-events-none w-full h-40 md:h-48 overflow-hidden rounded">
+                                  {isPdf ? (
+                                    <iframe
+                                      src={docUrl}
+                                      title={`Documento ${index}`}
+                                      className="w-full h-full"
+                                      style={{ border: "none" }}
+                                    />
+                                  ) : isImage ? (
+                                    <img
+                                      src={docUrl}
+                                      alt={`Documento ${index}`}
+                                      className="w-full h-full object-cover"
+                                    />
+                                  ) : (
+                                    <p className="p-2 text-sm text-gray-700 break-words">
+                                      {typeof doc === "string" ? doc.split("/").pop() : doc.name}
+                                    </p>
+                                  )}
+                                </div>
 
-          return (
-            <div key={index} className="flex flex-col gap-2 border p-2 rounded">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-                {isPdf ? (
-                  <iframe
-                    src={docUrl}
-                    title={`Documento ${index}`}
-                    className="w-full sm:w-3/4 h-48 sm:h-64 border"
-                  />
-                ) : (
-                  <p className="text-sm text-gray-700 break-words">
-                    {typeof doc === "string" ? doc.split("/").pop() : doc.name}
-                  </p>
-                )}
+                                {/* Botão "Deletar" no canto superior direito (exibido se não está em modo edição) */}
+                                {!isEditMode && (
+                                  <div className="absolute top-2 right-2 z-10">
+                                    <button
+                                      type="button"
+                                      onClick={(e) => {
+                                        e.stopPropagation(); // Não expande o modal
+                                        setDadosPreenchidos((prev: any) => {
+                                          const updated = [...(prev[campo.chave] || [])];
+                                          updated.splice(index, 1);
+                                          return { ...prev, [campo.chave]: updated };
+                                        });
+                                      }}
+                                      className="
+                      px-2 py-1
+                      bg-danger-500
+                      text-white
+                      text-sm
+                      rounded
+                      transition-colors
+                      hover:bg-danger-700
+                    "
+                                    >
+                                      Deletar
+                                    </button>
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      ) : (
+                        <p className="text-sm text-gray-500 mt-2">Nenhum documento anexado.</p>
+                      )}
 
-                <div className="flex items-center gap-4 mt-4 sm:mt-0 sm:ml-4">
-                  <a
-                    href={docUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-500 underline text-sm"
-                  >
-                    Visualizar
-                  </a>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setDadosPreenchidos((prev: any) => {
-                        const updated = [...(prev[campo.chave] || [])];
-                        updated.splice(index, 1);
-                        return { ...prev, [campo.chave]: updated };
-                      });
-                    }}
-                    className="text-red-500 text-sm"
-                  >
-                    Remover
-                  </button>
-                </div>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    ) : (
-      <p className="text-sm text-gray-500 mt-2">Nenhum documento anexado.</p>
-    )}
-  </div>
-)}
+                      {/* Modal para visualização expandida */}
+                      {expandedDocUrl && (
+                        <div
+                          className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4"
+                          onClick={closeModal}
+                        >
+                          <div
+                            className="
+        bg-white
+        rounded
+        shadow-lg
+        w-full
+        max-w-5xl      /* Maior largura permitida, pode ajustar conforme o layout */
+        max-h-[90vh]   /* 90% da altura da viewport */
+        flex
+        flex-col
+      "
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            {/* Cabeçalho do modal */}
+                            <div className="flex items-center justify-between p-4 border-b">
+                              <button
+                                onClick={closeModal}
+                                className="text-danger-500 font-bold"
+                              >
+                                Fechar
+                              </button>
+                              <div className="flex space-x-2">
+                                {/* Botão de baixar */}
+                                <a
+                                  href={expandedDocUrl}
+                                  download
+                                  className="
+              px-2 py-1
+              bg-primary-500
+              text-white
+              text-sm
+              rounded
+              hover:bg-primary-700
+            "
+                                >
+                                  Baixar
+                                </a>
+                                {/* Botão de visualizar em nova guia */}
+                                <a
+                                  href={expandedDocUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="
+              px-2 py-1
+              bg-primary-500
+              text-white
+              text-sm
+              rounded
+              hover:bg-primary-700
+            "
+                                >
+                                  Visualizar
+                                </a>
+                              </div>
+                            </div>
 
-
-
-
-
+                            {/* Corpo do modal (flex-1 para crescer e overflow-auto para permitir rolagem) */}
+                            <div className="flex-1 overflow-auto flex items-center justify-center p-2">
+                              {expandedDocType === "pdf" ? (
+                                <iframe
+                                  src={expandedDocUrl}
+                                  title="Documento expandido"
+                                  className="w-full h-full"
+                                  style={{ minHeight: '600px', border: 'none' }}
+                                  scrolling="auto" /* permite rolagem se necessário */
+                                />
+                              ) : expandedDocType === "image" ? (
+                                <img
+                                  src={expandedDocUrl}
+                                  alt="Documento expandido"
+                                  className="max-w-full max-h-full"
+                                />
+                              ) : (
+                                <p className="text-sm text-gray-700 p-4">
+                                  {expandedDocUrl.split("/").pop()}
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
 
 
                   {campo.tipo === "radio-group" && (

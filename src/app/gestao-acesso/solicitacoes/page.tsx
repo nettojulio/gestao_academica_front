@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import AuthTokenService from '@/app/authentication/auth.token';
 import withAuthorization from '@/components/AuthProvider/withAuthorization';
 import Cabecalho from '@/components/Layout/Interno/Cabecalho';
@@ -8,56 +8,64 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import Swal from 'sweetalert2';
+import { AccountCircleOutlined } from '@mui/icons-material';
+import { useRole } from '@/context/roleContext';
 
-const estrutura: any = {
-
-  uri: "solicitacao", //caminho base
-
-  cabecalho: { //cabecalho da pagina
+const estrutura = {
+  uri: "solicitacao", // Caminho base
+  cabecalho: {
     titulo: "Solicitações",
     migalha: [
       { nome: 'Home', link: '/gestao-acesso/home' },
       { nome: 'Solicitações', link: '/gestao-acesso/solicitacoes' },
-    ]
+    ],
   },
-
   tabela: {
     configuracoes: {
-      pesquisar: true,//campo pesquisar nas colunas (booleano)
-      cabecalho: true,//cabecalho da tabela (booleano)
-      rodape: true,//rodape da tabela (booleano)
+      pesquisar: true,
+      cabecalho: true,
+      rodape: true,
     },
-    botoes: [ //links
-      { nome: 'Adicionar', chave: 'adicionar', bloqueado: false }, //nome(string),chave(string),bloqueado(booleano)
+    botoes: [
+      { nome: 'Adicionar', chave: 'adicionar', bloqueado: false },
     ],
-    colunas: [ //colunas da tabela
-
-      { nome: "Nome do Solicitante", chave: "solicitante.nome", tipo: "texto", selectOptions: null, sort: false, pesquisar: true }, //nome(string),chave(string),tipo(text,select),selectOpcoes([{chave:string, valor:string}]),pesquisar(booleano)
-      { nome: "CPF", chave: "solicitante.cpf", tipo: "texto", selectOptions: null, sort: false, pesquisar: true }, //nome(string),chave(string),tipo(text,select),selectOpcoes([{chave:string, valor:string}]),pesquisar(booleano)
-      { nome: "Perfil ", chave: "perfil.tipo", tipo: "texto", selectOptions: null, sort: false, pesquisar: true }, //nome(string),chave(string),tipo(text,select),selectOpcoes([{chave:string, valor:string}]),pesquisar(booleano)
+    colunas: [
+      { nome: "Nome do Solicitante", chave: "solicitante.nome", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
+      { nome: "CPF", chave: "solicitante.cpf", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
+      { nome: "Perfil", chave: "perfilSolicitado", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
       {
-        nome: "Status", chave: "status", tipo: "boolean", selectOptions: [
+        nome: "Status",
+        chave: "status",
+        tipo: "boolean",
+        selectOptions: [
           { chave: "APROVADA", valor: "Aprovada" },
           { chave: "PENDENTE", valor: "Pendente" },
           { chave: "REJEITADA", valor: "Rejeitada" },
-        ], sort: false, pesquisar: true
-      },  
+        ],
+        sort: false,
+        pesquisar: true,
+      },
       { nome: "ações", chave: "acoes", tipo: "button", selectOptions: null, sort: false, pesquisar: false },
     ],
-    acoes_dropdown: [ //botão de acoes de cada registro
-      { nome: 'Editar', chave: 'editar' }, //nome(string),chave(string),bloqueado(booleano)
+    acoes_dropdown: [
+      { nome: 'Editar', chave: 'editar' },
       { nome: 'Deletar', chave: 'deletar' },
-    ]
-  }
-
-}
+    ],
+  },
+};
 
 const PageLista = () => {
   const router = useRouter();
-  const [dados, setDados] = useState<any>({ content: [] });
-  const [isAdmin, setIsAdmin] = useState<boolean>(true);
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(true);
+  const [dados, setDados] = useState({ content: [] });
+  const [isAuthenticated, setIsAuthenticated] = useState(true);
 
+  // Obtenha activeRole e userRoles do contexto
+  const { activeRole, userRoles } = useRole();
+  console.log("activeRole (via contexto):", activeRole);
+  console.log("userRoles (via contexto):", userRoles);
+
+  // Verifique se o usuário é privilegiado com base na role ativa
+  const isPrivileged = activeRole === "administrador" || activeRole === "gestor";
 
   const chamarFuncao = (nomeFuncao = "", valor: any = null) => {
     switch (nomeFuncao) {
@@ -76,61 +84,52 @@ const PageLista = () => {
       default:
         break;
     }
-  }
-  console.log(isAdmin);
+  };
 
-  // Função para carregar os dados
-  const pesquisarRegistro = async (params = null) => {
-    console.log(isAdmin);
-
+  const pesquisarRegistro = async (params = null, routeOverride?: string) => {
     try {
-      let body = {
+      const routeToFetch = routeOverride 
+        ? routeOverride 
+        : (isPrivileged ? "pendentes" : "usuario");
+
+      const body = {
         metodo: 'get',
-        uri: `/auth/${estrutura.uri}/${isAdmin ? "pendentes" : "usuario"}`,
-        //+ '/page',
+        uri: `/auth/${estrutura.uri}/${routeToFetch}`,
         params: params != null ? params : { size: 25, page: 0 },
-        data: {}
-      }
-      console.log(body.uri)
+        data: {},
+      };
+
       const response = await generica(body);
-      //tratamento dos erros
-      if (response && response.data.errors != undefined) {
+      if (response && response.data.errors !== undefined) {
         toast("Erro. Tente novamente!", { position: "bottom-left" });
-      } else if (response && response.data.error != undefined) {
+      } else if (response && response.data.error !== undefined) {
         toast(response.data.error.message, { position: "bottom-left" });
-      } else {
-        if (response && response.data) {
-          setDados(response.data);
-        }
+      } else if (response && response.data) {
+        setDados(response.data);
       }
     } catch (error) {
       console.error('Erro ao carregar registros:', error);
     }
   };
-  // Função que redireciona para a tela adicionar
+
   const adicionarRegistro = () => {
     router.push('/gestao-acesso/solicitacoes/criar');
   };
-  // Função que redireciona para a tela editar
+
   const editarRegistro = (item: any) => {
     router.push('/gestao-acesso/solicitacoes/' + item.id);
   };
-  // Função que deleta um registro
+
   const deletarRegistro = async (item: any) => {
     const confirmacao = await Swal.fire({
       title: `Você deseja deletar a solicitação ${item.solicitante.nome}?`,
       text: "Essa ação não poderá ser desfeita",
       icon: "warning",
       showCancelButton: true,
-
-      // Ajuste as cores conforme seu tema
       confirmButtonColor: "#1A759F",
       cancelButtonColor: "#9F2A1A",
-
       confirmButtonText: "Sim, quero deletar!",
       cancelButtonText: "Cancelar",
-
-      // Classes personalizadas
       customClass: {
         popup: "my-swal-popup",
         title: "my-swal-title",
@@ -138,18 +137,16 @@ const PageLista = () => {
       },
     });
 
-
     if (confirmacao.isConfirmed) {
       try {
         const body = {
           metodo: 'delete',
-          uri: '/auth/' + estrutura.uri + '/' + item.id,
+          uri: `/auth/${estrutura.uri}/${item.id}`,
           params: {},
-          data: {}
+          data: {},
         };
 
         const response = await generica(body);
-
         if (response && response.data && response.data.errors) {
           toast.error("Erro. Tente novamente!", { position: "top-left" });
         } else if (response && response.data && response.data.error) {
@@ -157,8 +154,8 @@ const PageLista = () => {
         } else {
           pesquisarRegistro();
           Swal.fire({
-            title: "Curso deletado com sucesso!",
-            icon: "success"
+            title: "Solicitação deletada com sucesso!",
+            icon: "success",
           });
         }
       } catch (error) {
@@ -168,42 +165,34 @@ const PageLista = () => {
     }
   };
 
+  // Refazer a pesquisa sempre que activeRole ou userRoles mudarem
   useEffect(() => {
-    const authenticated = AuthTokenService.isAuthenticated(false);
-    setIsAuthenticated(authenticated);
-
-    if (authenticated) {
-      setIsAdmin(AuthTokenService.isAdmin(false));
-      chamarFuncao('pesquisar', null);
-
-    } else {
-      setIsAdmin(false);
-      chamarFuncao('pesquisar', null);
-
+    if (activeRole && userRoles.length > 0) {
+      const routeToFetch = isPrivileged ? "pendentes" : "usuario";
+      pesquisarRegistro(null, routeToFetch);
     }
-  }, [isAuthenticated, setIsAuthenticated]);
+  }, [activeRole, userRoles, isPrivileged]);
 
+  // Crie uma versão atualizada da estrutura removendo o botão "Adicionar" se a role ativa for "administrador"
+  const updatedEstrutura = {
+    ...estrutura,
+    tabela: {
+      ...estrutura.tabela,
+      botoes: activeRole === "administrador" ? [] : estrutura.tabela.botoes,
+    },
+  };
 
   return (
     <main className="flex flex-wrap justify-center mx-auto">
-      {/* 
-      Em telas muito pequenas: w-full, p-4
-      A partir de sm (>=640px): p-6
-      A partir de md (>=768px): p-8
-      A partir de lg (>=1024px): p-12
-      A partir de xl (>=1280px): p-16
-      A partir de 2xl (>=1536px): p-20 e w-10/12
-    */}
-      <div className="w-full sm:w-11/12 2xl:w-10/12 p-4 sm:p-6 md:p-8 lg:p-12 :p-16 2xl:p-20 pt-7 md:pt-8 md:pb-8 ">
+      <div className="w-full sm:w-11/12 2xl:w-10/12 p-4 sm:p-6 md:p-8 lg:p-12 :p-16 2xl:p-20 pt-7 md:pt-8 md:pb-8">
         <Cabecalho dados={estrutura.cabecalho} />
         <Tabela
           dados={dados}
-          estrutura={estrutura}
+          estrutura={updatedEstrutura}
           chamarFuncao={chamarFuncao}
         />
       </div>
     </main>
-
   );
 };
 
