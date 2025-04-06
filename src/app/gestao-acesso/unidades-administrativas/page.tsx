@@ -15,8 +15,8 @@ const estrutura: any = {
   cabecalho: { //cabecalho da pagina
     titulo: "Unidades Administrativas",
     migalha: [
-      { nome: 'Home', link: '/home' },
-      { nome: 'Unidade Administrativa', link: '/unidades-administrativas' },
+      { nome: 'Home', link: '/gestao-acesso/home' },
+      { nome: 'Unidade Administrativa', link: '/gestao-acesso/unidades-administrativas' },
     ]
   },
 
@@ -102,11 +102,11 @@ const PageLista = () => {
   };
   // Função que redireciona para a tela adicionar
   const adicionarRegistro = () => {
-    router.push('/unidades-administrativas/criar');
+    router.push('/gestao-acesso/unidades-administrativas/criar');
   };
   // Função que redireciona para a tela editar
   const editarRegistro = (item: any) => {
-    router.push('/unidades-administrativas/' + item.id);
+    router.push('/gestao-acesso/unidades-administrativas/' + item.id);
   };
   // Função que deleta um registro
   const deletarRegistro = async (item: any) => {

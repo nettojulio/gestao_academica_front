@@ -1,4 +1,5 @@
 "use client"
+import AuthTokenService from '@/app/authentication/auth.token';
 import withAuthorization from '@/components/AuthProvider/withAuthorization';
 import Cabecalho from '@/components/Layout/Interno/Cabecalho';
 import Tabela from '@/components/Tabela/Estrutura';
@@ -10,13 +11,13 @@ import Swal from 'sweetalert2';
 
 const estrutura: any = {
 
-  uri: "usuario", //caminho base
+  uri: "solicitacao", //caminho base
 
   cabecalho: { //cabecalho da pagina
-    titulo: "Usuários",
+    titulo: "Solicitações",
     migalha: [
-      { nome: 'Home', link: '/home' },
-      { nome: 'Usuários', link: '/usuarios' },
+      { nome: 'Home', link: '/gestao-acesso/home' },
+      { nome: 'Solicitações', link: '/gestao-acesso/solicitacoes' },
     ]
   },
 
@@ -30,12 +31,17 @@ const estrutura: any = {
       { nome: 'Adicionar', chave: 'adicionar', bloqueado: false }, //nome(string),chave(string),bloqueado(booleano)
     ],
     colunas: [ //colunas da tabela
-      //{nome:"Código",chave:"id",tipo:"texto",selectOptions:null,sort:true,pesquisar:true}, //nome(string),chave(string),tipo(text,select),selectOpcoes([{chave:string, valor:string}]),pesquisar(booleano)
-      { nome: "Nome", chave: "nome", tipo: "texto", selectOptions: null, sort: false, pesquisar: true }, //nome(string),chave(string),tipo(text,select),selectOpcoes([{chave:string, valor:string}]),pesquisar(booleano)
-      { nome: "Nome Social", chave: "nomeSocial", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
-      { nome: "Telefone", chave: "telefone", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
-      { nome: "CPF", chave: "cpf", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
-            
+
+      { nome: "Nome do Solicitante", chave: "solicitante.nome", tipo: "texto", selectOptions: null, sort: false, pesquisar: true }, //nome(string),chave(string),tipo(text,select),selectOpcoes([{chave:string, valor:string}]),pesquisar(booleano)
+      { nome: "CPF", chave: "solicitante.cpf", tipo: "texto", selectOptions: null, sort: false, pesquisar: true }, //nome(string),chave(string),tipo(text,select),selectOpcoes([{chave:string, valor:string}]),pesquisar(booleano)
+      { nome: "Perfil ", chave: "perfil.tipo", tipo: "texto", selectOptions: null, sort: false, pesquisar: true }, //nome(string),chave(string),tipo(text,select),selectOpcoes([{chave:string, valor:string}]),pesquisar(booleano)
+      {
+        nome: "Status", chave: "status", tipo: "boolean", selectOptions: [
+          { chave: "APROVADA", valor: "Aprovada" },
+          { chave: "PENDENTE", valor: "Pendente" },
+          { chave: "REJEITADA", valor: "Rejeitada" },
+        ], sort: false, pesquisar: true
+      },  
       { nome: "ações", chave: "acoes", tipo: "button", selectOptions: null, sort: false, pesquisar: false },
     ],
     acoes_dropdown: [ //botão de acoes de cada registro
@@ -49,6 +55,9 @@ const estrutura: any = {
 const PageLista = () => {
   const router = useRouter();
   const [dados, setDados] = useState<any>({ content: [] });
+  const [isAdmin, setIsAdmin] = useState<boolean>(true);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(true);
+
 
   const chamarFuncao = (nomeFuncao = "", valor: any = null) => {
     switch (nomeFuncao) {
@@ -68,28 +77,29 @@ const PageLista = () => {
         break;
     }
   }
+  console.log(isAdmin);
+
   // Função para carregar os dados
   const pesquisarRegistro = async (params = null) => {
+    console.log(isAdmin);
+
     try {
       let body = {
         metodo: 'get',
-        uri: '/auth/' + estrutura.uri ,
+        uri: `/auth/${estrutura.uri}/${isAdmin ? "pendentes" : "usuario"}`,
         //+ '/page',
         params: params != null ? params : { size: 25, page: 0 },
         data: {}
       }
+      console.log(body.uri)
       const response = await generica(body);
-      if (response && response.data) {
-        console.log("turyryry", response.data);
-      }
       //tratamento dos erros
-      if (response && response.data && response.data.errors != undefined) {
-        toast.error("Erro. Tente novamente!", { position: "top-left" });
-      } else if (response && response.data && response.data.error != undefined) {
-        toast(response.data.error.message, { position: "top-left" });
+      if (response && response.data.errors != undefined) {
+        toast("Erro. Tente novamente!", { position: "bottom-left" });
+      } else if (response && response.data.error != undefined) {
+        toast(response.data.error.message, { position: "bottom-left" });
       } else {
         if (response && response.data) {
-          console.log(response.data);
           setDados(response.data);
         }
       }
@@ -99,16 +109,16 @@ const PageLista = () => {
   };
   // Função que redireciona para a tela adicionar
   const adicionarRegistro = () => {
-    router.push('/usuarios/criar');
+    router.push('/gestao-acesso/solicitacoes/criar');
   };
   // Função que redireciona para a tela editar
   const editarRegistro = (item: any) => {
-    router.push('/usuarios/' + item.id);
+    router.push('/gestao-acesso/solicitacoes/' + item.id);
   };
   // Função que deleta um registro
   const deletarRegistro = async (item: any) => {
     const confirmacao = await Swal.fire({
-      title: `Você deseja deletar o usuário ${item.nome}?`,
+      title: `Você deseja deletar a solicitação ${item.solicitante.nome}?`,
       text: "Essa ação não poderá ser desfeita",
       icon: "warning",
       showCancelButton: true,
@@ -133,7 +143,7 @@ const PageLista = () => {
       try {
         const body = {
           metodo: 'delete',
-          uri: '/' + estrutura.uri + '/' + item.id,
+          uri: '/auth/' + estrutura.uri + '/' + item.id,
           params: {},
           data: {}
         };
@@ -143,13 +153,11 @@ const PageLista = () => {
         if (response && response.data && response.data.errors) {
           toast.error("Erro. Tente novamente!", { position: "top-left" });
         } else if (response && response.data && response.data.error) {
-          if (response && response.data && response.data.error) {
-            toast.error(response.data.error.message, { position: "top-left" });
-          }
+          toast.error(response.data.error.message, { position: "top-left" });
         } else {
           pesquisarRegistro();
           Swal.fire({
-            title: "Usuário deletado com sucesso!",
+            title: "Curso deletado com sucesso!",
             icon: "success"
           });
         }
@@ -161,8 +169,20 @@ const PageLista = () => {
   };
 
   useEffect(() => {
-    chamarFuncao('pesquisar', null);
-  }, []);
+    const authenticated = AuthTokenService.isAuthenticated(false);
+    setIsAuthenticated(authenticated);
+
+    if (authenticated) {
+      setIsAdmin(AuthTokenService.isAdmin(false));
+      chamarFuncao('pesquisar', null);
+
+    } else {
+      setIsAdmin(false);
+      chamarFuncao('pesquisar', null);
+
+    }
+  }, [isAuthenticated, setIsAuthenticated]);
+
 
   return (
     <main className="flex flex-wrap justify-center mx-auto">

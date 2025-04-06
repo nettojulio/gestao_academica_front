@@ -23,11 +23,11 @@ const cadastro = () => {
     cabecalho: {
       titulo: isEditMode ? "Editar Unidade Gestora" : "Cadastrar Unidade Gestora",
       migalha: [
-        { nome: "Dashboard", link: "/e-Frotas/dashboard" },
-        { nome: "Unidade Gestora", link: "/e-Frotas/configuracao/cadastro/unidade-gestora" },
+        { nome: "Gestão Acesso", link: "/gestao-acesso/" },
+        { nome: "Unidades Administrativas", link: "/gestao-acesso/unidades-administrativas" },
         {
           nome: isEditMode ? "Editar" : "Criar",
-          link: `/e-Frotas/cadastro/unidade-gestora/${isEditMode ? id : "criar"}`,
+          link: `/gestao-acesso/unidades-administrativas/${isEditMode ? id : "criar"}`,
         },
       ],
     },
@@ -261,7 +261,7 @@ const cadastro = () => {
   };
 
   const voltarRegistro = () => {
-    router.push("/unidades-administrativas");
+    router.push("/gestao-acesso/unidades-administrativas");
   };
 
   /**

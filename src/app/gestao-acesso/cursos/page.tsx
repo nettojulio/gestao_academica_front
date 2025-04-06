@@ -7,17 +7,16 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import Swal from 'sweetalert2';
-import AuthTokenService from '../authentication/auth.token';
 
 const estrutura: any = {
 
-  uri: "solicitacao", //caminho base
+  uri: "curso", //caminho base
 
   cabecalho: { //cabecalho da pagina
-    titulo: "Solicitações",
+    titulo: "Cursos",
     migalha: [
-      { nome: 'Home', link: '/home' },
-      { nome: 'Solicitações', link: '/solicitacoes' },
+      { nome: 'Home', link: '/gestao-acesso/home' },
+      { nome: 'Cursos', link: '/gestao-acesso/cursos' },
     ]
   },
 
@@ -31,17 +30,7 @@ const estrutura: any = {
       { nome: 'Adicionar', chave: 'adicionar', bloqueado: false }, //nome(string),chave(string),bloqueado(booleano)
     ],
     colunas: [ //colunas da tabela
-
-      { nome: "Nome do Solicitante", chave: "solicitante.nome", tipo: "texto", selectOptions: null, sort: false, pesquisar: true }, //nome(string),chave(string),tipo(text,select),selectOpcoes([{chave:string, valor:string}]),pesquisar(booleano)
-      { nome: "CPF", chave: "solicitante.cpf", tipo: "texto", selectOptions: null, sort: false, pesquisar: true }, //nome(string),chave(string),tipo(text,select),selectOpcoes([{chave:string, valor:string}]),pesquisar(booleano)
-      { nome: "Perfil ", chave: "perfil.tipo", tipo: "texto", selectOptions: null, sort: false, pesquisar: true }, //nome(string),chave(string),tipo(text,select),selectOpcoes([{chave:string, valor:string}]),pesquisar(booleano)
-      {
-        nome: "Status", chave: "status", tipo: "boolean", selectOptions: [
-          { chave: "APROVADA", valor: "Aprovada" },
-          { chave: "PENDENTE", valor: "Pendente" },
-          { chave: "REJEITADA", valor: "Rejeitada" },
-        ], sort: false, pesquisar: true
-      },  
+      { nome: "Nome do Curso", chave: "nome", tipo: "texto", selectOptions: null, sort: false, pesquisar: true }, //nome(string),chave(string),tipo(text,select),selectOpcoes([{chave:string, valor:string}]),pesquisar(booleano)
       { nome: "ações", chave: "acoes", tipo: "button", selectOptions: null, sort: false, pesquisar: false },
     ],
     acoes_dropdown: [ //botão de acoes de cada registro
@@ -55,9 +44,6 @@ const estrutura: any = {
 const PageLista = () => {
   const router = useRouter();
   const [dados, setDados] = useState<any>({ content: [] });
-  const [isAdmin, setIsAdmin] = useState<boolean>(true);
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(true);
-
 
   const chamarFuncao = (nomeFuncao = "", valor: any = null) => {
     switch (nomeFuncao) {
@@ -77,21 +63,16 @@ const PageLista = () => {
         break;
     }
   }
-  console.log(isAdmin);
-
   // Função para carregar os dados
   const pesquisarRegistro = async (params = null) => {
-    console.log(isAdmin);
-
     try {
       let body = {
         metodo: 'get',
-        uri: `/auth/${estrutura.uri}/${isAdmin ? "pendentes" : "usuario"}`,
+        uri: '/auth/' + estrutura.uri,
         //+ '/page',
         params: params != null ? params : { size: 25, page: 0 },
         data: {}
       }
-      console.log(body.uri)
       const response = await generica(body);
       //tratamento dos erros
       if (response && response.data.errors != undefined) {
@@ -109,16 +90,16 @@ const PageLista = () => {
   };
   // Função que redireciona para a tela adicionar
   const adicionarRegistro = () => {
-    router.push('/solicitacoes/criar');
+    router.push('/gestao-acesso/cursos/criar');
   };
   // Função que redireciona para a tela editar
   const editarRegistro = (item: any) => {
-    router.push('/solicitacoes/' + item.id);
+    router.push('/gestao-acesso/cursos/' + item.id);
   };
   // Função que deleta um registro
   const deletarRegistro = async (item: any) => {
     const confirmacao = await Swal.fire({
-      title: `Você deseja deletar a solicitação ${item.solicitante.nome}?`,
+      title: `Você deseja deletar o curso ${item.nome}?`,
       text: "Essa ação não poderá ser desfeita",
       icon: "warning",
       showCancelButton: true,
@@ -169,20 +150,8 @@ const PageLista = () => {
   };
 
   useEffect(() => {
-    const authenticated = AuthTokenService.isAuthenticated(false);
-    setIsAuthenticated(authenticated);
-
-    if (authenticated) {
-      setIsAdmin(AuthTokenService.isAdmin(false));
-      chamarFuncao('pesquisar', null);
-
-    } else {
-      setIsAdmin(false);
-      chamarFuncao('pesquisar', null);
-
-    }
-  }, [isAuthenticated, setIsAuthenticated]);
-
+    chamarFuncao('pesquisar', null);
+  }, []);
 
   return (
     <main className="flex flex-wrap justify-center mx-auto">

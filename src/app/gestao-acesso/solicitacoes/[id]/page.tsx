@@ -41,11 +41,11 @@ const cadastro = () => {
     cabecalho: {
       titulo: isEditMode ? "Visualizar Solicitação" : "Solicitar Perfil",
       migalha: [
-        { nome: "Home", link: "/home" },
-        { nome: "Solicitações", link: "/solicitacoes" },
+        { nome: "Home", link: "/gestao-acesso/home" },
+        { nome: "Solicitações", link: "/gestao-acesso/solicitacoes" },
         {
           nome: isEditMode ? "visualizar" : "Criar",
-          link: `/solicitacoes/${isEditMode ? id : "criar"}`,
+          link: `/gestao-acesso/solicitacoes/${isEditMode ? id : "criar"}`,
         },
       ],
     },
@@ -241,7 +241,7 @@ const cadastro = () => {
   };
 
   const voltarRegistro = () => {
-    router.push("/solicitacoes");
+    router.push("/gestao-acesso/solicitacoes");
   };
   const pesquisarRegistroCursos = async (params = null) => {
     try {

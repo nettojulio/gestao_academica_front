@@ -10,13 +10,13 @@ import Swal from 'sweetalert2';
 
 const estrutura: any = {
 
-  uri: "curso", //caminho base
+  uri: "usuario", //caminho base
 
   cabecalho: { //cabecalho da pagina
-    titulo: "Cursos",
+    titulo: "Usuários",
     migalha: [
-      { nome: 'Home', link: '/home' },
-      { nome: 'Cursos', link: '/cursos' },
+      { nome: 'Home', link: '/gestao-acesso/home' },
+      { nome: 'Usuários', link: '/gestao-acesso/usuarios' },
     ]
   },
 
@@ -30,7 +30,12 @@ const estrutura: any = {
       { nome: 'Adicionar', chave: 'adicionar', bloqueado: false }, //nome(string),chave(string),bloqueado(booleano)
     ],
     colunas: [ //colunas da tabela
-      { nome: "Nome do Curso", chave: "nome", tipo: "texto", selectOptions: null, sort: false, pesquisar: true }, //nome(string),chave(string),tipo(text,select),selectOpcoes([{chave:string, valor:string}]),pesquisar(booleano)
+      //{nome:"Código",chave:"id",tipo:"texto",selectOptions:null,sort:true,pesquisar:true}, //nome(string),chave(string),tipo(text,select),selectOpcoes([{chave:string, valor:string}]),pesquisar(booleano)
+      { nome: "Nome", chave: "nome", tipo: "texto", selectOptions: null, sort: false, pesquisar: true }, //nome(string),chave(string),tipo(text,select),selectOpcoes([{chave:string, valor:string}]),pesquisar(booleano)
+      { nome: "Nome Social", chave: "nomeSocial", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
+      { nome: "Telefone", chave: "telefone", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
+      { nome: "CPF", chave: "cpf", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
+            
       { nome: "ações", chave: "acoes", tipo: "button", selectOptions: null, sort: false, pesquisar: false },
     ],
     acoes_dropdown: [ //botão de acoes de cada registro
@@ -68,19 +73,23 @@ const PageLista = () => {
     try {
       let body = {
         metodo: 'get',
-        uri: '/auth/' + estrutura.uri,
+        uri: '/auth/' + estrutura.uri ,
         //+ '/page',
         params: params != null ? params : { size: 25, page: 0 },
         data: {}
       }
       const response = await generica(body);
+      if (response && response.data) {
+        console.log("turyryry", response.data);
+      }
       //tratamento dos erros
-      if (response && response.data.errors != undefined) {
-        toast("Erro. Tente novamente!", { position: "bottom-left" });
-      } else if (response && response.data.error != undefined) {
-        toast(response.data.error.message, { position: "bottom-left" });
+      if (response && response.data && response.data.errors != undefined) {
+        toast.error("Erro. Tente novamente!", { position: "top-left" });
+      } else if (response && response.data && response.data.error != undefined) {
+        toast(response.data.error.message, { position: "top-left" });
       } else {
         if (response && response.data) {
+          console.log(response.data);
           setDados(response.data);
         }
       }
@@ -90,16 +99,16 @@ const PageLista = () => {
   };
   // Função que redireciona para a tela adicionar
   const adicionarRegistro = () => {
-    router.push('/cursos/criar');
+    router.push('/gestao-acesso/usuarios/criar');
   };
   // Função que redireciona para a tela editar
   const editarRegistro = (item: any) => {
-    router.push('/cursos/' + item.id);
+    router.push('/gestao-acesso/usuarios/' + item.id);
   };
   // Função que deleta um registro
   const deletarRegistro = async (item: any) => {
     const confirmacao = await Swal.fire({
-      title: `Você deseja deletar o curso ${item.nome}?`,
+      title: `Você deseja deletar o usuário ${item.nome}?`,
       text: "Essa ação não poderá ser desfeita",
       icon: "warning",
       showCancelButton: true,
@@ -124,7 +133,7 @@ const PageLista = () => {
       try {
         const body = {
           metodo: 'delete',
-          uri: '/auth/' + estrutura.uri + '/' + item.id,
+          uri: '/' + estrutura.uri + '/' + item.id,
           params: {},
           data: {}
         };
@@ -134,11 +143,13 @@ const PageLista = () => {
         if (response && response.data && response.data.errors) {
           toast.error("Erro. Tente novamente!", { position: "top-left" });
         } else if (response && response.data && response.data.error) {
-          toast.error(response.data.error.message, { position: "top-left" });
+          if (response && response.data && response.data.error) {
+            toast.error(response.data.error.message, { position: "top-left" });
+          }
         } else {
           pesquisarRegistro();
           Swal.fire({
-            title: "Curso deletado com sucesso!",
+            title: "Usuário deletado com sucesso!",
             icon: "success"
           });
         }

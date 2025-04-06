@@ -1,30 +1,221 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { Star, StarBorder } from "@mui/icons-material";
+import IconButton from "@mui/material/IconButton";
 
-export default function page() {
+export default function HomePage() {
   const router = useRouter();
 
-  useEffect(() => {
-    // Se já houver efrotas_authenticated_user no localStorage, redireciona para dashboard
-    const authDataStr = localStorage.getItem("efrotas_authenticated_user");
-    if (authDataStr) {
-      try {
-        const authData = JSON.parse(authDataStr);
-        if (authData.usuarioRole) {
-          router.push("/login");
-          return;
-        }
-      } catch (error) {
-        console.error("Erro ao parsear authData:", error);
-      }
+  // Inicializa o estado lendo do localStorage (se disponível)
+  const [pinnedModules, setPinnedModules] = useState<string[]>(() => {
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem("pinnedModules");
+      return stored ? JSON.parse(stored) : [];
     }
-  }, [router]);
+    return [];
+  });
+  // Estado para a busca
+  const [searchTerm, setSearchTerm] = useState("");
+
+  // Atualiza localStorage sempre que os favoritos mudarem
+  useEffect(() => {
+    localStorage.setItem("pinnedModules", JSON.stringify(pinnedModules));
+  }, [pinnedModules]);
+
+  // Lista de módulos (pode vir de uma API)
+  const allModules = [
+    {
+      id: "gestao-acesso",
+      name: "Gestão de Acesso",
+      route: "/gestao-acesso",
+      description: "Acesse o módulo de Gestão de Acesso",
+      image: "/assets/brasaoUfapeCol.png",
+    },
+    {
+      id: "prae",
+      name: "Prae",
+      route: "/prae",
+      description: "Acesse o módulo Prae",
+      image: "/assets/brasaoUfapeCol.png",
+    },
+    // Adicione mais módulos...
+  ];
+
+  // Favoritar/Desfavoritar
+  const togglePin = (moduleId: string) => {
+    if (pinnedModules.includes(moduleId)) {
+      setPinnedModules((prev) => prev.filter((id) => id !== moduleId));
+    } else {
+      setPinnedModules((prev) => [...prev, moduleId]);
+    }
+  };
+
+  // Filtra os módulos pela busca
+  const filteredModules = allModules.filter((mod) => {
+    const term = searchTerm.toLowerCase();
+    return (
+      mod.name.toLowerCase().includes(term) ||
+      mod.description.toLowerCase().includes(term)
+    );
+  });
+
+  // Separa favoritos x outros
+  const favoriteModules = filteredModules.filter((mod) =>
+    pinnedModules.includes(mod.id)
+  );
+  const otherModules = filteredModules.filter(
+    (mod) => !pinnedModules.includes(mod.id)
+  );
 
   return (
-    <>
-      Home Page
-    </>
-  ); // ou um spinner de "Verificando..."
+    <div className="container mx-auto px-4 py-8">
+      <p className="text-[20px] font-semibold text-primary-500">
+        Escolha um módulo para acessar:
+      </p>
+
+      {/* Barra de busca (100% de largura) */}
+      <div className="mt-4">
+        <input
+          type="text"
+          className="border border-neutrals-300 rounded-md p-2 w-full focus:ring-2 focus:ring-primary-500 outline-none"
+          placeholder="Buscar módulo..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+      </div>
+
+      {/* Seção de Favoritos */}
+      {favoriteModules.length > 0 && (
+        <section className="mt-8">
+          <h2 className="text-[24px] font-semibold text-secondary-500">
+            Módulos Favoritos
+          </h2>
+          <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {favoriteModules.map((module) => {
+              const isPinned = pinnedModules.includes(module.id);
+              return (
+                <div
+                  key={module.id}
+                  className="bg-white border border-neutrals-300 rounded-lg shadow hover:shadow-lg transform hover:scale-105 transition-all duration-200 flex flex-col h-full"
+                >
+                  {/* Topo do Card: Imagem centralizada com estrela no canto superior direito */}
+                  <div className="relative p-1">
+                    <IconButton
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        togglePin(module.id);
+                      }}
+                      className="absolute top-1 right-1"
+                      size="small"
+                    >
+                      {isPinned ? (
+                        <Star className="text-secondary-500" />
+                      ) : (
+                        <StarBorder className="text-secondary-500" />
+                      )}
+                    </IconButton>
+                    {module.image && (
+                      <img
+                        src={module.image}
+                        alt={module.name}
+                        onClick={() => router.push(module.route)}
+                        className="w-20 h-20 object-contain mx-auto cursor-pointer"
+                      />
+                    )}
+                  </div>
+
+                  {/* Conteúdo do Card: Título, Descrição e Botão */}
+                  <div className="px-4 pb-4 flex flex-col flex-1">
+                    <h3
+                      className="text-[20px] font-semibold text-primary-700 cursor-pointer"
+                      onClick={() => router.push(module.route)}
+                    >
+                      {module.name}
+                    </h3>
+                    <p
+                      className="mt-2 text-[14px] text-neutrals-500 cursor-pointer"
+                      onClick={() => router.push(module.route)}
+                    >
+                      {module.description}
+                    </p>
+                    <button
+                      onClick={() => router.push(module.route)}
+                      className="mt-auto w-full px-4 py-2 bg-primary-500 text-white rounded hover:bg-primary-700 transition"
+                    >
+                      Acessar
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+      )}
+
+      {/* Seção de Outros Módulos */}
+      <section className="mt-8">
+        <h2 className="text-[24px] font-semibold text-secondary-500">
+          Outros Módulos
+        </h2>
+        <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          {otherModules.map((module) => {
+            const isPinned = pinnedModules.includes(module.id);
+            return (
+              <div
+                key={module.id}
+                className="bg-white border border-neutrals-300 rounded-lg shadow hover:shadow-lg transform hover:scale-105 transition-all duration-200 flex flex-col h-full"
+              >
+                <div className="relative p-1">
+                  <IconButton
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      togglePin(module.id);
+                    }}
+                    className="absolute top-1 right-1"
+                    size="small"
+                  >
+                    {isPinned ? (
+                      <Star className="text-secondary-500" />
+                    ) : (
+                      <StarBorder className="text-secondary-500" />
+                    )}
+                  </IconButton>
+                  {module.image && (
+                    <img
+                      src={module.image}
+                      alt={module.name}
+                      onClick={() => router.push(module.route)}
+                      className="w-20 h-20 object-contain mx-auto cursor-pointer"
+                    />
+                  )}
+                </div>
+                <div className="px-4 pb-4 flex flex-col flex-1">
+                  <h3
+                    className="text-[20px] font-semibold text-primary-700 cursor-pointer"
+                    onClick={() => router.push(module.route)}
+                  >
+                    {module.name}
+                  </h3>
+                  <p
+                    className="mt-2 text-[14px] text-neutrals-500 cursor-pointer"
+                    onClick={() => router.push(module.route)}
+                  >
+                    {module.description}
+                  </p>
+                  <button
+                    onClick={() => router.push(module.route)}
+                    className="mt-auto w-full px-4 py-2 bg-primary-500 text-white rounded hover:bg-primary-700 transition"
+                  >
+                    Acessar
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </section>
+    </div>
+  );
 }
