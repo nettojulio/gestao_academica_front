@@ -1,4 +1,5 @@
 "use client";
+
 import React, { ReactNode, useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -6,224 +7,183 @@ import { useAuth } from "@/components/AuthProvider/AuthProvider";
 
 // Ícones do Material‑UI
 import MenuIcon from "@mui/icons-material/Menu";
-import MapIcon from "@mui/icons-material/Map";
-import BarChartIcon from "@mui/icons-material/BarChart";
-import BuildIcon from "@mui/icons-material/Build";
-import TrendingUpIcon from "@mui/icons-material/TrendingUp";
-import SettingsIcon from "@mui/icons-material/Settings";
-import GridViewIcon from "@mui/icons-material/GridView";
-import HomeWorkIcon from "@mui/icons-material/HomeWork";
-import DashboardIcon from "@mui/icons-material/Dashboard";
-import PeopleIcon from "@mui/icons-material/People";
-import HistoryIcon from "@mui/icons-material/History";
-import LockIcon from "@mui/icons-material/Lock";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import MenuOpen from "@mui/icons-material/MenuOpen";
+import HomeOutlined from "@mui/icons-material/HomeOutlined";
+import AccountCircleOutlined from "@mui/icons-material/AccountCircleOutlined";
+import HelpOutline from "@mui/icons-material/HelpOutline";
+import GpsFixed from "@mui/icons-material/GpsFixed";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
-import Image from "next/image";
-import { AccountBalanceOutlined, AccountCircleOutlined, AdminPanelSettingsOutlined, BadgeOutlined, CastForEducation, DocumentScannerOutlined, GasMeterOutlined, GpsFixed, GroupAddOutlined, Groups2, HailOutlined, HelpOutline, HomeOutlined, LanOutlined, LocalConvenienceStoreOutlined, LocalGasStationOutlined, ManageAccounts, ManageHistoryOutlined, MenuOpen, NoCrashOutlined, PendingActions, PostAddOutlined, QueryBuilderSharp, QueryStatsOutlined, ReceiptLongOutlined, RequestPageOutlined, RoomOutlined, School, SettingsOutlined, TransferWithinAStationOutlined } from "@mui/icons-material";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+
+// Serviço de autenticação
 import AuthTokenService from "@/app/authentication/auth.token";
+import SidebarMenuItem from "./MenuItem";
+
+// Tipos de configuração
+export interface HeaderConfig {
+  logo: {
+    url: string;
+    width?: number;
+    height?: number;
+    alt?: string;
+  };
+  title: string;
+  userActions?: Array<{
+    label: string;
+    route: string;
+    icon: React.ReactNode;
+  }>;
+}
+
+export interface MenuItem {
+  label: string;
+  route: string;
+  icon: React.ReactNode;
+  roles?: string[];
+  subItems?: MenuItem[];
+}
+
+export interface SidebarConfig {
+  logo: {
+    url: string;
+    width?: number;
+    height?: number;
+    text?: string;
+  };
+  menuItems: MenuItem[];
+}
+
+export interface InternalLayoutConfig {
+  header: HeaderConfig;
+  sidebar: SidebarConfig;
+}
 
 interface LayoutProps {
   children: ReactNode;
+  layoutConfig?: InternalLayoutConfig;
 }
 
-export default function Layout({ children }: LayoutProps) {
+export default function Layout({ children, layoutConfig }: LayoutProps) {
   const router = useRouter();
-
-  const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
-  const [windowWidth, setWindowWidth] = useState<number>(0);
-  const [isSubMenuOpen, setIsSubMenuOpen] = useState<boolean>(false);
-  const [isSubMenuCadastroOpen, setIsSubMenuCadastroOpen] = useState<boolean>(false);
-  const [isSubMenuLancamentoOpen, setIsSubMenuLancamentoOpen] = useState<boolean>(false);
-  const [isSubMenuRelatorioOpen, setIsSubMenuRelatorioOpen] = useState<boolean>(false);
-  const [isSubMenuConfigOpen, setIsSubMenuConfigOpen] = useState<boolean>(false);
-  const [isSubMenuConfig1Open, setIsSubMenuConfig1Open] = useState<boolean>(false);
-  const [isSubMenuConfig2Open, setIsSubMenuConfig2Open] = useState<boolean>(false);
-
-  // Utilizando somente os perfis: administração, gestão e execução
-  const [isAdmin, setIsAdmin] = useState<boolean>(false);
-  const [isGestor, setIsGestor] = useState<boolean>(false);
-  const [isTecnico, setIsTecnico] = useState<boolean>(false);
-  const [isProfessor, setIsProfessor] = useState<boolean>(false);
-  const [isAluno, setIsAluno] = useState<boolean>(false);
-  const [isVisitante, setIsVisitante] = useState<boolean>(false);
   const { isAuthenticated, setIsAuthenticated } = useAuth();
+
+  // Estado do menu lateral e submenus
+  const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
+  const [openSubMenus, setOpenSubMenus] = useState<Record<string, boolean>>({});
+
+  // Estados de perfil e roles
   const [usuarioLogado, setUsuarioLogado] = useState<string | null>(null);
+  const [userRoles, setUserRoles] = useState<string[]>([]);
 
-  const [isPopupWindow, setIsPopupWindow] = useState<boolean>(false);
+  // Dropdown de usuário
+  const [isOpen, setIsOpen] = useState<boolean>(false);
+  const dropdownRef = useRef<any>(null);
 
+  // Configuração default (caso não seja passada)
+  const defaultConfig: InternalLayoutConfig = {
+    header: {
+      logo: {
+        url: "/assets/default-logo.png",
+        width: 40,
+        height: 40,
+        alt: "Logo Padrão",
+      },
+      title: "Sistema de Gestão Universitaria",
+      userActions: [],
+    },
+    sidebar: {
+      logo: {
+        url: "/assets/default-sidebar-logo.png",
+        width: 32,
+        height: 32,
+        text: "SGU",
+      },
+      menuItems: [
+        {
+          label: "Início",
+          route: "/home",
+          icon: <HomeOutlined fontSize="medium" />,
+        },
+      ],
+    },
+  };
+
+  // Use a configuração passada ou o default
+  const config = layoutConfig || defaultConfig;
+
+  // Efeito de autenticação e definição das roles do usuário
   useEffect(() => {
     const authenticated = AuthTokenService.isAuthenticated(false);
     setIsAuthenticated(authenticated);
-
+  
     if (authenticated) {
-      setIsAdmin(AuthTokenService.isAdmin(false));
-      setIsGestor(AuthTokenService.isGestor(false));
-      setIsTecnico(AuthTokenService.isTecnico(false));
-      setIsProfessor(AuthTokenService.isProfessor(false));
-      setIsAluno(AuthTokenService.isAluno(false));
-      setIsVisitante(AuthTokenService.isVisitante(false));
       setUsuarioLogado(AuthTokenService.getUsuarioLogado(false));
+  
+      const roles: string[] = [];
+      if (AuthTokenService.isAdmin(false)) roles.push("admin");
+      if (AuthTokenService.isGestor(false)) roles.push("gestor");
+      if (AuthTokenService.isTecnico(false)) roles.push("tecnico");
+      if (AuthTokenService.isProfessor(false)) roles.push("professor");
+      if (AuthTokenService.isAluno(false)) roles.push("aluno");
+      if (AuthTokenService.isVisitante(false)) roles.push("visitante");
+      
+      console.log("Roles do usuário:", roles); // Verifique aqui se "aluno" está presente
+      setUserRoles(roles);
     } else {
-      setIsAdmin(false);
-      setIsGestor(false);
-      setIsTecnico(false);
-      setIsProfessor(false);
-      setIsAluno(false);
-      setIsAluno(false);
       setUsuarioLogado(null);
+      setUserRoles([]);
     }
   }, [isAuthenticated, setIsAuthenticated]);
+  
+  // Efeito para detectar popup e clicks fora do dropdown
+  useEffect(() => {
+    function isPopup() {
+      if (typeof window !== "undefined") {
+        const hasOpener = !!window.opener;
+        const isSmallWindow = window.innerWidth < 600 && window.innerHeight < 600;
+        return hasOpener || isSmallWindow;
+      }
+      return false;
+    }
+    const isPopupWindow = isPopup();
 
+    if (isPopupWindow) return;
+
+    const handleClickOutside = (event: any) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // Handlers do menu lateral
   const handleMouseEnter = () => {
     setIsMenuOpen(true);
   };
 
   const handleMouseLeave = () => {
     setIsMenuOpen(false);
-    setIsSubMenuOpen(false);
-    setIsSubMenuLancamentoOpen(false);
-    setIsSubMenuCadastroOpen(false);
-    setIsSubMenuRelatorioOpen(false);
-    setIsSubMenuConfigOpen(false);
-    setIsSubMenuConfig1Open(false);
-    setIsSubMenuConfig2Open(false);
+    setOpenSubMenus({});
   };
 
-  // Exemplo para o menu principal (caso queira fechar os submenus quando o menu principal for aberto)
   const handleToggleMenu = () => {
     setIsMenuOpen((prev) => {
-      const newValue = !prev;
-      if (newValue) {
-        // Se o menu principal for aberto, fecha todos os submenus
-        setIsSubMenuOpen(false);
-        setIsSubMenuCadastroOpen(false);
-        setIsSubMenuLancamentoOpen(false);
-        setIsSubMenuRelatorioOpen(false);
-        setIsSubMenuConfigOpen(false);
-        setIsSubMenuConfig1Open(false);
-        setIsSubMenuConfig2Open(false);
+      if (!prev) {
+        // Ao abrir o menu, reinicia os submenus abertos
+        setOpenSubMenus({});
       }
-      return newValue;
-    });
-    setWindowWidth(1000);
-  };
-
-  // Para o submenu genérico
-  const handleToggleSubMenu = () => {
-    setIsSubMenuOpen((prev) => {
-      const newValue = !prev;
-      if (newValue) {
-        // Quando este submenu abrir, feche os demais
-        setIsSubMenuCadastroOpen(false);
-        setIsSubMenuLancamentoOpen(false);
-        setIsSubMenuRelatorioOpen(false);
-        setIsSubMenuConfigOpen(false);
-        setIsSubMenuConfig1Open(false);
-        setIsSubMenuConfig2Open(false);
-      }
-      return newValue;
+      return !prev;
     });
   };
 
-  // Para o submenu de Cadastro
-  const handleToggleSubMenuCadastro = () => {
-    setIsSubMenuCadastroOpen((prev) => {
-      const newValue = !prev;
-      if (newValue) {
-        setIsSubMenuOpen(false);
-        setIsSubMenuLancamentoOpen(false);
-        setIsSubMenuRelatorioOpen(false);
-        setIsSubMenuConfigOpen(false);
-        setIsSubMenuConfig1Open(false);
-        setIsSubMenuConfig2Open(false);
-      }
-      return newValue;
-    });
+  const toggleSubMenu = (key: string) => {
+    setOpenSubMenus((prev) => ({
+      ...prev,
+      [key]: !prev[key],
+    }));
   };
-
-  // Para o submenu de Lançamento
-  const handleToggleSubMenuLancamento = () => {
-    setIsSubMenuLancamentoOpen((prev) => {
-      const newValue = !prev;
-      if (newValue) {
-        setIsSubMenuOpen(false);
-        setIsSubMenuCadastroOpen(false);
-        setIsSubMenuRelatorioOpen(false);
-        setIsSubMenuConfigOpen(false);
-        setIsSubMenuConfig1Open(false);
-        setIsSubMenuConfig2Open(false);
-      }
-      return newValue;
-    });
-  };
-
-  // Para o submenu de Relatório
-  const handleToggleSubMenuRelatorio = () => {
-    setIsSubMenuRelatorioOpen((prev) => {
-      const newValue = !prev;
-      if (newValue) {
-        setIsSubMenuOpen(false);
-        setIsSubMenuCadastroOpen(false);
-        setIsSubMenuLancamentoOpen(false);
-        setIsSubMenuConfigOpen(false);
-        setIsSubMenuConfig1Open(false);
-        setIsSubMenuConfig2Open(false);
-      }
-      return newValue;
-    });
-  };
-
-  // Para o submenu de Configuração (pai)
-  const handleToggleConfigMenu = () => {
-    setIsSubMenuConfigOpen((prev) => {
-      const newValue = !prev;
-      if (newValue) {
-        // Fecha os outros submenus
-        setIsSubMenuOpen(false);
-        setIsSubMenuCadastroOpen(false);
-        setIsSubMenuLancamentoOpen(false);
-        setIsSubMenuRelatorioOpen(false);
-        setIsSubMenuConfig1Open(false);
-        setIsSubMenuConfig2Open(false);
-      }
-      return newValue;
-    });
-  };
-
-  // Para o submenu de Configuração 1 (filho)
-  const handleToggleSubMenuConfig1 = () => {
-    setIsSubMenuConfig1Open((prev) => {
-      const newValue = !prev;
-      if (newValue) {
-        setIsSubMenuOpen(false);
-        setIsSubMenuCadastroOpen(false);
-        setIsSubMenuLancamentoOpen(false);
-        setIsSubMenuRelatorioOpen(false);
-        setIsSubMenuConfigOpen(false);
-        setIsSubMenuConfig2Open(false);
-      }
-      return newValue;
-    });
-  };
-
-  // Para o submenu de Configuração 2 (filho)
-  const handleToggleSubMenuConfig2 = () => {
-    setIsSubMenuConfig2Open((prev) => {
-      const newValue = !prev;
-      if (newValue) {
-        setIsSubMenuOpen(false);
-        setIsSubMenuCadastroOpen(false);
-        setIsSubMenuLancamentoOpen(false);
-        setIsSubMenuRelatorioOpen(false);
-        setIsSubMenuConfigOpen(false);
-        setIsSubMenuConfig1Open(false);
-      }
-      return newValue;
-    });
-  };
-
-
 
   const handleLogout = () => {
     router.push("/conta/sair");
@@ -243,69 +203,37 @@ export default function Layout({ children }: LayoutProps) {
     }
   };
 
-  const [isOpen, setIsOpen] = useState<boolean>(false);
-  const dropdownRef = useRef<any>(null);
-
-  const handleClickOutside = (event: any) => {
-    if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-      setIsOpen(false);
-    }
-  };
-
-  useEffect(() => {
-    function isPopup() {
-      if (typeof window !== "undefined") {
-        const hasOpener = !!window.opener;
-        const isSmallWindow = window.innerWidth < 600 && window.innerHeight < 600;
-        return hasOpener || isSmallWindow;
-      }
-      return false;
-    }
-    setIsPopupWindow(isPopup());
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
-
-  // Se for uma popup, não exibe menu/header
-  if (isPopupWindow) {
-    return (
-      <div className="md:pl-12 pt-0">
-        <div>{children}</div>
-      </div>
-    );
-  }
-
   return (
     <>
       {/* Cabeçalho */}
       <div
-        className={`fixed top-0 z-10 bg-white shadow-sm transition-all duration-200 left-0 right-0 ${isMenuOpen ? "sm:left-60" : "sm:left-12"
-          }`}
+        className={`fixed top-0 z-10 bg-white shadow-sm transition-all duration-200 left-0 right-0 ${
+          isMenuOpen ? "sm:left-60" : "sm:left-12"
+        }`}
       >
         <div className="flex items-center justify-between p-3 pl-5 pr-5 shadow-lg">
           <div className="flex items-center">
             {/* Botão Hambúrguer (mobile) */}
             <div className="sm:hidden">
               <button onClick={handleToggleMenu} className="focus:outline-none">
-                <MenuIcon />
+                {isMenuOpen ? <MenuOpen /> : <MenuIcon />}
               </button>
             </div>
             {/* Logo (header) - exibe somente em telas sm ou maiores */}
-            <div className="hidden sm:flex">
+            <div className="hidden sm:flex items-center">
               {isMenuOpen ? (
                 <div className="flex items-center">
                   <MenuOpen fontSize="medium" className="text-primary-500" />
                   <span className="ml-2 text-body-small text-neutrals-900">
-                    Sistema de Gestão Universitaria
+                    {config.header.title}
                   </span>
                 </div>
               ) : (
                 <div className="flex items-center">
                   <MenuIcon fontSize="medium" className="text-primary-500" />
                   <span className="ml-2 text-body-small text-neutrals-900">
-                    Sistema de Gestão Universitaria                  </span>
+                    {config.header.title}
+                  </span>
                 </div>
               )}
             </div>
@@ -333,10 +261,6 @@ export default function Layout({ children }: LayoutProps) {
                       <Link href="/conta/perfil" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                         Minha conta
                       </Link>
-                      <Link href="/conta/redefinir-senha" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                        Alterar senha
-                      </Link>
-
                       <Link
                         href="#"
                         onClick={handleAutenticacao}
@@ -353,174 +277,48 @@ export default function Layout({ children }: LayoutProps) {
         </div>
       </div>
 
-      {/* MENU LATERAL SOBREPOSTO */}
+      {/* MENU LATERAL */}
       <div
-        className={`fixed top-0 left-0 h-screen bg-secondary-500 shadow-lg transition-all duration-200 z-20 ${isMenuOpen ? "w-60" : "w-12"
-          } ${!isMenuOpen ? "max-sm:hidden" : ""}`}
+        className={`fixed top-0 left-0 h-screen bg-secondary-500 shadow-lg transition-all duration-200 z-20 ${
+          isMenuOpen ? "w-60" : "w-12"
+        } ${!isMenuOpen ? "max-sm:hidden" : ""}`}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
       >
-        {/* Área da logo no menu lateral */}
+        {/* Logo do menu lateral */}
         <div
-          className={`border-b border-gray-500 overflow-hidden transition-all duration-300 flex items-center justify-center ${isMenuOpen ? "w-60" : "w-12"
-            } h-12`}
+          className={`border-b border-gray-500 overflow-hidden transition-all duration-300 flex items-center justify-center ${
+            isMenuOpen ? "w-60" : "w-12"
+          } h-12`}
         >
           <a href="/" title="WS Consultoria Pública" className="flex items-center">
             <GpsFixed fontSize="medium" className="text-white" />
           </a>
-          {isMenuOpen && <span className="ml-3 text-white whitespace-nowrap">SGU</span>}
+          {isMenuOpen && <span className="ml-3 text-white">{config.sidebar.logo.text}</span>}
         </div>
-        {/* Corpo do menu em coluna: itens no topo, "Ajuda" no rodapé */}
+        {/* Itens do Menu */}
         <div className="flex flex-col h-[calc(100vh-3rem)]">
           <div className="pt-4 px-2 flex-1 overflow-y-auto">
             <ul className="space-y-4 text-gray-500">
-              {/* INÍCIO */}
-              <li>
-                <Link
-                  href="/home"
-                  className={`flex items-center rounded-md p-2 transition-colors duration-200 ${isMenuOpen ? "hover:bg-primary-900 justify-start" : "justify-center"
-                    }`}
-                >
-                  <HomeOutlined fontSize="medium" className="text-white" />
-                  <h6 className={`${isMenuOpen ? "ml-3 text-white" : "hidden"}`}>Início</h6>
-                </Link>
-              </li>
-
-              {/* SGU AUTH SERVICES */}
-              {isAuthenticated && isAdmin && (
-                <>
-                  <li>
-                    <Link
-                      href="/cursos"
-                      className={`flex items-center rounded-md p-2 transition-colors duration-200 ${isMenuOpen ? "hover:bg-primary-900 justify-start" : "justify-center"
-                        }`}
-                    >
-                      <School fontSize="medium" className="text-white" />
-                      <h6 className={`${isMenuOpen ? "ml-3 text-white" : "hidden"}`}>Cursos</h6>
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      href="/solicitacoes"
-                      className={`flex items-center rounded-md p-2 transition-colors duration-200 ${isMenuOpen ? "hover:bg-primary-900 justify-start" : "justify-center"
-                        }`}
-                    >
-                      <PendingActions fontSize="medium" className="text-white" />
-                      <h6 className={`${isMenuOpen ? "ml-3 text-white" : "hidden"}`}>Solicitações de Perfils</h6>
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      href="/usuarios"
-                      className={`flex items-center rounded-md p-2 transition-colors duration-200 ${isMenuOpen ? "hover:bg-primary-900 justify-start" : "justify-center"
-                        }`}
-                    >
-                      <Groups2 fontSize="medium" className="text-white" />
-                      <h6 className={`${isMenuOpen ? "ml-3 text-white" : "hidden"}`}>Usuários</h6>
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      href="/unidades-administrativas"
-                      className={`flex items-center rounded-md p-2 transition-colors duration-200 ${isMenuOpen ? "hover:bg-primary-900 justify-start" : "justify-center"
-                        }`}
-                    >
-                      <CastForEducation fontSize="medium" className="text-white" />
-                      <h6 className={`${isMenuOpen ? "ml-3 text-white" : "hidden"}`}>Unidades Administrativas</h6>
-                    </Link>
-                  </li>
-                </>
-              )}
-              {isAuthenticated && isGestor && (
-                <>
-                 
-                  <li>
-                    <Link
-                      href="/solicitacoes"
-                      className={`flex items-center rounded-md p-2 transition-colors duration-200 ${isMenuOpen ? "hover:bg-primary-900 justify-start" : "justify-center"
-                        }`}
-                    >
-                      <PendingActions fontSize="medium" className="text-white" />
-                      <h6 className={`${isMenuOpen ? "ml-3 text-white" : "hidden"}`}>Solicitar de Perfil</h6>
-                    </Link>
-                  </li>
-                  
-                </>
-              )}
-              {isAuthenticated && isTecnico && (
-                <>
-                 
-                  <li>
-                    <Link
-                      href="/solicitacoes"
-                      className={`flex items-center rounded-md p-2 transition-colors duration-200 ${isMenuOpen ? "hover:bg-primary-900 justify-start" : "justify-center"
-                        }`}
-                    >
-                      <PendingActions fontSize="medium" className="text-white" />
-                      <h6 className={`${isMenuOpen ? "ml-3 text-white" : "hidden"}`}>Solicitar de Perfil</h6>
-                    </Link>
-                  </li>
-                  
-                </>
-              )}
-              {isAuthenticated && isProfessor && (
-                <>
-                 
-                  <li>
-                    <Link
-                      href="/solicitacoes"
-                      className={`flex items-center rounded-md p-2 transition-colors duration-200 ${isMenuOpen ? "hover:bg-primary-900 justify-start" : "justify-center"
-                        }`}
-                    >
-                      <PendingActions fontSize="medium" className="text-white" />
-                      <h6 className={`${isMenuOpen ? "ml-3 text-white" : "hidden"}`}>Solicitar de Perfil</h6>
-                    </Link>
-                  </li>
-                  
-                </>
-              )}
-              {isAuthenticated && isAluno && (
-                <>
-                 
-                  <li>
-                    <Link
-                      href="/solicitacoes"
-                      className={`flex items-center rounded-md p-2 transition-colors duration-200 ${isMenuOpen ? "hover:bg-primary-900 justify-start" : "justify-center"
-                        }`}
-                    >
-                      <PendingActions fontSize="medium" className="text-white" />
-                      <h6 className={`${isMenuOpen ? "ml-3 text-white" : "hidden"}`}>Solicitar de Perfil</h6>
-                    </Link>
-                  </li>
-                  
-                </>
-              )}
-              {isAuthenticated && isVisitante && (
-                <>
-                 
-                  <li>
-                    <Link
-                      href="/solicitacoes"
-                      className={`flex items-center rounded-md p-2 transition-colors duration-200 ${isMenuOpen ? "hover:bg-primary-900 justify-start" : "justify-center"
-                        }`}
-                    >
-                      <PendingActions fontSize="medium" className="text-white" />
-                      <h6 className={`${isMenuOpen ? "ml-3 text-white" : "hidden"}`}>Solicitar de Perfil</h6>
-                    </Link>
-                  </li>
-                  
-                </>
-              )}
-              
-
+              {config.sidebar.menuItems.map((item, idx) => (
+                <SidebarMenuItem
+                  key={idx}
+                  item={item}
+                  isMenuOpen={isMenuOpen}
+                  openSubMenus={openSubMenus}
+                  toggleSubMenu={toggleSubMenu}
+                  userRoles={userRoles}
+                />
+              ))}
             </ul>
           </div>
-          {/* Link de Ajuda fixado no rodapé do menu */}
+          {/* Link de Ajuda fixado no rodapé */}
           <div className="p-2">
             <Link
               href="/home"
-              className={`flex items-center rounded-md p-2 transition-colors duration-200 ${isMenuOpen ? "hover:bg-primary-900 justify-start" : "justify-center"
-                }`}
+              className={`flex items-center rounded-md p-2 transition-colors duration-200 ${
+                isMenuOpen ? "hover:bg-primary-900 justify-start" : "justify-center"
+              }`}
             >
               <HelpOutline fontSize="medium" className="text-white" />
               {isMenuOpen && <span className="ml-3 text-white">Ajuda</span>}

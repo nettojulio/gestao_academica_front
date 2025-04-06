@@ -1,3 +1,5 @@
+"use client"
+
 import { AuthTokenService } from '@/app/authentication/auth.token';
 import { useEffect, useState } from 'react';
 
