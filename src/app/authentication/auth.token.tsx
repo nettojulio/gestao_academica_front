@@ -16,7 +16,8 @@ export class AuthTokenService {
     public static readonly ROLE_ADMIN: string = "administrador";
     public static readonly ROLE_GESTOR: string = "gestor";
     public static readonly ROLE_TECNICO: string = "tecnico";
-    public static readonly ROLE_ALUNO: string = "usuario";
+    public static readonly ROLE_PROFESSOR: string = "professor";
+    public static readonly ROLE_ALUNO: string = "aluno";
     public static readonly ROLE_VISITANTE: string = "visitante";
 
     /**
@@ -178,7 +179,7 @@ export class AuthTokenService {
          */
     public static isProfessor(redirectToLogin: boolean = true): boolean {
         const roles = this.getUsuarioRoles(redirectToLogin);
-        return roles ? roles.includes(AuthTokenService.ROLE_ALUNO) : false;
+        return roles ? roles.includes(AuthTokenService.ROLE_PROFESSOR) : false;
     }
     /**
      * Verifica se o usuário é um Aluno.

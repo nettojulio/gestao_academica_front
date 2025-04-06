@@ -18,7 +18,7 @@ interface SidebarMenuItemProps {
   isMenuOpen: boolean;
   openSubMenus: Record<string, boolean>;
   toggleSubMenu: (key: string) => void;
-  userRoles: string[]; // Propriedade com as roles do usuário
+  activeRole: string; // Role ativa selecionada no header
 }
 
 const SidebarMenuItem: React.FC<SidebarMenuItemProps> = ({
@@ -26,14 +26,18 @@ const SidebarMenuItem: React.FC<SidebarMenuItemProps> = ({
   isMenuOpen,
   openSubMenus,
   toggleSubMenu,
-  userRoles,
+  activeRole,
 }) => {
   const router = useRouter();
   const hasSubItems = item.subItems && item.subItems.length > 0;
   const isOpen = openSubMenus[item.label] || false;
 
-  // Se o item define roles e o usuário não possui nenhuma das roles permitidas, não renderiza o item.
-  if (item.roles && !item.roles.some((role) => userRoles.includes(role))) {
+  // Normaliza a activeRole e as roles definidas no item
+  const normalizedActiveRole = activeRole.trim().toLowerCase();
+  const normalizedItemRoles = item.roles ? item.roles.map((role) => role.trim().toLowerCase()) : [];
+
+  // Se o item define roles e a activeRole não está presente, não renderiza o item.
+  if (normalizedItemRoles.length > 0 && !normalizedItemRoles.includes(normalizedActiveRole)) {
     return null;
   }
 
@@ -70,7 +74,7 @@ const SidebarMenuItem: React.FC<SidebarMenuItemProps> = ({
               isMenuOpen={isMenuOpen}
               openSubMenus={openSubMenus}
               toggleSubMenu={toggleSubMenu}
-              userRoles={userRoles}
+              activeRole={activeRole}
             />
           ))}
         </ul>
