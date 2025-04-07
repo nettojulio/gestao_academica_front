@@ -10,13 +10,13 @@ import Swal from 'sweetalert2';
 
 const estrutura: any = {
 
-  uri: "usuario", //caminho base
+  uri: "unidade-administrativa", //caminho base
 
   cabecalho: { //cabecalho da pagina
-    titulo: "Usuários",
+    titulo: "Unidades Administrativas",
     migalha: [
-      { nome: 'Home', link: '/home' },
-      { nome: 'Usuários', link: '/usuarios' },
+      { nome: 'Home', link: '/gestao-acesso/home' },
+      { nome: 'Unidade Administrativa', link: '/gestao-acesso/unidades-administrativas' },
     ]
   },
 
@@ -32,10 +32,13 @@ const estrutura: any = {
     colunas: [ //colunas da tabela
       //{nome:"Código",chave:"id",tipo:"texto",selectOptions:null,sort:true,pesquisar:true}, //nome(string),chave(string),tipo(text,select),selectOpcoes([{chave:string, valor:string}]),pesquisar(booleano)
       { nome: "Nome", chave: "nome", tipo: "texto", selectOptions: null, sort: false, pesquisar: true }, //nome(string),chave(string),tipo(text,select),selectOpcoes([{chave:string, valor:string}]),pesquisar(booleano)
-      { nome: "Nome Social", chave: "nomeSocial", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
-      { nome: "Telefone", chave: "telefone", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
-      { nome: "CPF", chave: "cpf", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
-            
+      { nome: "Codigo", chave: "codigo", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
+      // {
+      //   nome: "Status", chave: "ativo", tipo: "boolean", selectOptions: [
+      //     { chave: true, valor: "Ativa" },
+      //     { chave: false, valor: "Inativa" },
+      //   ], sort: false, pesquisar: true
+      // },      
       { nome: "ações", chave: "acoes", tipo: "button", selectOptions: null, sort: false, pesquisar: false },
     ],
     acoes_dropdown: [ //botão de acoes de cada registro
@@ -73,20 +76,20 @@ const PageLista = () => {
     try {
       let body = {
         metodo: 'get',
-        uri: '/auth/' + estrutura.uri ,
+        uri: '/auth/' + estrutura.uri + "/listar",
         //+ '/page',
         params: params != null ? params : { size: 25, page: 0 },
         data: {}
       }
       const response = await generica(body);
-      if (response && response.data) {
-        console.log("turyryry", response.data);
-      }
+      console.log("sufhaishdfiahus", response)
       //tratamento dos erros
-      if (response && response.data && response.data.errors != undefined) {
+      if (response && response.data.errors != undefined) {
         toast.error("Erro. Tente novamente!", { position: "top-left" });
       } else if (response && response.data && response.data.error != undefined) {
-        toast(response.data.error.message, { position: "top-left" });
+          if (response && response.data && response.data.error) {
+            toast(response.data.error.message, { position: "top-left" });
+          }
       } else {
         if (response && response.data) {
           console.log(response.data);
@@ -99,16 +102,16 @@ const PageLista = () => {
   };
   // Função que redireciona para a tela adicionar
   const adicionarRegistro = () => {
-    router.push('/usuarios/criar');
+    router.push('/gestao-acesso/unidades-administrativas/criar');
   };
   // Função que redireciona para a tela editar
   const editarRegistro = (item: any) => {
-    router.push('/usuarios/' + item.id);
+    router.push('/gestao-acesso/unidades-administrativas/' + item.id);
   };
   // Função que deleta um registro
   const deletarRegistro = async (item: any) => {
     const confirmacao = await Swal.fire({
-      title: `Você deseja deletar o usuário ${item.nome}?`,
+      title: `Você deseja deletar a unidade administrativa ${item.nome}?`,
       text: "Essa ação não poderá ser desfeita",
       icon: "warning",
       showCancelButton: true,
@@ -143,13 +146,11 @@ const PageLista = () => {
         if (response && response.data && response.data.errors) {
           toast.error("Erro. Tente novamente!", { position: "top-left" });
         } else if (response && response.data && response.data.error) {
-          if (response && response.data && response.data.error) {
-            toast.error(response.data.error.message, { position: "top-left" });
-          }
+          toast(response.data.error.message, { position: "top-left" });
         } else {
           pesquisarRegistro();
           Swal.fire({
-            title: "Usuário deletado com sucesso!",
+            title: "Unidade Administrativa deletado com sucesso!",
             icon: "success"
           });
         }

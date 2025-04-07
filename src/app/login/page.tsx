@@ -4,7 +4,6 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useAuth } from "@/components/AuthProvider/AuthProvider";
-
 import { useRouter } from "next/navigation";
 import { useEffect, useState, FormEvent } from "react";
 import Image from "next/image";
@@ -30,12 +29,9 @@ export default function Login() {
 
   useEffect(() => {
     const isAuthenticated = AuthTokenService.isAuthenticated(false);
-
     if (isAuthenticated) router.push('/home');
-
     const emails = JSON.parse(localStorage.getItem("sgu_saved_emails") || "[]");
     setSavedEmails(emails);
-
     if (emails.length === 0) {
       setShowLoginForm(true);
     }
@@ -44,6 +40,7 @@ export default function Login() {
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(e.target.value);
   };
+
   const handleEmailSelect = (email: string) => {
     setEmail(email);
     setShowLoginForm(true);
@@ -64,27 +61,20 @@ export default function Login() {
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setErrorMessage("");
-
     const dataForm = new FormData(event.currentTarget);
     const userEmail = dataForm.get('email') as string;
     const userPassword = dataForm.get('password') as string;
 
     try {
-      // Recebe os dados de autenticação do AuthService
       const authData = await authService.authenticate({ email: userEmail, password: userPassword });
-
-      // Verifica se o token foi recebido
       if (!authData || !authData.token) {
         throw new Error(authData?.message || "Erro na autenticação.");
       }
-
-      // Se "remember" estiver marcado, atualiza os e-mails salvos
       if (remember) {
         const updatedEmails = savedEmails.filter(email => email !== userEmail);
         updatedEmails.push(userEmail);
         localStorage.setItem("sgu_saved_emails", JSON.stringify(updatedEmails));
       }
-
       setIsAuthenticated(true);
       router.push('/home');
     } catch (error: any) {
@@ -94,7 +84,7 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-[80vh] flex flex-1 min-h-screen bg-white">
+    <div className="flex flex-1 bg-white">
       {/* Seção Esquerda - Descrição */}
       <section className="hidden md:flex flex-col justify-center px-16 bg-white w-1/2">
         <h1 className="text-primary-700 text-display-small font-bold mb-4">Sistema de Gestão</h1>
@@ -109,10 +99,6 @@ export default function Login() {
         <div className="bg-white shadow-xl rounded-lg p-10 w-full max-w-md border border-neutrals-200">
           {showLoginForm ? (
             <>
-              {/* <div className="mb-4 text-center">
-              <Image src="/assets/LogoAzul.svg" alt="Logo Ufape" width={120} height={50} />
-            </div> */}
-
               <h2 className="text-2xl font-bold text-center text-primary-500 mb-6">Entrar</h2>
               {errorMessage && (
                 <div className="text-red-500 bg-red-50 border border-red-300 p-3 rounded-md mb-4 text-sm">
@@ -120,7 +106,6 @@ export default function Login() {
                 </div>
               )}
               <form onSubmit={handleSubmit} className="space-y-5">
-
                 <div>
                   <label htmlFor="email" className="block mb-2 text-sm font-medium text-gray-900">E-mail</label>
                   <input
@@ -128,7 +113,7 @@ export default function Login() {
                     name="email"
                     id="email"
                     value={email}
-                    onChange={(e) => handleEmailChange(e)}
+                    onChange={handleEmailChange}
                     className="w-full border border-neutrals-300 rounded-md p-3 focus:ring-2 focus:ring-primary-500 outline-none"
                     placeholder="email@ufape.edu.br"
                     required
@@ -154,7 +139,7 @@ export default function Login() {
                         id="remember"
                         aria-describedby="remember"
                         type="checkbox"
-                        className={`bg-gray-50 border ${errorMessage ? 'border-red-500' : 'border-gray-300'}w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-primary-300 `}
+                        className={`w-4 h-4 ${errorMessage ? 'border-red-500' : 'border-gray-300'} rounded bg-gray-50 focus:ring-3 focus:ring-primary-300`}
                         checked={remember}
                         onChange={(e) => setRemember(e.target.checked)}
                       />
@@ -168,7 +153,6 @@ export default function Login() {
                     <Link href="/conta/criar-conta" className="text-primary-500 font-semibold hover:underline text-sm ml-3">Criar conta</Link>
                   </div>
                 </div>
-
                 <button
                   type="submit"
                   className="w-full bg-primary-500 text-white py-3 rounded-md font-semibold hover:bg-primary-700 transition"

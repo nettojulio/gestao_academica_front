@@ -40,11 +40,11 @@ const cadastro = () => {
     cabecalho: {
       titulo: isEditMode ? "Editar Curso" : "Cadastrar Curso",
       migalha: [
-        { nome: "Home", link: "/home" },
-        { nome: "Curso", link: "/cursos" },
+        { nome: "Home", link: "/gestao-acesso/home" },
+        { nome: "Curso", link: "/gestao-acesso/cursos" },
         {
           nome: isEditMode ? "Editar" : "Criar",
-          link: `/cursos/${isEditMode ? id : "criar"}`,
+          link: `/gestao-acesso/cursos/${isEditMode ? id : "criar"}`,
         },
       ],
     },
@@ -89,7 +89,7 @@ const cadastro = () => {
   };
 
   const voltarRegistro = () => {
-    router.push("/cursos");
+    router.push("/gestao-acesso/cursos");
   };
 
   /**
