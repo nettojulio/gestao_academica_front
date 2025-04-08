@@ -196,18 +196,6 @@ const PagePerfil = () => {
           bloqueado: isEditMode,
 
         },
-
-        {
-          line: 5,
-          colSpan: "md:col-span-1",
-          nome: "Documentos",
-          chave: "documentos",
-          tipo: "documento", // ou outro tipo apropriado
-          mensagem: "Anexe os documentos",
-          obrigatorio: false,
-          bloqueado: isEditMode,
-
-        },
       ]
 
       },  
