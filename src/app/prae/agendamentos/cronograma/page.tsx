@@ -13,7 +13,7 @@ const estrutura: any = {
   uri: "cronograma", //caminho base
 
   cabecalho: { //cabecalho da pagina
-    titulo: "Cronosgramas",
+    titulo: "Cronogramas",
     migalha: [
       { nome: 'Home', link: '/home' },
       { nome: 'Prae', link: '/prae' },
