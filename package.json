@@ -21,7 +21,7 @@
     "chartjs-plugin-annotation": "^3.1.0",
     "frontend": "file:",
     "gestao_academica_front_r": "file:",
-    "next": "15.1.7",
+    "next": "^15.2.4",
     "react": "^19.0.0",
     "react-chartjs-2": "^5.3.0",
     "react-datepicker": "^8.1.0",

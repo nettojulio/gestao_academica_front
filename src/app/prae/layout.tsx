@@ -1,13 +1,13 @@
 import React from "react";
 import { Metadata } from "next";
 import ClientWrapper from "@/components/AuthProvider/ClientWrapper";
-import { School, PendingActions, Groups2, AccountCircleOutlined } from "@mui/icons-material";
+import { School, PendingActions, Groups2, AccountCircleOutlined, CalendarMonth, EventNote, Schedule, Payment, VolunteerActivism, AccountBalance, Diversity3, Home } from "@mui/icons-material";
 import { InternalLayoutConfig } from "@/types/InternalLayoutConf";
 
 
 export const metadata: Metadata = {
-  title: "Gestão de Acesso",
-  description: "Modulo de Gestão de Acesso",
+  title: "Gestão PRAE",
+  description: "Modulo de Gestão de PRAE",
   icons: {
     icon: "/assets/crosshairs-gps.png",
   },
@@ -15,7 +15,7 @@ export const metadata: Metadata = {
 
 
 
-export default function EfrotasLayout({ children }: { children: React.ReactNode }) {
+export default function PraeLayout({ children }: { children: React.ReactNode }) {
   // config/authLayoutConfig.tsx
 
   const layoutConfig: InternalLayoutConfig = {
@@ -27,17 +27,17 @@ export default function EfrotasLayout({ children }: { children: React.ReactNode 
         alt: "Logo Auth",
         position: "left",
       },
-      title: "Gestão de Acesso",
+      title: "PRAE",
       userActions: [
         {
           label: "Minha conta",
           route: "/conta/perfil",
-          icon: <AccountCircleOutlined fontSize="small" />,
+          icon: <AccountCircleOutlined fontSize="small" className="text-white" />,
         },
         {
           label: "Sair",
           route: "/conta/sair",
-          icon: <PendingActions fontSize="small" />,
+          icon: <PendingActions fontSize="small" className="text-white" />,
         },
       ],
     },
@@ -50,35 +50,81 @@ export default function EfrotasLayout({ children }: { children: React.ReactNode 
       },
       menuItems: [
         {
-          label: "Cursos",
-          route: "/auth/cursos",
-          icon: <School fontSize="small" />,
-          roles: ["admin"],
+          label: "Início",
+          route: "/home",
+          icon: <Home fontSize="small" className="text-white" />,
+          roles: ["administrador", "gestor", "tecnico"],
         },
         {
-          label: "Solicitações",
-          route: "/auth/solicitacoes",
-          icon: <PendingActions fontSize="small" />,
-          roles: ["admin", "gestor", "tecnico"],
-          // Exemplo de submenu:
+          label: "Tipo Etnia",
+          route: "/prae/etnia",
+          icon: <Diversity3 fontSize="small" className="text-white" />,
+          roles: ["administrador", "gestor", "tecnico"],
+        },
+        {
+          label: "Estudantes",
+          route: "/prae/estudantes",
+          icon: <School fontSize="small" className="text-white" />,
+          roles: ["administrador", "gestor", "tecnico"],
+        },
+        {
+          label: "Dados Bancários",
+          route: "/prae/dados-bancarios",
+          icon: <AccountBalance fontSize="small" className="text-white" />,
+          roles: ["administrador", "gestor", "tecnico"],
+        },
+        {
+          label: "Auxílios",
+          route: "/prae/auxilio",
+          icon: <VolunteerActivism fontSize="small" className="text-white" />,
+          roles: ["administrador", "gestor"],
           subItems: [
             {
-              label: "Aguardando",
-              route: "/auth/solicitacoes/aguardando",
-              icon: <PendingActions fontSize="small" />,
+              label: "Tipo Auxílio",
+              route: "/prae/auxilio/tipo",
+              icon: <VolunteerActivism fontSize="small" className="text-white" />,
             },
             {
-              label: "Aprovadas",
-              route: "/auth/solicitacoes/aprovadas",
-              icon: <PendingActions fontSize="small" />,
+              label: "Auxílio",
+              route: "/prae/auxilio/auxilios",
+              icon: <VolunteerActivism fontSize="small" className="text-white" />,
             },
           ],
         },
         {
-          label: "Usuários",
-          route: "/auth/usuarios",
-          icon: <Groups2 fontSize="small" />,
-          roles: ["admin"],
+          label: "Pagamentos",
+          route: "/prae/pagamentos",
+          icon: <Payment fontSize="small" className="text-white" />,
+          roles: ["administrador", "gestor"],
+        },
+        {
+          label: "Agendamentos",
+          route: "/prae/agendamentos",
+          icon: <EventNote fontSize="small" className="text-white" />,
+          roles: ["administrador", "gestor", "tecnico"],
+          subItems: [
+            {
+              label: "Tipo Auxílio",
+              route: "/prae/agendamentos/tipo",
+              icon: <Schedule fontSize="small" className="text-white" />,
+            },
+            {
+              label: "Cronograma",
+              route: "/prae/agendamentos/cronograma",
+              icon: <EventNote fontSize="small" className="text-white" />,
+            },
+            {
+              label: "Calendário",
+              route: "/prae/agendamentos/calendario",
+              icon: <CalendarMonth fontSize="small" className="text-white" />,
+            },
+          ],
+        },
+        {
+          label: "Calendário",
+          route: "/prae/agendamentos/calendario",
+          icon: <CalendarMonth fontSize="small" className="text-white" />,
+          roles: ["administrador", "aluno", "estudante"],
         },
       ],
     },

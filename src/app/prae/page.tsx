@@ -23,6 +23,8 @@ export default function PageEFrotas() {
   }, [router]);
 
   return (
-    <Login />
+    <>
+      Hello teste
+    </>
   ); // ou um spinner de "Verificando..."
 }
