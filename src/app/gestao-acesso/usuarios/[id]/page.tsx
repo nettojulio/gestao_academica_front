@@ -51,7 +51,7 @@ const cadastro = () => {
           bloqueado: true,
         },
         {
-          line: 2,
+          line: 1,
           colSpan: "md:col-span-2",
           nome: "Email",
           chave: "email",
