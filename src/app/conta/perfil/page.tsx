@@ -33,7 +33,6 @@ const PagePerfil = () => {
   };
 
   const currentUser = async (params = null) => {
-     console.log("entrou nessa buceta")
       try {
         let body = {
           metodo: 'get',

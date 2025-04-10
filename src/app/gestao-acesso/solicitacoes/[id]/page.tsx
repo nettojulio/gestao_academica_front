@@ -363,10 +363,11 @@ const cadastro = () => {
     try {
       const body = {
         metodo: "post",
-        uri: "/auth/" + estrutura.uri,
+        uri: "/auth/" + estrutura.uri + "/" + item.tipoUsuario.toLowerCase(),
         params: {},
         data: item,
       };
+      console.log(body)
       const response = await generica(body);
       if (!response || response.status < 200 || response.status >= 300) {
         if (response) {
