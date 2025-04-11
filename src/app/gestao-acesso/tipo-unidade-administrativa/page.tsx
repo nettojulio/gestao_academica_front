@@ -17,7 +17,7 @@ const estrutura: any = {
         titulo: "Tipos de Unidades Administrativas",
         migalha: [
             { nome: 'Home', link: '/gestao-acesso/home' },
-            { nome: 'Tipos de Unidades Administrativas', link: '/gestao-acesso/tipos-unidades-administrativas' },
+            { nome: 'Tipos de Unidades Administrativas', link: '/gestao-acesso/tipo-unidade-administrativa'},
         ]
     },
 
@@ -68,7 +68,7 @@ const PageLista = () => {
         try {
             let body = {
                 metodo: 'get',
-                uri: '/auth/' + estrutura.uri + "/listar",
+                uri: '/auth/' + estrutura.uri,
                 params: params != null ? params : { size: 25, page: 0 },
                 data: {}
             }
@@ -95,7 +95,7 @@ const PageLista = () => {
         router.push('/gestao-acesso/tipo-unidade-administrativa/criar');
     };
     const editarRegistro = (item: any) => {
-        router.push('/gestao-acesso/tipos-unidades-administrativas/editar/' + item.id);
+        router.push('/gestao-acesso/tipo-unidade-administrativa/' + item.id);
     };
     const deletarRegistro = async (item: any) => {
         const confirmacao = await Swal.fire({

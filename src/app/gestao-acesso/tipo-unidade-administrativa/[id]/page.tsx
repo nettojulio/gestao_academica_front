@@ -32,7 +32,7 @@ const cadastro = () => {
     };
 
     const estrutura: any = {
-        uri: "tipo-unidade-administrativa/registrar",
+        uri: "tipo-unidade-administrativa",
         cabecalho: {
             titulo: isEditMode ? "Editar o Tipo de Unidade Administrativa" : "Cadastrar o Tipo de Unidade Administrativa",
             migalha: [
@@ -84,7 +84,7 @@ const salvarRegistro = async (item: any) => {
     try {
       const body = {
         metodo: `${isEditMode ? "patch" : "post"}`,
-        uri: "/auth/" + `${isEditMode ? estrutura.uri+"/"+ item.id : estrutura.uri }`,
+        uri: "/auth/" + `${isEditMode ? estrutura.uri + "/" + item.id + "/editar" : estrutura.uri + '/registrar' }`,
         params: {},
         data: item,
       };
