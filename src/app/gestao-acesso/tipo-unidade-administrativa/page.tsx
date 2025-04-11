@@ -92,7 +92,7 @@ const PageLista = () => {
     };
 
     const adicionarRegistro = () => {
-        router.push('/gestao-acesso/tipos-unidades-administrativas/criar');
+        router.push('/gestao-acesso/tipo-unidade-administrativa/criar');
     };
     const editarRegistro = (item: any) => {
         router.push('/gestao-acesso/tipos-unidades-administrativas/editar/' + item.id);

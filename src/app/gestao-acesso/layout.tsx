@@ -80,7 +80,7 @@ export default function EfrotasLayout({ children }: { children: React.ReactNode 
         },
         {
           label: "Tipos de Unidades Administrativas",
-          route: "/gestao-acesso/tipos-unidades-administrativas",
+          route: "/gestao-acesso/tipo-unidade-administrativa",
           icon: <Summarize fontSize="small"  className="text-white"/>,
           roles: ["administrador"],
         },

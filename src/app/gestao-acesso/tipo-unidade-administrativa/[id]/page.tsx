@@ -32,13 +32,13 @@ const cadastro = () => {
     };
 
     const estrutura: any = {
-        uri: "tipo-unidade-administrativa",
+        uri: "tipo-unidade-administrativa/registrar",
         cabecalho: {
             titulo: isEditMode ? "Editar o Tipo de Unidade Administrativa" : "Cadastrar o Tipo de Unidade Administrativa",
             migalha: [
                 { nome: "Home", link: "/gestao-acesso/home" },
-                { nome: "Tipos de Unidades Administrativas", link: "/gestao-acesso/tipos-unidades-administrativas" },
-                { nome: isEditMode ? "Editar" : "Criar", link: `/gestao-acesso/tipos-unidades-administrativas/${isEditMode ? id : "criar"}` },
+                { nome: "Tipos de Unidades Administrativas", link: "/gestao-acesso/tipo-unidade-administrativa" },
+                { nome: isEditMode ? "Editar" : "Criar", link: `/gestao-acesso/tipo-unidade-administrativa/${isEditMode ? id : "criar"}` },
             ],
         },
         cadastro: {
@@ -77,7 +77,7 @@ const cadastro = () => {
     };
 
     const voltarRegistro = () => {
-        router.push("/gestao-acesso/tipos-unidades-administrativas");
+        router.push("/gestao-acesso/tipo-unidade-administrativa");
     };
 
 const salvarRegistro = async (item: any) => {
