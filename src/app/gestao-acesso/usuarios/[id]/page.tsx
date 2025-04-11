@@ -23,7 +23,7 @@ const cadastro = () => {
     cabecalho: {
       titulo: isEditMode ? "Visualizar Usuario" : "Cadastrar Usuario",
       migalha: [
-        { nome: "Dashboard", link: "/e-Frotas/dashboard" },
+        { nome: "Inicio", link: "/gestao-acesso/" },
         { nome: "Usuarios", link: "/gestao-acesso/usuarios" },
       ],
     },

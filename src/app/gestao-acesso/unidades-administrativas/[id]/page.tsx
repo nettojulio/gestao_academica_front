@@ -15,9 +15,26 @@ const cadastro = () => {
   const { id } = useParams();
   // Inicializamos com um objeto contendo 'endereco' para evitar problemas
   const [dadosPreenchidos, setDadosPreenchidos] = useState<any>({ endereco: {} });
+  const [UnidadesPai, setUnidadesPai] = useState<any[]>([]);
+  const [tipoUnidade, setTipoUnidade] = useState<any[]>([]);
 
   const isEditMode = id && id !== "criar";
-
+  const getOptions = (lista: any[], selecionado: any) => {
+    if (!Array.isArray(lista) || lista.length === 0) return [];
+    const options = lista.map((item) => ({
+      chave: item.id, // ID do item (numérico, por exemplo)
+      valor: item.nome, // Texto exibido no <option>
+    }));
+    if (isEditMode && selecionado) {
+      const selectedId = Number(selecionado); // Converte para número, se necessário
+      const selectedOption = options.find((opt) => opt.chave === selectedId);
+      if (selectedOption) {
+        // Coloca a opção selecionada na frente do array
+        return [selectedOption, ...options.filter((opt) => opt.chave !== selectedId)];
+      }
+    }
+    return options;
+  };
   const estrutura: any = {
     uri: "unidade-administrativa",
     cabecalho: {
@@ -52,24 +69,32 @@ const cadastro = () => {
           mensagem: "Digite",
           obrigatorio: true,
         },
+
         {
           line: 2,
           colSpan: "md:col-span-1",
-          nome: "Tipo Unidade Administrativa",
+          nome: "Tipo Unidade",
           chave: "tipoUnidadeAdministrativaId",
-          tipo: "text",
-          mensagem: "Digite",
-          obrigatorio: true,
+          tipo: "seltect",
+          mensagem: "Selecione a unidade responsavel",
+          obrigatorio: false,
+          //selectOptions: getOptions(tipoUnidade, dadosPreenchidos[0]?.tipoUnidadeAdministrativaId),
+          //exibirPara: ["ALUNO"],
+          bloqueado: isEditMode,
         },
         {
           line: 2,
           colSpan: "md:col-span-1",
-          nome: "Unidade Pai ID",
+          nome: "Unidade Administrativa Responsavel",
           chave: "unidadePaiId",
-          tipo: "text",
-          mensagem: "Digite",
-          obrigatorio: true,
-        },
+          tipo: "select",
+          mensagem: "Selecione a unidade responsavel",
+          obrigatorio: false,
+          selectOptions: getOptions(UnidadesPai, dadosPreenchidos[0]?.unidadePaiId),
+          //exibirPara: ["ALUNO"],
+          bloqueado: isEditMode,
+        }
+
       ],
       acoes: [
         { nome: "Cancelar", chave: "voltar", tipo: "botao" },
@@ -215,9 +240,56 @@ const cadastro = () => {
       toast.error("Erro ao localizar registro. Tente novamente!", { position: "top-left" });
     }
   };
+  const pesquisarUnidadesPai = async (params = null) => {
+    try {
+      let body = {
+        metodo: 'get',
+        uri: '/auth/' + estrutura.uri + "/listar",
+        params: params != null ? params : { size: 25, page: 0 },
+        data: {}
+      }
+      const response = await generica(body);
+      // Tratamento de erros
+      if (response && response.data.errors != undefined) {
+        toast("Erro. Tente novamente!", { position: "bottom-left" });
+      } else if (response && response.data.error != undefined) {
+        toast(response.data.error.message, { position: "bottom-left" });
+      } else if (response && response.data) {
+        // Filtra os itens para manter somente aqueles sem unidade pai (unidadePaiId nulo ou indefinido)
+        const unidadesSemPai = response.data.filter((item: any) => item.unidadePaiId == null || item.unidadePaiId == undefined || item.unidadePaiId == "");
+        setUnidadesPai(unidadesSemPai);
+      }
+    } catch (error) {
+      console.error('Erro ao carregar registros:', error);
+    }
+  };
+  const pesquisarTipoUnidades = async (params = null) => {
+    try {
+      let body = {
+        metodo: 'get',
+        uri: '/auth/tipo-unidade-administrativa/listar',
+        params: params != null ? params : { size: 25, page: 0 },
+        data: {}
+      }
+      const response = await generica(body);
+      // Tratamento de erros
+      if (response && response.data.errors != undefined) {
+        toast("Erro. Tente novamente!", { position: "bottom-left" });
+      } else if (response && response.data.error != undefined) {
+        toast(response.data.error.message, { position: "bottom-left" });
+      } else if (response && response.data) {
+        // Filtra os itens para manter somente aqueles sem unidade pai (unidadePaiId nulo ou indefinido)
+        setTipoUnidade(response.data);
+      }
+    } catch (error) {
+      console.error('Erro ao carregar registros:', error);
+    }
+  };
 
   // Se estiver em modo de edição, carrega os dados ao montar
   useEffect(() => {
+    pesquisarTipoUnidades
+    pesquisarUnidadesPai();
     if (id && id !== "criar") {
       chamarFuncao("editar", id);
     }

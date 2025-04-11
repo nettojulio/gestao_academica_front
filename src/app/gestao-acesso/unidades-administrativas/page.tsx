@@ -2,6 +2,7 @@
 import withAuthorization from '@/components/AuthProvider/withAuthorization';
 import Cabecalho from '@/components/Layout/Interno/Cabecalho';
 import Tabela from '@/components/Tabela/Estrutura';
+import TabelaArvore from '@/components/Tabela/EstruturaArvore';
 import { generica } from '@/utils/api';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -177,7 +178,7 @@ const PageLista = () => {
     */}
       <div className="w-full sm:w-11/12 2xl:w-10/12 p-4 sm:p-6 md:p-8 lg:p-12 :p-16 2xl:p-20 pt-7 md:pt-8 md:pb-8 ">
         <Cabecalho dados={estrutura.cabecalho} />
-        <Tabela
+        <TabelaArvore
           dados={dados}
           estrutura={estrutura}
           chamarFuncao={chamarFuncao}
