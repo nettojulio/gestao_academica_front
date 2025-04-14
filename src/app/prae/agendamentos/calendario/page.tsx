@@ -149,7 +149,6 @@ const PageLista = () => {
         break;
     }
   }
-  console.log()
   // Função para carregar os dados
   const pesquisarRegistro = async (params = null) => {
     try {
