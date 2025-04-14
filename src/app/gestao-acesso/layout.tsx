@@ -1,7 +1,7 @@
 import React from "react";
 import { Metadata } from "next";
 import ClientWrapper from "@/components/AuthProvider/ClientWrapper";
-import { School, PendingActions, Groups2, AccountCircleOutlined, House, Book } from "@mui/icons-material";
+import { School, PendingActions, Groups2, AccountCircleOutlined, House, Book, Summarize } from "@mui/icons-material";
 import { InternalLayoutConfig } from "@/types/InternalLayoutConf";
 
 
@@ -77,6 +77,12 @@ export default function EfrotasLayout({ children }: { children: React.ReactNode 
           //     icon: <PendingActions fontSize="small"className="text-white" />,
           //   },
           // ],
+        },
+        {
+          label: "Tipos de Unidades Administrativas",
+          route: "/gestao-acesso/tipo-unidade-administrativa",
+          icon: <Summarize fontSize="small"  className="text-white"/>,
+          roles: ["administrador"],
         },
         {
           label: "Unidades Administrativas",
