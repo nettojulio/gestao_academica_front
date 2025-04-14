@@ -75,7 +75,7 @@ const cadastro = () => {
           colSpan: "md:col-span-1",
           nome: "Tipo Unidade",
           chave: "tipoUnidadeAdministrativaId",
-          tipo: "seltect",
+          tipo: "select",
           mensagem: "Selecione a unidade responsavel",
           obrigatorio: false,
           //selectOptions: getOptions(tipoUnidade, dadosPreenchidos[0]?.tipoUnidadeAdministrativaId),

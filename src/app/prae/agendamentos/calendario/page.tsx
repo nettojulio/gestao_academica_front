@@ -1,51 +1,135 @@
 "use client"
 import withAuthorization from '@/components/AuthProvider/withAuthorization';
+import Calendar from '@/components/Calendar/calendar';
 import Cabecalho from '@/components/Layout/Interno/Cabecalho';
 import Tabela from '@/components/Tabela/Estrutura';
+import { useRole } from '@/context/roleContext';
 import { generica } from '@/utils/api';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import Swal from 'sweetalert2';
 
+interface TipoAtendimento {
+  nome: string;
+  tempoAtendimento: string;
+  horarios: string[];
+}
+
+interface CronogramaOriginal {
+  data: string; // formato "dd/MM/yyyy"
+  tipoAtendimentoId: number;
+  tipoAtendimento: TipoAtendimento;
+}
+
+// Interfaces esperadas pelo Calendar
+interface DaySlot {
+  horario: string;
+  userScheduled: boolean;
+}
+
+interface MonthCronograma {
+  data: string; // formato "yyyy-MM-dd"
+  slots: DaySlot[];
+}
+
+const convertDateFormat = (dateStr: string): string => {
+  // Garante que a data esteja no formato "dd/MM/yyyy", com zero-padding se necessário
+  const [day, month, year] = dateStr.split('/');
+  return `${day.padStart(2, '0')}/${month.padStart(2, '0')}/${year}`;
+};
+
+
+const transformCronogramas = (data: CronogramaOriginal[]): MonthCronograma[] => {
+  return data.map(item => {
+    return {
+      data: convertDateFormat(item.data), // agora retornará "dd/MM/yyyy"
+      slots: item.tipoAtendimento.horarios.map(horario => ({
+        horario,
+        userScheduled: false // ou conforme a lógica de agendamento
+      }))
+    };
+  });
+};
+
+
 const estrutura: any = {
 
-  uri: "tipo-atendimento", //caminho base
+  uri: "agendamento", //caminho base
 
   cabecalho: { //cabecalho da pagina
-    titulo: "tipo-atendimento",
+    titulo: "Calendario de Agendamentos",
     migalha: [
       { nome: 'Home', link: '/home' },
       { nome: 'Prae', link: '/prae' },
-      { nome: 'Tipo Atendimento', link: '/prae/agendamentos/tipo' },
+      { nome: 'Agendamento', link: '/prae/agendamentos/calendario' },
     ]
   },
-
-  tabela: {
-    configuracoes: {
-      pesquisar: true,//campo pesquisar nas colunas (booleano)
-      cabecalho: true,//cabecalho da tabela (booleano)
-      rodape: true,//rodape da tabela (booleano)
-    },
-    botoes: [ //links
-      { nome: 'Adicionar', chave: 'adicionar', bloqueado: false }, //nome(string),chave(string),bloqueado(booleano)
-    ],
-    colunas: [ //colunas da tabela
-      { nome: "Tipo Atendimento", chave: "descricao", tipo: "texto", selectOptions: null, sort: false, pesquisar: true }, //nome(string),chave(string),tipo(text,select),selectOpcoes([{chave:string, valor:string}]),pesquisar(booleano)
-      { nome: "Horarios", chave: "horarios", tipo: "texto", selectOptions: null, sort: false, pesquisar: true }, //nome(string),chave(string),tipo(text,select),selectOpcoes([{chave:string, valor:string}]),pesquisar(booleano)
-      { nome: "ações", chave: "acoes", tipo: "button", selectOptions: null, sort: false, pesquisar: false },
-    ],
-    acoes_dropdown: [ //botão de acoes de cada registro
-      { nome: 'Editar', chave: 'editar' }, //nome(string),chave(string),bloqueado(booleano)
-      { nome: 'Deletar', chave: 'deletar' },
-    ]
-  }
 
 }
 
 const PageLista = () => {
   const router = useRouter();
   const [dados, setDados] = useState<any>({ content: [] });
+  // Obtenha activeRole e userRoles do contexto
+  const { activeRole, userRoles } = useRole();
+  console.log("activeRole (via contexto):", activeRole);
+  console.log("userRoles (via contexto):", userRoles);
+  const [cronogramas, setCronogramas] = useState<MonthCronograma[]>([]);
+
+  // Verifique se o usuário é privilegiado com base na role ativa
+  const isPrivileged = 'profissional';//activeRole === "administrador" || activeRole === "gestor";
+  const today = new Date();
+  const month = String(today.getMonth() + 1).padStart(2, '0'); // formata o mês para 2 dígitos
+  const year = today.getFullYear();
+
+  useEffect(() => {
+    // Simulando a requisição para obter o mock no formato original
+    // Substitua isto por sua chamada à API se necessário
+    const mockData: CronogramaOriginal[] = [
+      {
+        "data": "09/04/2025",
+        "tipoAtendimentoId": 1,
+        "tipoAtendimento": {
+          "nome": "Psicologico",
+          "tempoAtendimento": "01:30",
+          "horarios": [
+            "07:00",
+            "12:00",
+            "19:00"
+          ]
+        }
+      },
+      {
+        "data": "10/04/2025",
+        "tipoAtendimentoId": 1,
+        "tipoAtendimento": {
+          "nome": "Psicologico",
+          "tempoAtendimento": "01:30",
+          "horarios": [
+            "07:00",
+            "12:00",
+            "19:00"
+          ]
+        }
+      },
+      {
+        "data": "11/04/2025",
+        "tipoAtendimentoId": 1,
+        "tipoAtendimento": {
+          "nome": "Psicologico",
+          "tempoAtendimento": "01:30",
+          "horarios": [
+            "07:00",
+            "12:00",
+            "19:00"
+          ]
+        }
+      }
+    ];
+    const transformed = transformCronogramas(mockData);
+    setCronogramas(transformed);
+  }, []);
 
   const chamarFuncao = (nomeFuncao = "", valor: any = null) => {
     switch (nomeFuncao) {
@@ -65,6 +149,7 @@ const PageLista = () => {
         break;
     }
   }
+  console.log()
   // Função para carregar os dados
   const pesquisarRegistro = async (params = null) => {
     try {
@@ -152,8 +237,20 @@ const PageLista = () => {
   };
 
   useEffect(() => {
+
     chamarFuncao('pesquisar', null);
   }, []);
+
+  // Callbacks de agendar/cancelar
+  const handleAgendar = (data: string, horario: string) => {
+    // Lógica para chamar API e efetivar agendamento
+    console.log(`Agendar: dia ${data}, horário ${horario}`);
+  };
+
+  const handleCancelar = (data: string, horario: string) => {
+    // Lógica para cancelar agendamento
+    console.log(`Cancelar: dia ${data}, horário ${horario}`);
+  };
 
   return (
     <main className="flex flex-wrap justify-center mx-auto">
@@ -167,10 +264,12 @@ const PageLista = () => {
     */}
       <div className="w-full sm:w-11/12 2xl:w-10/12 p-4 sm:p-6 md:p-8 lg:p-12 :p-16 2xl:p-20 pt-7 md:pt-8 md:pb-8 ">
         <Cabecalho dados={estrutura.cabecalho} />
-        <Tabela
-          dados={dados}
-          estrutura={estrutura}
-          chamarFuncao={chamarFuncao}
+        <Calendar
+          userRole={isPrivileged}
+          cronogramas={cronogramas}
+          onAgendar={handleAgendar}
+          onCancelar={handleCancelar}
+          tipoAtendimento="Psicologico"
         />
       </div>
     </main>
