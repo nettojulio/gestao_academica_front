@@ -265,7 +265,6 @@ const cadastro = () => {
       } else if (response && response.data) {
         // Filtra os itens para manter somente aqueles sem unidade pai (unidadePaiId nulo ou indefinido)
         setTipoUnidade(response.data);
-        console.log(response.data)
       }
     } catch (error) {
       console.error('Erro ao carregar registros:', error);
