@@ -15,13 +15,30 @@ const cadastro = () => {
   const { id } = useParams();
   // Inicializamos com um objeto contendo 'endereco' para evitar problemas
   const [dadosPreenchidos, setDadosPreenchidos] = useState<any>({ endereco: {} });
+  const [UnidadesPai, setUnidadesPai] = useState<any[]>([]);
+  const [tipoUnidade, setTipoUnidade] = useState<any[]>([]);
 
   const isEditMode = id && id !== "criar";
-
+  const getOptions = (lista: any[], selecionado: any) => {
+    if (!Array.isArray(lista) || lista.length === 0) return [];
+    const options = lista.map((item) => ({
+      chave: item.id, // ID do item (numérico, por exemplo)
+      valor: item.nome, // Texto exibido no <option>
+    }));
+    if (isEditMode && selecionado) {
+      const selectedId = Number(selecionado); // Converte para número, se necessário
+      const selectedOption = options.find((opt) => opt.chave === selectedId);
+      if (selectedOption) {
+        // Coloca a opção selecionada na frente do array
+        return [selectedOption, ...options.filter((opt) => opt.chave !== selectedId)];
+      }
+    }
+    return options;
+  };
   const estrutura: any = {
-    uri: "unidadeGestora",
+    uri: "unidade-administrativa",
     cabecalho: {
-      titulo: isEditMode ? "Editar Unidade Gestora" : "Cadastrar Unidade Gestora",
+      titulo: isEditMode ? "Editar Unidade Administrativa" : "Cadastrar Unidade Administrativa",
       migalha: [
         { nome: "Gestão Acesso", link: "/gestao-acesso/" },
         { nome: "Unidades Administrativas", link: "/gestao-acesso/unidades-administrativas" },
@@ -34,17 +51,6 @@ const cadastro = () => {
     cadastro: {
       campos: [
         // Linha 1
-
-        {
-          line: 1,
-          colSpan: "md:col-span-1",
-          nome: "CNPJ",
-          chave: "cnpj",
-          tipo: "text",
-          mensagem: "Digite",
-          obrigatorio: true,
-          mascara: "cnpj",
-        },
         {
           line: 1,
           colSpan: "md:col-span-2",
@@ -56,189 +62,45 @@ const cadastro = () => {
         },
         {
           line: 1,
-          colSpan: "md:col-span-2",
-          nome: "Tipo Unidade Gestora",
-          chave: "tipo",
+          colSpan: "md:col-span-1",
+          nome: "Codigo",
+          chave: "codigo",
+          tipo: "text",
+          mensagem: "Digite",
+          obrigatorio: true,
+        },
+
+        {
+          line: 2,
+          colSpan: "md:col-span-1",
+          nome: "Tipo Unidade",
+          chave: "tipoUnidadeAdministrativaId",
           tipo: "select",
-          mensagem: "Selecione",
-          selectOptions: [
-            { chave: "prefeitura", valor: "Prefeitura" },
-            { chave: "saude", valor: "Secretaria de Saúde" },
-            { chave: "educacao", valor: "Secretaria de Educação" },
-            { chave: "camara", valor: "Secretaria de Camara" },
-            { chave: "transporte", valor: "Secretaria de Transporte" },
-          ],
+          mensagem: "Selecione a unidade responsavel",
+          obrigatorio: false,
+          //selectOptions: getOptions(tipoUnidade, dadosPreenchidos[0]?.tipoUnidadeAdministrativaId),
+          //exibirPara: ["ALUNO"],
+          bloqueado: isEditMode,
         },
         {
           line: 2,
           colSpan: "md:col-span-1",
-          nome: "Codigo TCE",
-          chave: "codigo_tce",
-          tipo: "number",
-          mensagem: "Digite",
-          obrigatorio: true,
-        },
-        {
-          line: 2,
-          colSpan: "md:col-span-1",
-          nome: "Situação",
-          chave: "ativo",
+          nome: "Unidade Administrativa Responsavel",
+          chave: "unidadePaiId",
           tipo: "select",
-          mensagem: "Digite",
+          mensagem: "Selecione a unidade responsavel",
           obrigatorio: false,
-          selectOptions: [
-            { chave: true, valor: "Ativo" },
-            { chave: false, valor: "Inativo" },
-          ],
-        },
-        // Linha 2 - Campos de endereço (sem ponto na chave)
-        {
-          line: 2,
-          colSpan: "md:col-span-1",
-          nome: "CEP",
-          chave: "cep",
-          tipo: "text",
-          mensagem: "Digite",
-          obrigatorio: true,
-          mascara: "cep",
-        },
-        {
-          line: 2,
-          colSpan: "md:col-span-3",
-          nome: "Logradouro",
-          chave: "logradouro",
-          tipo: "text",
-          mensagem: "Digite",
-          obrigatorio: true,
-        },
-        {
-          line: 2,
-          colSpan: "md:col-span-2",
-          nome: "Complemento",
-          chave: "complemento",
-          tipo: "text",
-          mensagem: "Digite",
-          obrigatorio: false,
-        },
-        {
-          line: 3,
-          colSpan: "md:col-span-1",
-          nome: "Número",
-          chave: "numero",
-          tipo: "text",
-          mensagem: "Digite",
-          obrigatorio: true,
-        },
-        {
-          line: 3,
-          colSpan: "md:col-span-2",
-          nome: "Bairro",
-          chave: "bairro",
-          tipo: "text",
-          mensagem: "Digite",
-          obrigatorio: true,
-        },
-        {
-          line: 3,
-          colSpan: "md:col-span-2",
-          nome: "Município",
-          chave: "municipio",
-          tipo: "text",
-          mensagem: "Digite",
-          obrigatorio: true,
-        },
-        {
-          line: 3,
-          colSpan: "md:col-span-1",
-          nome: "Estado",
-          chave: "estado",
-          tipo: "text",
-          mensagem: "Digite",
-          obrigatorio: true,
-        },
-        // Linha 5
-        {
-          line: 4,
-          colSpan: "md:col-span-1",
-          nome: "Telefone",
-          chave: "telefone",
-          tipo: "text",
-          mensagem: "Digite",
-          obrigatorio: false,
-          mascara: "telefone",
-        },
-        {
-          line: 4,
-          colSpan: "md:col-span-1",
-          nome: "Celular",
-          chave: "celular",
-          tipo: "text",
-          mensagem: "Digite",
-          obrigatorio: false,
-          mascara: "celular",
-        },
-        {
-          line: 4,
-          colSpan: "md:col-span-2",
-          nome: "Email",
-          chave: "email",
-          tipo: "text",
-          mensagem: "Digite",
-          obrigatorio: true,
-        },
-        {
-          line: 4,
-          colSpan: "md:col-span-2",
-          nome: "Site",
-          chave: "site",
-          tipo: "text",
-          mensagem: "Digite",
-          obrigatorio: false,
-        },
+          selectOptions: getOptions(UnidadesPai, dadosPreenchidos[0]?.unidadePaiId),
+          //exibirPara: ["ALUNO"],
+          bloqueado: isEditMode,
+        }
+
       ],
       acoes: [
         { nome: "Cancelar", chave: "voltar", tipo: "botao" },
         { nome: isEditMode ? "Salvar" : "Cadastrar", chave: "salvar", tipo: "submit" },
       ],
     },
-  };
-
-  // --- Consulta por CNPJ ---
-  // O hook será acionado sempre que o campo "cnpjPosto" tiver 14 dígitos válidos.
-  const { empresa, loading, error } = useEmpresaByCnpj(dadosPreenchidos?.cnpj || "");
-  // Atualiza os campos do formulário quando os dados da empresa são retornados
-  useEffect(() => {
-    if (empresa) {
-      setDadosPreenchidos((prev: any) => ({
-        ...prev,
-        nome: empresa.nome_fantasia || empresa.razao_social,
-        cep: empresa.cep || prev?.cep || "",
-        logradouro: empresa.logradouro || prev?.endereco?.logradouro || "",
-        complemento: empresa.complemento || prev?.endereco?.complemento || "",
-        // Se o número vier na consulta, você pode preencher, senão manter o que foi digitado
-        numero: empresa.numero || prev?.endereco?.numero || "",
-        bairro: empresa.bairro || prev?.endereco?.bairro || "",
-        municipio: empresa.municipio || prev?.endereco?.municipio || "",
-        estado: empresa.uf || prev?.endereco?.estado || "",
-        telefone: empresa.ddd_telefone_1 || prev?.telefone || "",
-        // Se houver dados para celular, email ou site, inclua-os; caso contrário, deixe como estão
-        celular: prev?.celular || "",
-        email: empresa.email || prev?.email || "",
-        site: prev?.site || "",
-      }));
-    }
-  }, [empresa]);
-
-  /**
-   * Função para transformar os dados do formulário, agrupando os itens de endereço
-   * no objeto 'endereco', conforme o formato esperado pela API.
-   */
-  const transformarDados = (item: any) => {
-    const { cep, logradouro, complemento, numero, bairro, municipio, estado, ...rest } = item;
-    return {
-      ...rest,
-      endereco: { cep, logradouro, complemento, numero, bairro, municipio, estado },
-    };
   };
 
   /**
@@ -270,14 +132,19 @@ const cadastro = () => {
    */
   const salvarRegistro = async (item: any) => {
     try {
-      const dataToSend = transformarDados(item);
-      console.log("Enviando dados:", dataToSend);
+
+      const dadosParaEnviar = {
+        nome: item.nome,
+        codigo: item.codigo,
+        tipoUnidadeAdministrativaId: item.tipoUnidadeAdministrativaId,
+        unidadePaiId: item.unidadePaiId,
+      };
 
       const body = {
         metodo: "post",
-        uri: "/" + estrutura.uri,
+        uri: "/auth/" + estrutura.uri + (isEditMode ? `/${id}` : "/registrar"),
         params: {},
-        data: dataToSend,
+        data: dadosParaEnviar,
       };
 
       const response = await generica(body);
@@ -373,9 +240,56 @@ const cadastro = () => {
       toast.error("Erro ao localizar registro. Tente novamente!", { position: "top-left" });
     }
   };
+  const pesquisarUnidadesPai = async (params = null) => {
+    try {
+      let body = {
+        metodo: 'get',
+        uri: '/auth/' + estrutura.uri + "/listar",
+        params: params != null ? params : { size: 25, page: 0 },
+        data: {}
+      }
+      const response = await generica(body);
+      // Tratamento de erros
+      if (response && response.data.errors != undefined) {
+        toast("Erro. Tente novamente!", { position: "bottom-left" });
+      } else if (response && response.data.error != undefined) {
+        toast(response.data.error.message, { position: "bottom-left" });
+      } else if (response && response.data) {
+        // Filtra os itens para manter somente aqueles sem unidade pai (unidadePaiId nulo ou indefinido)
+        const unidadesSemPai = response.data.filter((item: any) => item.unidadePaiId == null || item.unidadePaiId == undefined || item.unidadePaiId == "");
+        setUnidadesPai(unidadesSemPai);
+      }
+    } catch (error) {
+      console.error('Erro ao carregar registros:', error);
+    }
+  };
+  const pesquisarTipoUnidades = async (params = null) => {
+    try {
+      let body = {
+        metodo: 'get',
+        uri: '/auth/tipo-unidade-administrativa/listar',
+        params: params != null ? params : { size: 25, page: 0 },
+        data: {}
+      }
+      const response = await generica(body);
+      // Tratamento de erros
+      if (response && response.data.errors != undefined) {
+        toast("Erro. Tente novamente!", { position: "bottom-left" });
+      } else if (response && response.data.error != undefined) {
+        toast(response.data.error.message, { position: "bottom-left" });
+      } else if (response && response.data) {
+        // Filtra os itens para manter somente aqueles sem unidade pai (unidadePaiId nulo ou indefinido)
+        setTipoUnidade(response.data);
+      }
+    } catch (error) {
+      console.error('Erro ao carregar registros:', error);
+    }
+  };
 
   // Se estiver em modo de edição, carrega os dados ao montar
   useEffect(() => {
+    pesquisarTipoUnidades
+    pesquisarUnidadesPai();
     if (id && id !== "criar") {
       chamarFuncao("editar", id);
     }

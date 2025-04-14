@@ -13,7 +13,7 @@ export default function PageEFrotas() {
       try {
         const authData = JSON.parse(authDataStr);
         if (authData.usuarioRole) {
-          router.push("/e-Frotas/dashboard");
+          router.push("/");
           return;
         }
       } catch (error) {
