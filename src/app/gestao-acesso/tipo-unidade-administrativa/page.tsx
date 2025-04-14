@@ -121,9 +121,9 @@ const PageLista = () => {
             try {
                 const body = {
                     metodo: 'delete',
-                    uri: '/' + estrutura.uri + '/' + item.id,
+                    uri: '/auth/' + estrutura.uri + '/' + item.id + '/deletar',
                     params: {},
-                    data: {}
+                    
                 };
 
                 const response = await generica(body);
