@@ -7,14 +7,12 @@ import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import Swal from "sweetalert2";
-import { useEnderecoByCep } from "@/utils/brasilianStates";
-import { useEmpresaByCnpj } from "@/utils/consultarCNPJ";
 
 const cadastro = () => {
   const router = useRouter();
   const { id } = useParams();
   // Inicializamos com um objeto contendo 'endereco' para evitar problemas
-  const [dadosPreenchidos, setDadosPreenchidos] = useState<any>({ endereco: {} });
+  const [dadosPreenchidos, setDadosPreenchidos] = useState<any>();
   const [UnidadesPai, setUnidadesPai] = useState<any[]>([]);
   const [tipoUnidade, setTipoUnidade] = useState<any[]>([]);
 
@@ -78,7 +76,7 @@ const cadastro = () => {
           tipo: "select",
           mensagem: "Selecione a unidade responsavel",
           obrigatorio: false,
-          //selectOptions: getOptions(tipoUnidade, dadosPreenchidos[0]?.tipoUnidadeAdministrativaId),
+          selectOptions: getOptions(tipoUnidade, dadosPreenchidos?.tipoUnidadeAdministrativaId),
           //exibirPara: ["ALUNO"],
           bloqueado: isEditMode,
         },
@@ -90,7 +88,7 @@ const cadastro = () => {
           tipo: "select",
           mensagem: "Selecione a unidade responsavel",
           obrigatorio: false,
-          selectOptions: getOptions(UnidadesPai, dadosPreenchidos[0]?.unidadePaiId),
+          selectOptions: getOptions(UnidadesPai, dadosPreenchidos?.unidadePaiId),
           //exibirPara: ["ALUNO"],
           bloqueado: isEditMode,
         }
@@ -219,21 +217,8 @@ const cadastro = () => {
         const data = response.data;
         // data.endereco existe e tem { cep, logradouro, ... }.
         // Precisamos jogar cada um deles para o "top-level" do estado,
-        // já que o formulário usa dadosPreenchidos.cep, dadosPreenchidos.logradouro, etc.
-
-        const endereco = data.endereco || {};
-        const dadosAchatados = {
-          ...data,
-          cep: endereco.cep || "",
-          logradouro: endereco.logradouro || "",
-          complemento: endereco.complemento || "",
-          numero: endereco.numero || "",
-          bairro: endereco.bairro || "",
-          municipio: endereco.municipio || "",
-          estado: endereco.estado || "",
-        };
-
-        setDadosPreenchidos(dadosAchatados);
+    
+        setDadosPreenchidos(data);
       }
     } catch (error) {
       console.error("Erro ao localizar registro:", error);
@@ -267,7 +252,7 @@ const cadastro = () => {
     try {
       let body = {
         metodo: 'get',
-        uri: '/auth/tipo-unidade-administrativa/listar',
+        uri: '/auth/tipo-unidade-administrativa',
         params: params != null ? params : { size: 25, page: 0 },
         data: {}
       }
@@ -288,7 +273,7 @@ const cadastro = () => {
 
   // Se estiver em modo de edição, carrega os dados ao montar
   useEffect(() => {
-    pesquisarTipoUnidades
+    pesquisarTipoUnidades();
     pesquisarUnidadesPai();
     if (id && id !== "criar") {
       chamarFuncao("editar", id);
