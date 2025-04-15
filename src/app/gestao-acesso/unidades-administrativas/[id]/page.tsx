@@ -140,7 +140,7 @@ const cadastro = () => {
 
       const body = {
         metodo: "post",
-        uri: "/auth/" + estrutura.uri + (isEditMode ? `/${id}` : "/registrar"),
+        uri: "/auth/" + (isEditMode ? `${estrutura.uri}/${id}` : estrutura.uri),
         params: {},
         data: dadosParaEnviar,
       };
@@ -229,7 +229,7 @@ const cadastro = () => {
     try {
       let body = {
         metodo: 'get',
-        uri: '/auth/' + estrutura.uri + "/listar",
+        uri: '/auth/' + estrutura.uri + "",
         params: params != null ? params : { size: 25, page: 0 },
         data: {}
       }
@@ -241,8 +241,8 @@ const cadastro = () => {
         toast(response.data.error.message, { position: "bottom-left" });
       } else if (response && response.data) {
         // Filtra os itens para manter somente aqueles sem unidade pai (unidadePaiId nulo ou indefinido)
-        const unidadesSemPai = response.data.filter((item: any) => item.unidadePaiId == null || item.unidadePaiId == undefined || item.unidadePaiId == "");
-        setUnidadesPai(unidadesSemPai);
+        //const unidadesSemPai = response.data.filter((item: any) => item.unidadePaiId == null || item.unidadePaiId == undefined || item.unidadePaiId == "");
+        setUnidadesPai(response.data);
       }
     } catch (error) {
       console.error('Erro ao carregar registros:', error);
