@@ -84,7 +84,7 @@ const salvarRegistro = async (item: any) => {
     try {
       const body = {
         metodo: `${isEditMode ? "patch" : "post"}`,
-        uri: "/auth/" + `${isEditMode ? estrutura.uri + "/" + item.id + "/editar" : estrutura.uri + '/registrar' }`,
+        uri: "/auth/" + `${isEditMode ? estrutura.uri + "/" + item.id: estrutura.uri }`,
         params: {},
         data: item,
       };

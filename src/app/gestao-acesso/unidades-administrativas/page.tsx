@@ -77,7 +77,7 @@ const PageLista = () => {
     try {
       let body = {
         metodo: 'get',
-        uri: '/auth/' + estrutura.uri + "/listar",
+        uri: '/auth/' + estrutura.uri ,
         //+ '/page',
         params: params != null ? params : { size: 25, page: 0 },
         data: {}
