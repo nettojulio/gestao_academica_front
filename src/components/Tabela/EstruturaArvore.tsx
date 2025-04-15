@@ -1,9 +1,9 @@
-"use client"
+"use client";
 import React, { useEffect, useRef, useState } from 'react';
 import Pagination from './Itens/Paginacao';
 
 const TabelaArvore = ({ dados = null, estrutura = null, chamarFuncao = null }: any) => {
-  // Estados utilizados no componente:
+  // Estados
   const [dropdownAberto, setDropdownAberto] = useState<any>({});
   const dropdownRef = useRef<any>(null);
   const [bodyParams, setBodyParams] = useState<any>({ size: 25 });
@@ -12,7 +12,7 @@ const TabelaArvore = ({ dados = null, estrutura = null, chamarFuncao = null }: a
   const [treeData, setTreeData] = useState<any[]>([]);
   const [expandedNodes, setExpandedNodes] = useState<Record<number, boolean>>({});
 
-  // Hook para detectar a largura da tela (desktop vs. mobile)
+  // Detecta se é desktop ou mobile
   useEffect(() => {
     const handleResize = () => {
       setIsDesktop(window.innerWidth >= 768);
@@ -22,13 +22,10 @@ const TabelaArvore = ({ dados = null, estrutura = null, chamarFuncao = null }: a
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Converte a lista plana de dados em estrutura de árvore usando o campo "unidadePaiId"
+  // Converte dados planos em árvore (usando unidadePaiId)
   useEffect(() => {
-    if (!dados || !Array.isArray(dados)) {
-        //console.error('dados não é um array:', dados);
-        return;
-      }    const dataMap = new Map<number, any>();
-    // Cria o mapa e inicializa a propriedade children em cada item
+    if (!dados || !Array.isArray(dados)) return;
+    const dataMap = new Map<number, any>();
     dados.forEach((item: any) => {
       dataMap.set(item.id, { ...item, children: [] });
     });
@@ -44,7 +41,7 @@ const TabelaArvore = ({ dados = null, estrutura = null, chamarFuncao = null }: a
     setTreeData(tree);
   }, [dados]);
 
-  // Função para atualizar filtros (mantém a mesma lógica do componente Tabela)
+  // Atualiza filtros e chama função de pesquisa
   const paramsColuna = (chave: any = null, valor: any = null) => {
     if (chave != null && valor != null) {
       const updatedBodyParams = { ...bodyParams, [chave]: valor };
@@ -53,7 +50,7 @@ const TabelaArvore = ({ dados = null, estrutura = null, chamarFuncao = null }: a
     }
   };
 
-  // Função para controle de dropdown de ações (mesma lógica do Tabela)
+  // Dropdown de ações
   const dropdownAbrirFechar = (id: any) => {
     setDropdownAberto((prevState: any) => ({ ...prevState, [id]: !prevState[id] }));
   };
@@ -66,34 +63,28 @@ const TabelaArvore = ({ dados = null, estrutura = null, chamarFuncao = null }: a
 
   useEffect(() => {
     document.addEventListener('mousedown', dropdownCliqueiFora);
-    return () => {
-      document.removeEventListener('mousedown', dropdownCliqueiFora);
-    };
+    return () => document.removeEventListener('mousedown', dropdownCliqueiFora);
   }, []);
 
-  // Função para verificar se o texto segue padrão ISO8601 e formatá-lo
+  // Formatação de datas (ISO8601)
   const verificaTexto = (texto: any) => {
     const iso8601Regex = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})\.(\d{3})[+-]\d{2}:\d{2}$/;
     if (texto != null && iso8601Regex.test(texto)) {
-      let dataString = texto;
-      let data = dataString.split("T")[0];
-      let hora = dataString.split("T")[1].split(".")[0];
-      let dia = data.split('-')[2];
-      let mes = data.split('-')[1];
-      let ano = data.split('-')[0];
+      const [dataStr, rest] = texto.split("T");
+      const [hora] = rest.split(".");
+      const [ano, mes, dia] = dataStr.split("-");
       return `${dia}/${mes}/${ano} ${hora}`;
-    } else {
-      return texto;
     }
+    return texto;
   };
 
-  // Renderização dos filtros (usando a mesma lógica do Tabela)
+  // Renderiza filtros se configurados
   const renderFiltros = () => {
     if (!estrutura?.tabela?.colunas) return null;
     const filters = estrutura.tabela.colunas.filter((col: any) => col.pesquisar);
     return (
       <div className="flex flex-wrap gap-4 w-full">
-        {filters.map((item: any, index: any) => (
+        {filters.map((item: any, index: number) => (
           <div key={`filtro_${index}`} className="w-full sm:w-auto flex-1 min-w-[200px] flex flex-col">
             <label htmlFor={`filtro_${index}`} className="mb-1 text-sm font-bold text-neutrals-900">
               {item.nome}
@@ -110,45 +101,41 @@ const TabelaArvore = ({ dados = null, estrutura = null, chamarFuncao = null }: a
               )}
             {(item.tipo === 'booleano' ||
               (item.tipo === 'texto' && item.selectOptions && item.selectOptions.length > 0)) && (
-              <select
-                id={`filtro_${index}`}
-                className="pl-2 py-1 border rounded-md text-sm bg-white"
-                onChange={(e) => paramsColuna(item.chave, e.target.value)}
-              >
-                {!item.selectOptions?.some((option: any) => option.valor === "Todos") && (
-                  <option value="">Selecionar</option>
-                )}
-                {item.selectOptions.map((option: { chave: any; valor: any }) => (
-                  <option key={option.chave} value={option.chave}>
-                    {option.valor}
-                  </option>
-                ))}
-              </select>
-            )}
+                <select
+                  id={`filtro_${index}`}
+                  className="pl-2 py-1 border rounded-md text-sm bg-white"
+                  onChange={(e) => paramsColuna(item.chave, e.target.value)}
+                >
+                  {!item.selectOptions?.some((option: any) => option.valor === "Todos") && (
+                    <option value="">Selecionar</option>
+                  )}
+                  {item.selectOptions.map((option: { chave: any; valor: any }) => (
+                    <option key={option.chave} value={option.chave}>
+                      {option.valor}
+                    </option>
+                  ))}
+                </select>
+              )}
           </div>
         ))}
       </div>
     );
   };
 
-  // Função auxiliar para renderizar o conteúdo da célula usando a mesma lógica do Tabela
+  // Renderiza o conteúdo de cada célula
   const renderCellContent = (node: any, col: any) => {
-    // Tratamento para coluna do tipo json (chave com separador '|' para identificar a chave do JSON)
     if (col.tipo === 'json') {
-      const partes = col.chave.split('|');
-      let key = partes[0];
-      let jsonKey = partes[1];
+      const [key, jsonKey] = col.chave.split('|');
       try {
-        let jsonItem = JSON.parse(node[key]);
+        const jsonItem = JSON.parse(node[key]);
         if (jsonItem && typeof jsonItem[jsonKey] !== 'object') {
           return verificaTexto(jsonItem[jsonKey]);
         }
         return '';
-      } catch (e) {
+      } catch {
         return '';
       }
     } else if (node[col.chave] !== undefined) {
-      // Coluna do tipo status com selectOptions
       if (col.tipo === "status" && col.selectOptions) {
         const selectOption = col.selectOptions.find((option: any) => option.chave === node[col.chave]);
         if (selectOption) {
@@ -172,46 +159,36 @@ const TabelaArvore = ({ dados = null, estrutura = null, chamarFuncao = null }: a
                 </span>
               );
           }
-        } else {
-          return '';
         }
-      }
-      // Colunas booleanas ou com selectOptions para exibir valor formatado
-      else if (col.tipo === "booleano" || col.selectOptions) {
-        const selectOption =
-          col.selectOptions && col.selectOptions.find((option: any) => option.chave === node[col.chave]);
+        return '';
+      } else if (col.tipo === "booleano" || col.selectOptions) {
+        const selectOption = col.selectOptions && col.selectOptions.find((option: any) => option.chave === node[col.chave]);
         if (selectOption) {
           return (
             <div
-              className={`py-2 text-center rounded-md text-label-medium font-normal ${
-                selectOption.chave === true || selectOption.chave === "APROVADA"
-                  ? "bg-success-100 text-success-900"
-                  : selectOption.chave === "PENDENTE"
+              className={`py-2 text-center rounded-md text-label-medium font-normal ${selectOption.chave === true || selectOption.chave === "APROVADA"
+                ? "bg-success-100 text-success-900"
+                : selectOption.chave === "PENDENTE"
                   ? "bg-warning-100 text-warning-900"
                   : "bg-danger-100 text-danger-900"
-              }`}
+                }`}
             >
               {selectOption.valor}
             </div>
           );
         }
         return '';
-      }
-      // Se o valor for primitivo, apenas verifica se é data/texto
-      else if (typeof node[col.chave] !== 'object') {
+      } else if (typeof node[col.chave] !== 'object') {
         return verificaTexto(node[col.chave]);
-      } else {
-        return '';
       }
+      return '';
     } else {
-      // Se o campo não for encontrado diretamente, tenta encontrar valores aninhados (ex.: "tipoUnidadeAdministrativa.nome")
+      // Trata campos aninhados (ex.: "tipoUnidade.nome")
       if (col.chave.indexOf('.') !== -1) {
         const keys = col.chave.split('.');
         let nestedValue = node;
         for (let k of keys) {
-          if (nestedValue) {
-            nestedValue = nestedValue[k];
-          }
+          if (nestedValue) nestedValue = nestedValue[k];
         }
         if (nestedValue !== undefined && typeof nestedValue !== 'object') {
           return verificaTexto(nestedValue);
@@ -221,30 +198,75 @@ const TabelaArvore = ({ dados = null, estrutura = null, chamarFuncao = null }: a
     }
   };
 
-  // Função recursiva para renderizar cada linha (nó) da árvore para a versão desktop
-  // Consideramos que a primeira coluna (index === 0) receberá a indentação e o botão de expandir/recolher.
-  const renderRow = (node: any, level: number = 0) => {
+  // --------------------------------------------------
+  // RENDERIZAÇÃO DESKTOP
+  // --------------------------------------------------
+
+  const renderRow = (node: any, level: number = 0, ancestorsHaveNextSibling: boolean[] = []) => {
+    const spacing = 30;
+    const offset = 0;
+
+    // Pega irmãos para saber se o nó atual tem um próximo
+    const parentChildren = node.unidadePaiId != null
+      ? dados.filter((item: any) => item.unidadePaiId === node.unidadePaiId)
+      : treeData;
+
+    const currentIndex = parentChildren.findIndex((item: any) => item.id === node.id);
+    const hasNextSibling = currentIndex < parentChildren.length - 1;
+
     return (
       <React.Fragment key={node.id}>
         <tr className="hover:bg-neutrals-100">
           {estrutura.tabela.colunas.map((col: any, index: number) => {
-            // Para a primeira coluna, adiciona indentação e o botão de expandir/recolher se houver filhos
             if (index === 0) {
               return (
-                <td key={col.chave} className="px-6 py-2 whitespace-nowrap font-normal">
-                  <div className="flex items-center" style={{ paddingLeft: `${level * 20}px` }}>
+                <td key={col.chave} className="px-6 py-2 whitespace-nowrap font-normal relative">
+
+                  {/* Linhas verticais dos ancestrais */}
+                  {ancestorsHaveNextSibling.map((hasSibling, i) =>
+                    hasSibling ? (
+                      <div
+                        key={i}
+                        className="absolute inset-y-0"
+                        style={{
+                          left: `${(i + 1) * spacing - spacing / 111 + offset}px`,
+                          width: "1px",
+                          borderLeft: "1px dashed #000",
+                        }}
+                      />
+                    ) : null
+                  )}
+
+                  {/* Linha horizontal (apenas no nível atual, se for filho) */}
+                  {level > 0 && (
+                    <div
+                      className="absolute"
+                      style={{
+                        top: "50%",
+                        left: `${level * spacing + offset}px`,
+                        width: "20px",
+                        height: "1px",
+                        backgroundColor: "#000",
+                      }}
+                    />
+                  )}
+
+                  {/* Conteúdo com indentação */}
+                  <div className="flex items-center" style={{ paddingLeft: `${level * spacing + offset}px` }}>
                     {node.children && node.children.length > 0 && (
                       <button onClick={() => toggleNode(node.id)} className="mr-2 focus:outline-none">
-                        {expandedNodes[node.id] ? '▼' : '▶'}
+                        {expandedNodes[node.id] ? "▼" : "▶"}
                       </button>
                     )}
-                    <span>{renderCellContent(node, col)}</span>
+                    <span
+                      className={`text-sm ${level === 0 ? "font-semibold text-neutrals-900" : "text-neutrals-700"}`}
+                    >
+                      {renderCellContent(node, col)}
+                    </span>
                   </div>
                 </td>
               );
-            }
-            // Coluna de ações com dropdown (seguindo a lógica original)
-            else if (col.chave === 'acoes') {
+            } else if (col.chave === 'acoes') {
               return (
                 <td
                   key={col.chave}
@@ -271,7 +293,7 @@ const TabelaArvore = ({ dados = null, estrutura = null, chamarFuncao = null }: a
                             key={idx}
                             className="block px-4 py-2 text-sm text-neutrals-700 hover:bg-neutrals-100 w-full text-center"
                             role="menuitem"
-                            onClick={() => chamarFuncao(acao.chave, node)}
+                            onClick={() => chamarFuncao(acao.chave, node.id)}
                           >
                             {acao.nome}
                           </button>
@@ -280,9 +302,8 @@ const TabelaArvore = ({ dados = null, estrutura = null, chamarFuncao = null }: a
                   )}
                 </td>
               );
-            }
-            // Outras colunas, renderizam o conteúdo normalmente
-            else {
+
+            } else {
               return (
                 <td key={col.chave} className="px-6 py-2 whitespace-nowrap font-normal">
                   {renderCellContent(node, col)}
@@ -291,16 +312,92 @@ const TabelaArvore = ({ dados = null, estrutura = null, chamarFuncao = null }: a
             }
           })}
         </tr>
-        {/* Se o nó tiver filhos e estiver expandido, renderiza-os recursivamente */}
+
+        {/* Renderiza filhos se expandidos */}
         {node.children &&
           node.children.length > 0 &&
           expandedNodes[node.id] &&
-          node.children.map((child: any) => renderRow(child, level + 1))}
+          node.children.map((child: any, idx: number) =>
+            renderRow(child, level + 1, [
+              ...ancestorsHaveNextSibling,
+              idx < node.children.length // só desenha linha se ainda houver irmãos depois
+            ])
+          )}
       </React.Fragment>
     );
   };
 
-  // Função para alternar a expansão de um nó
+  // --------------------------------------------------
+  // RENDERIZAÇÃO MOBILE
+  // --------------------------------------------------
+  const renderMobileRow = (node: any, level: number = 0) => {
+    return (
+      <div
+        key={node.id}
+        className="bg-white rounded-md mb-4 shadow"
+        style={{
+          // Linha-guia + indentação para filhos
+          borderLeft: level >= 1 ? '2px dashed #666' : 'none',
+          paddingLeft: level >= 1 ? `${level * 15}px` : '0',
+        }}
+      >
+        {/* Cabeçalho do item (exibindo a primeira coluna) */}
+        <div className="flex items-center justify-between px-3 py-2 border-b border-neutrals-200">
+          <div>
+            <span className="font-semibold text-sm">
+              {renderCellContent(node, estrutura.tabela.colunas[0])}
+            </span>
+          </div>
+          {node.children && node.children.length > 0 && (
+            <button
+              onClick={() => toggleNode(node.id)}
+              className="px-2 py-1 text-sm border rounded focus:outline-none"
+            >
+              {expandedNodes[node.id] ? 'Fechar' : 'Abrir'}
+            </button>
+          )}
+        </div>
+
+        {/* Demais colunas no "corpo" do card */}
+        <div className="px-3 py-2">
+          {estrutura.tabela.colunas.slice(1).map((col: any) => {
+            if (col.chave === 'acoes') {
+              return (
+                <div key={col.chave} className="mt-2 flex justify-end gap-2">
+                  {estrutura.tabela.acoes_dropdown &&
+                    estrutura.tabela.acoes_dropdown.map((acao: any, idx: number) => (
+                      <button
+                        key={idx}
+                        className="px-4 py-1 text-sm text-white bg-primary-500 hover:bg-primary-700 rounded"
+                        onClick={() => chamarFuncao(acao.chave, node.id)}
+                      >
+                        {acao.nome}
+                      </button>
+                    ))}
+                </div>
+              );
+            } else {
+              return (
+                <div key={col.chave} className="mt-2">
+                  <span className="block text-xs font-bold text-gray-700">{col.nome}:</span>
+                  <span className="block text-sm text-gray-800">{renderCellContent(node, col)}</span>
+                </div>
+              );
+            }
+          })}
+
+          {/* Se tiver filhos e estiver expandido, renderiza recursivamente */}
+          {node.children && node.children.length > 0 && expandedNodes[node.id] && (
+            <div className="mt-3">
+              {node.children.map((child: any) => renderMobileRow(child, level + 1))}
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
+  // Alterna a expansão de um nó
   const toggleNode = (id: number) => {
     setExpandedNodes((prev) => ({ ...prev, [id]: !prev[id] }));
   };
@@ -310,7 +407,6 @@ const TabelaArvore = ({ dados = null, estrutura = null, chamarFuncao = null }: a
       <div className="flex flex-col">
         {/* Linha de botões */}
         <div className="flex justify-between items-center overflow-x-auto mt-2.5">
-          {/* Lado Esquerdo: Botão de Filtrar */}
           <div className="flex items-center">
             {estrutura?.tabela?.configuracoes?.pesquisar && (
               <div className="relative ml-2">
@@ -323,7 +419,6 @@ const TabelaArvore = ({ dados = null, estrutura = null, chamarFuncao = null }: a
               </div>
             )}
           </div>
-          {/* Lado Direito: Outros botões */}
           <div className="flex items-center">
             {estrutura?.tabela?.botoes &&
               estrutura.tabela.botoes
@@ -342,9 +437,12 @@ const TabelaArvore = ({ dados = null, estrutura = null, chamarFuncao = null }: a
           </div>
         </div>
         {showFilters && (
-          <div className="mb-4 p-4 bg-neutrals-50 rounded-md shadow">{renderFiltros()}</div>
+          <div className="mb-4 p-4 bg-neutrals-50 rounded-md shadow">
+            {renderFiltros()}
+          </div>
         )}
-        {/* Renderização para Desktop */}
+
+        {/* Versão Desktop */}
         <div className="overflow-x-auto rounded-md border-2 border-neutrals-200 hidden md:block">
           <div className="min-w-full inline-block align-middle">
             <div className="rounded-md overflow-hidden">
@@ -354,21 +452,21 @@ const TabelaArvore = ({ dados = null, estrutura = null, chamarFuncao = null }: a
                   hidden={estrutura?.tabela?.configuracoes && !estrutura.tabela.configuracoes.cabecalho}
                 >
                   <tr>
-                    {estrutura.tabela.colunas.map((item: any, index: any) => (
+                    {estrutura.tabela.colunas.map((item: any, index: number) => (
                       <td
                         key={index}
                         className={
-                          item.nome.toUpperCase() === "AÇÕES"
-                            ? "px-6 py-3 whitespace-nowrap text-sm font-bold uppercase text-neutrals-900 text-center"
-                            : "px-6 py-3 whitespace-nowrap text-sm font-bold uppercase text-neutrals-900"
+                          item.nome.toUpperCase() === 'AÇÕES'
+                            ? 'px-6 py-3 whitespace-nowrap text-sm font-bold uppercase text-neutrals-900 text-center'
+                            : 'px-6 py-3 whitespace-nowrap text-sm font-bold uppercase text-neutrals-900'
                         }
-                        title={item.hint || ""}
+                        title={item.hint || ''}
                       >
                         <div
                           className={
-                            item.nome.toUpperCase() === "AÇÕES"
-                              ? "flex items-center justify-center gap-2"
-                              : "flex items-center gap-2"
+                            item.nome.toUpperCase() === 'AÇÕES'
+                              ? 'flex items-center justify-center gap-2'
+                              : 'flex items-center gap-2'
                           }
                         >
                           {item.nome}
@@ -396,9 +494,9 @@ const TabelaArvore = ({ dados = null, estrutura = null, chamarFuncao = null }: a
                               className="ml-2"
                               onClick={() =>
                                 paramsColuna(
-                                  "sort",
+                                  'sort',
                                   bodyParams.sort != null &&
-                                    bodyParams.sort.split(",")[1] === "asc"
+                                    bodyParams.sort.split(',')[1] === 'asc'
                                     ? `${item.chave},desc`
                                     : `${item.chave},asc`
                                 )
@@ -406,10 +504,10 @@ const TabelaArvore = ({ dados = null, estrutura = null, chamarFuncao = null }: a
                               hidden={!item.sort}
                             >
                               {bodyParams.sort != null &&
-                              bodyParams.sort.split(",")[0] === item.chave &&
-                              bodyParams.sort.split(",")[1] === "asc"
-                                ? "▲"
-                                : "▼"}
+                                bodyParams.sort.split(',')[0] === item.chave &&
+                                bodyParams.sort.split(',')[1] === 'asc'
+                                ? '▲'
+                                : '▼'}
                             </button>
                           )}
                         </div>
@@ -433,90 +531,10 @@ const TabelaArvore = ({ dados = null, estrutura = null, chamarFuncao = null }: a
           </div>
         </div>
 
-        {/* Layout Stacked para Mobile */}
+        {/* Versão Mobile */}
         <div className="block md:hidden">
           {treeData && treeData.length > 0 ? (
-            treeData.map((node: any) => (
-              <div key={node.id} className="bg-white border border-neutrals-200 rounded-md p-4 mb-4 shadow">
-                {estrutura.tabela.colunas.map((col: any, index: number) => {
-                  if (col.chave === 'acoes') {
-                    // No mobile, exibe os botões de ação diretamente
-                    return (
-                      <div key={col.chave} className="mt-2 flex justify-end gap-2">
-                        {estrutura.tabela.acoes_dropdown &&
-                          estrutura.tabela.acoes_dropdown.map((acao: any, idx: number) => (
-                            <button
-                              key={idx}
-                              className="px-4 py-2 text-sm text-neutrals-50 bg-primary-500 hover:bg-primary-700 border rounded-md"
-                              onClick={() => chamarFuncao(acao.chave, node)}
-                            >
-                              {acao.nome}
-                            </button>
-                          ))}
-                      </div>
-                    );
-                  } else {
-                    return (
-                      <div key={col.chave} className="mb-2">
-                        <span className="block text-sm font-bold text-neutrals-900">{col.nome}:</span>
-                        <span className="block text-sm text-neutrals-700 font-normal">
-                          {col.chave === estrutura.tabela.colunas[0].chave && node.children && node.children.length > 0 ? (
-                            <div className="flex items-center">
-                              <button onClick={() => toggleNode(node.id)} className="mr-2 focus:outline-none">
-                                {expandedNodes[node.id] ? '▼' : '▶'}
-                              </button>
-                              {renderCellContent(node, col)}
-                            </div>
-                          ) : (
-                            renderCellContent(node, col)
-                          )}
-                        </span>
-                      </div>
-                    );
-                  }
-                })}
-                {node.children && node.children.length > 0 && expandedNodes[node.id] && (
-                  <div className="mt-4 border-t pt-4">
-                    {node.children.map((child: any) => (
-                      <div key={child.id} className="ml-4 mt-2">
-                        {estrutura.tabela.colunas.map((col: any) =>
-                          col.chave === 'acoes' ? (
-                            <div key={col.chave} className="mt-2 flex justify-end gap-2">
-                              {estrutura.tabela.acoes_dropdown &&
-                                estrutura.tabela.acoes_dropdown.map((acao: any, idx: number) => (
-                                  <button
-                                    key={idx}
-                                    className="px-4 py-2 text-sm text-neutrals-50 bg-primary-500 hover:bg-primary-700 border rounded-md"
-                                    onClick={() => chamarFuncao(acao.chave, child)}
-                                  >
-                                    {acao.nome}
-                                  </button>
-                                ))}
-                            </div>
-                          ) : (
-                            <div key={col.chave} className="mb-2">
-                              <span className="block text-sm font-bold text-neutrals-900">{col.nome}:</span>
-                              <span className="block text-sm text-neutrals-700 font-normal">
-                                {col.chave === estrutura.tabela.colunas[0].chave && child.children && child.children.length > 0 ? (
-                                  <div className="flex items-center">
-                                    <button onClick={() => toggleNode(child.id)} className="mr-2 focus:outline-none">
-                                      {expandedNodes[child.id] ? '▼' : '▶'}
-                                    </button>
-                                    {renderCellContent(child, col)}
-                                  </div>
-                                ) : (
-                                  renderCellContent(child, col)
-                                )}
-                              </span>
-                            </div>
-                          )
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            ))
+            treeData.map((node: any) => renderMobileRow(node))
           ) : (
             <div className="text-center py-4 font-normal">
               <h6 className="text-neutrals-600">Nenhum registro encontrado.</h6>
@@ -524,6 +542,7 @@ const TabelaArvore = ({ dados = null, estrutura = null, chamarFuncao = null }: a
           )}
         </div>
       </div>
+
       {estrutura?.tabela?.configuracoes?.rodape && (
         <Pagination dados={dados} paramsColuna={paramsColuna} />
       )}

@@ -90,3 +90,18 @@
 }
 
 
+.linha-guia {
+  position: relative; /* necessário para o pseudo-elemento ser posicionado relativamente */
+}
+.linha-guia::before {
+  content: "";
+  position: absolute;
+  left: 0;           /* ajuste se necessário */
+  top: 0;
+  bottom: 0;
+  width: 2px;        /* pode ajustar a espessura */
+  border-left: 2px dashed #666; /* estilo da linha */
+  /* opcionalmente, se quiser deslocar um pouco a linha para a esquerda, use:
+     transform: translateX(-5px);
+  */
+}
