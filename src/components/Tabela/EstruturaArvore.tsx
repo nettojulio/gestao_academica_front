@@ -369,7 +369,7 @@ const TabelaArvore = ({ dados = null, estrutura = null, chamarFuncao = null }: a
                       <button
                         key={idx}
                         className="px-4 py-1 text-sm text-white bg-primary-500 hover:bg-primary-700 rounded"
-                        onClick={() => chamarFuncao(acao.chave, node)}
+                        onClick={() => chamarFuncao(acao.chave, node.id)}
                       >
                         {acao.nome}
                       </button>
