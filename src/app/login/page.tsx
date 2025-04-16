@@ -89,7 +89,7 @@ export default function Login() {
       <section className="hidden md:flex flex-col justify-center px-16 bg-white w-1/2">
         <h1 className="text-primary-700 text-display-small font-bold mb-4">Sistema de Gestão</h1>
         <p className="text-neutrals-600 text-body-large leading-relaxed">
-          Lorem Lorem Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur et dignissim felis.
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur et dignissim felis.
           Nullam porta, libero vel volutpat hendrerit, turpis urna fermentum justo, ut maximus orci ligula ac risus.
         </p>
       </section>
