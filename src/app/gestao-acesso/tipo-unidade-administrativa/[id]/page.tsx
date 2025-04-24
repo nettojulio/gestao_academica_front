@@ -84,7 +84,7 @@ const salvarRegistro = async (item: any) => {
     try {
       const body = {
         metodo: `${isEditMode ? "patch" : "post"}`,
-        uri: "/auth/" + `${isEditMode ? estrutura.uri + "/" + item.id: estrutura.uri }`,
+        uri: "/auth/" + `${isEditMode ? estrutura.uri + "/" + item.id : estrutura.uri }`,
         params: {},
         data: item,
       };
@@ -106,7 +106,7 @@ const salvarRegistro = async (item: any) => {
         toast(response.data.error.message, { position: "top-left" });
       } else {
         Swal.fire({
-          title: "Curso salvo com sucesso!",
+          title: "Tipo de UA salvo com sucesso!",
           icon: "success",
         }).then((result) => {
           if (result.isConfirmed) {

@@ -36,7 +36,7 @@ const cadastro = () => {
   };
 
   const estrutura: any = {
-    uri: "etnia",
+    uri: "tipoEtnia",
     cabecalho: {
       titulo: isEditMode ? "Editar Etnia" : "Cadastrar Etnia",
       migalha: [
@@ -101,7 +101,7 @@ const cadastro = () => {
     try {
       const body = {
         metodo: `${isEditMode ? "patch" : "post"}`,
-        uri: "/prae/" + `${isEditMode ? estrutura.uri + "/" + item.id : estrutura.uri}`,
+        uri: "/prae/" + `${isEditMode ? estrutura.uri + "/" + item.id : estrutura.uri + "/registrar"}`,
         params: {},
         data: item,
       };
