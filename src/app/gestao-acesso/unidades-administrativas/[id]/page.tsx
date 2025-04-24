@@ -139,7 +139,7 @@ const cadastro = () => {
       };
 
       const body = {
-        metodo: "post",
+        metodo: `${isEditMode ? "patch" : "post"}`,
         uri: "/auth/" + (isEditMode ? `${estrutura.uri}/${id}` : estrutura.uri),
         params: {},
         data: dadosParaEnviar,
@@ -195,7 +195,7 @@ const cadastro = () => {
     try {
       const body = {
         metodo: "get",
-        uri: "/" + estrutura.uri + "/" + item,
+        uri: "/auth/" + estrutura.uri + "/" + item,
         params: {},
         data: item,
       };
