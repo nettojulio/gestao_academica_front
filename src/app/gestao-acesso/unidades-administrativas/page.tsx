@@ -112,7 +112,7 @@ const PageLista = () => {
   // Função que deleta um registro
   const deletarRegistro = async (item: any) => {
     const confirmacao = await Swal.fire({
-      title: `Você deseja deletar a unidade administrativa ${item.nome}?`,
+      title: `Você deseja deletar a unidade administrativa selecionada?`,
       text: "Essa ação não poderá ser desfeita",
       icon: "warning",
       showCancelButton: true,
@@ -137,9 +137,8 @@ const PageLista = () => {
       try {
         const body = {
           metodo: 'delete',
-          uri: '/auth/' + estrutura.uri + '/' + item.id,
+          uri: '/auth/' + estrutura.uri + '/' + item,
           params: {},
-          data: {}
         };
 
         const response = await generica(body);
