@@ -1,0 +1,17 @@
+name: Deploy local com runner
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+
+    steps:
+      - name: Atualizar código e containers
+        run: |
+          cd /home/lmtsadm/gestao_academica_front
+          git pull origin main
+          docker compose up -d --build
