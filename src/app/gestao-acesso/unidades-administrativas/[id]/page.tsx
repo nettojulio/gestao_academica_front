@@ -138,6 +138,10 @@ const cadastro = () => {
         unidadePaiId: item.unidadePaiId,
       };
 
+      if (item.unidadePaiId !== undefined && item.unidadePaiId !== null) {
+        dadosParaEnviar.unidadePaiId = item.unidadePaiId;
+      }
+
       const body = {
         metodo: "post",
         uri: "/auth/" + (isEditMode ? `${estrutura.uri}/${id}` : estrutura.uri),
@@ -195,7 +199,7 @@ const cadastro = () => {
     try {
       const body = {
         metodo: "get",
-        uri: "/" + estrutura.uri + "/" + item,
+        uri: "/auth/" + estrutura.uri + "/" + item,
         params: {},
         data: item,
       };

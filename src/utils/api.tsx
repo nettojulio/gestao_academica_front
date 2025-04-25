@@ -204,3 +204,42 @@ export const genericaDashboard = async ({ metodo = '', uri = '', params = {}, da
         throw error;
     }
 };
+
+export const genericaMultiForm = async ({
+    metodo = "",
+    uri = "",
+    params = {},
+    data = {},
+    responseType = "json", // valor default
+  }: any) => {
+    try {
+      const url = `${BASE_URL}${uri}`;
+      const accessToken = AuthTokenService.getAccessToken();
+  
+      if (accessToken === null) router.push("/e-Frotas/sair");
+      const response = await axios({
+        method: metodo,
+        url,
+        params,
+        data,
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${accessToken}`,
+        },
+        responseType, // <-- Importante! Passa o responseType recebido para o axios
+      });
+      return response;
+    } catch (error: unknown) {
+      const err = error as any;
+      console.error(`Erro ao fazer requisição ${metodo} para ${uri}:`, err);
+  
+      if (err.code && err.code === 'ERR_NETWORK') {
+        router.push('/e-Frotas');
+      } else if (err.response && err.response.status === 401) {
+        const errorData = err.response.data;
+        if (errorData && errorData.error && errorData.error.includes("JWT invalido"))
+          router.push("/e-Frotas");
+      }
+      return err.response;
+    }
+  };

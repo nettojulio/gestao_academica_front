@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import Swal from "sweetalert2";
 import { useEnderecoByCep } from "@/utils/brasilianStates";
-import { generica } from "@/utils/api";
+import { generica, genericaMultiForm } from "@/utils/api";
 import Cadastro from "@/components/Cadastro/Estrutura";
 import AplicarMascara from "@/utils/mascaras";
 
@@ -368,7 +368,7 @@ const cadastro = () => {
         data: item,
       };
       console.log(body)
-      const response = await generica(body);
+      const response = await genericaMultiForm(body);
       if (!response || response.status < 200 || response.status >= 300) {
         if (response) {
           console.error("DEBUG: Status de erro:", response.status, 'statusText' in response ? response.statusText : "Sem texto de status");

@@ -10,7 +10,7 @@ import Swal from 'sweetalert2';
 
 const estrutura: any = {
 
-  uri: "tipo-etnia", //caminho base
+  uri: "tipoEtnia", //caminho base
 
   cabecalho: { //cabecalho da pagina
     titulo: "Tipo Etnia",
