@@ -16,6 +16,7 @@ const cadastro = () => {
   const [dadosPreenchidos, setDadosPreenchidos] = useState<any>({ endereco: {} });
   const [cursos, setCursos] = useState<any[]>([]);
   const [lastMunicipioQuery, setLastMunicipioQuery] = useState("");
+  const [Etnia, setEtnia] = useState<any[]>([]);
   const isEditMode = id && id !== "criar";
 
   const getOptions = (lista: any[], selecionado: any) => {
@@ -37,9 +38,9 @@ const cadastro = () => {
 
 
   const estrutura: any = {
-    uri: "curso",
+    uri: "estudantes",
     cabecalho: {
-      titulo: isEditMode ? "Editar Curso" : "Cadastrar Curso",
+      titulo: isEditMode ? "Editar Curso" : "Cadastrar Estudantes",
       migalha: [
         { nome: 'Home', link: '/home' },
         { nome: 'Prae', link: '/prae' },
@@ -177,8 +178,9 @@ const cadastro = () => {
           nome: "Etnia",
           chave: isEditMode ? "tipoEtinia" : "tipoEtnia",
           tipo: "select",
-          mensagem: "Digite a renda percápita",
+          mensagem: "Selecione a opção",
           obrigatorio: true,
+          selectOptions: getOptions(Etnia, dadosPreenchidos?.etnia),
           bloqueado: isEditMode,
           mascara: "valor",
         },
@@ -245,7 +247,7 @@ const cadastro = () => {
             { chave: true, valor: "Sim" },
             { chave: false, valor: "Não" },
           ],
-          mensagem: "Digite a renda percápita",
+          mensagem: "Selecione a opção",
           obrigatorio: true,
           bloqueado: isEditMode,
           mascara: "valor",
@@ -279,7 +281,6 @@ const cadastro = () => {
 
 
   const currentUser = async (params = null) => {
-     console.log("entrou nessa buceta")
       try {
         let body = {
           metodo: 'get',
@@ -335,6 +336,7 @@ const cadastro = () => {
    */
   const salvarRegistro = async (item: any) => {
     try {
+      console.log()
       const body = {
         metodo: `${isEditMode ? "patch" : "post"}`,
         uri: "/prae/" + `${isEditMode ? estrutura.uri+"/"+ item.id : estrutura.uri }`,
