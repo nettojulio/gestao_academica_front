@@ -38,7 +38,7 @@ const cadastro = () => {
   const estrutura: any = {
     uri: "curso",
     cabecalho: {
-      titulo: isEditMode ? "Editar Curso" : "Cadastrar Curso",
+      titulo: isEditMode ? "Editar Pagamentos" : "Cadastrar Pagamento",
       migalha: [
         { nome: 'Home', link: '/home' },
         { nome: 'Prae', link: '/prae' },
