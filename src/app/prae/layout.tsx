@@ -104,7 +104,7 @@ export default function PraeLayout({ children }: { children: React.ReactNode }) 
           roles: ["administrador", "gestor", "tecnico"],
           subItems: [
             {
-              label: "Tipo Auxílio",
+              label: "Tipo Agendamentos",
               route: "/prae/agendamentos/tipo",
               icon: <Schedule fontSize="small" className="text-white" />,
             },

@@ -16,26 +16,22 @@ const cadastro = () => {
   const [dadosPreenchidos, setDadosPreenchidos] = useState<any>({ endereco: {} });
   const [cursos, setCursos] = useState<any[]>([]);
   const [lastMunicipioQuery, setLastMunicipioQuery] = useState("");
-  const [Etnia, setEtnia] = useState<any[]>([]);
+  const [etnia, setEtnia] = useState<any[]>([]);
   const isEditMode = id && id !== "criar";
 
   const getOptions = (lista: any[], selecionado: any) => {
-    if (!Array.isArray(lista) || lista.length === 0) return [];
+    if (!Array.isArray(lista)) return [];
+    
+    // Mapeia para { chave: id, valor: nome } → Select mostrará "valor" (nome)
     const options = lista.map((item) => ({
-      chave: item.id, // ID do item (numérico, por exemplo)
-      valor: item.nome, // Texto exibido no <option>
+      chave: item.id,       // ID (valor salvo no formulário)
+      valor: item.nome || item.tipo     // Nome (exibido no select)
     }));
-    if (isEditMode && selecionado) {
-      const selectedId = Number(selecionado); // Converte para número, se necessário
-      const selectedOption = options.find((opt) => opt.chave === selectedId);
-      if (selectedOption) {
-        // Coloca a opção selecionada na frente do array
-        return [selectedOption, ...options.filter((opt) => opt.chave !== selectedId)];
-      }
-    }
+  
+    // Debug: Verifique as opções geradas
+    console.log("Opções do select (nome exibido):", options);
     return options;
   };
-
 
   const estrutura: any = {
     uri: "estudantes",
@@ -176,13 +172,15 @@ const cadastro = () => {
           line: 3,
           colSpan: "md:col-span-1",
           nome: "Etnia",
-          chave: isEditMode ? "tipoEtinia" : "tipoEtnia",
+          chave: "tipoEtnia", // Campo onde o ID será salvo
           tipo: "select",
           mensagem: "Selecione a opção",
           obrigatorio: true,
-          selectOptions: getOptions(Etnia, dadosPreenchidos?.etnia),
+          selectOptions: getOptions(etnia, dadosPreenchidos?.tipoEtnia),
+          // Adicione estas props para controlar a exibição:
+          opcaoChave: "chave",   // Campo usado como valor (ID)
+          opcaoValor: "valor",   // Campo exibido no select (nome/tipo)
           bloqueado: isEditMode,
-          mascara: "valor",
         },
         {
           line: 5,
@@ -261,7 +259,6 @@ const cadastro = () => {
           mensagem: "Qual o tipo da deficiência",
           obrigatorio: true,
           bloqueado: isEditMode,
-          mascara: "valor",
         },
         {
           line: 7,
@@ -290,6 +287,7 @@ const cadastro = () => {
           data: {}
         }
         console.log("requisição", body.uri);
+        console.log("TipoEtnia", dadosPreenchidos?.tipoEtinia)
         const response = await generica(body);
         console.log(response?.data)
         //tratamento dos erros
@@ -326,6 +324,32 @@ const cadastro = () => {
     }
   };
 
+const pesquisarEtnia = async (params = null) => {
+    try {
+      let body = {
+        metodo: 'get',
+        uri: '/prae/' + 'tipoEtnia',
+        //+ '/page',
+        params: params != null ? params : { size: 25, page: 0 },
+        data: {}
+      }
+      const response = await generica(body);
+      console.log('Dados de etnia recebidos:', response);
+      //tratamento dos erros
+      if (response && response.data.errors != undefined) {
+        toast("Erro. Tente novamente!", { position: "bottom-left" });
+      } else if (response && response.data.error != undefined) {
+        toast(response.data.error.message, { position: "bottom-left" });
+      } else {
+        if (response && response.data) {
+          setEtnia(response.data);
+        }
+      }
+    } catch (error) {
+      console.error('Erro ao carregar registros:', error);
+    }
+  };
+
   const voltarRegistro = () => {
     router.push("/prae/pagamentos");
   };
@@ -336,7 +360,6 @@ const cadastro = () => {
    */
   const salvarRegistro = async (item: any) => {
     try {
-      console.log()
       const body = {
         metodo: `${isEditMode ? "patch" : "post"}`,
         uri: "/prae/" + `${isEditMode ? estrutura.uri+"/"+ item.id : estrutura.uri }`,
@@ -408,6 +431,7 @@ const cadastro = () => {
   // Efeito exclusivo para o modo de edição
   useEffect(() => {
     currentUser();
+    pesquisarEtnia();
 
     if (id && id !== "criar") {
       chamarFuncao("editar", id);
