@@ -60,6 +60,15 @@ const cadastro = () => {
           mensagem: "Digite",
           obrigatorio: true,
         },
+        {
+          line: 1,
+          colSpan: "md:col-span-1",
+          nome: "Número de Periodos",
+          chave: "numeroPeriodos",
+          tipo: "number",
+          mensagem: "Digite",
+          obrigatorio: true,
+        },
       ],
       acoes: [
         { nome: "Cancelar", chave: "voltar", tipo: "botao" },

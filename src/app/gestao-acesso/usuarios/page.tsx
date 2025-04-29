@@ -76,9 +76,7 @@ const PageLista = () => {
         data: {}
       }
       const response = await generica(body);
-      if (response && response.data) {
-        console.log("turyryry", response.data);
-      }
+
       //tratamento dos erros
       if (response && response.data && response.data.errors != undefined) {
         toast.error("Erro. Tente novamente!", { position: "top-left" });
@@ -86,7 +84,6 @@ const PageLista = () => {
         toast(response.data.error.message, { position: "top-left" });
       } else {
         if (response && response.data) {
-          console.log(response.data);
           setDados(response.data);
         }
       }

@@ -73,8 +73,6 @@ const PageLista = () => {
   const [dados, setDados] = useState<any>({ content: [] });
   // Obtenha activeRole e userRoles do contexto
   const { activeRole, userRoles } = useRole();
-  console.log("activeRole (via contexto):", activeRole);
-  console.log("userRoles (via contexto):", userRoles);
   const [cronogramas, setCronogramas] = useState<MonthCronograma[]>([]);
 
   // Verifique se o usuário é privilegiado com base na role ativa

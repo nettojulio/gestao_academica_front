@@ -66,10 +66,9 @@ const Cadastro = ({
   chamarFuncao = null,
 }: any) => {
   const { id } = useParams();
-  console.log(dadosPreenchidos);
   // Ajuste sua regra para isEditMode
   const isEditMode = id && id !== "criar";
-
+  console.log(dadosPreenchidos, "dadosPreenchidos");
   // -------------------------------------------------------------
   // Estados internos para multi-select e outros
   // -------------------------------------------------------------
@@ -210,6 +209,11 @@ const Cadastro = ({
   // -------------------------------------------------------------
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+
+    const native = event.nativeEvent as SubmitEvent;
+    const submitter = native.submitter as HTMLButtonElement | null;
+    const action = submitter?.name || "salvar"; // fallback
+  
     const formData = new FormData(event.currentTarget);
     const data: any = {};
 
@@ -230,8 +234,14 @@ const Cadastro = ({
     if (dadosPreenchidos.unidadesGestorasRoles) {
       data.unidadesGestorasRoles = dadosPreenchidos.unidadesGestorasRoles;
     }
-    console.log("Dados transformados para envio:", data);
-    chamarFuncao("salvar", data);
+    if (dadosPreenchidos.documentos){
+      data.documentos= dadosPreenchidos.documentos;
+    }
+    if(dadosPreenchidos.parecer){
+      data.parecer= dadosPreenchidos.parecer;
+    }
+    console.log("estruturaaaaaaaaaaaaaaaaaa",estrutura.cadastro.acoes);
+    chamarFuncao(action, data);
   };
 
   // -------------------------------------------------------------
@@ -515,7 +525,7 @@ const Cadastro = ({
                           <input
                             id={`docInput-${campo.chave}`}
                             type="file"
-                            accept=".pdf,.doc,.docx,.png,.jpeg,.jpg"
+                            accept=".pdf,.png,.jpeg,.jpg"
                             className="hidden"
                             multiple
                             onChange={(e) => {
@@ -1152,6 +1162,7 @@ const Cadastro = ({
               <button
                 key={index}
                 type={isSubmit ? "submit" : "button"}
+                name={botao.chave}               // ← aqui
                 className={
                   isSubmit
                     ? "bg-primary-500 hover:bg-primary-700 text-white px-4 py-2 rounded text-body-medium"
