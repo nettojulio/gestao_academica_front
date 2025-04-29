@@ -286,10 +286,7 @@ const cadastro = () => {
           params: params != null ? params : { size: 25, page: 0 },
           data: {}
         }
-        console.log("requisição", body.uri);
-        console.log("TipoEtnia", dadosPreenchidos?.tipoEtinia)
         const response = await generica(body);
-        console.log(response?.data)
         //tratamento dos erros
         if (response && response.data.errors != undefined) {
           toast("Erro. Tente novamente!", { position: "top-left" });

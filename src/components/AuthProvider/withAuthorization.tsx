@@ -63,10 +63,8 @@ const withAuthorization = <P extends object>(WrappedComponent: ComponentType<P>)
         setIsAuthorized(allowed);
 
         if (!isAuthenticated && !allowed) {
-          console.log("Usuário não autenticado para acessar a URI: " + currentPath);
           router.push("/login");
         } else if (isAuthenticated && !allowed) {
-          console.log("Usuário não autorizado para acessar a URI: " + currentPath);
           router.push("/");
         }
 

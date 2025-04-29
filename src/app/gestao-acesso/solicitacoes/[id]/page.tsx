@@ -9,16 +9,49 @@ import { useEnderecoByCep } from "@/utils/brasilianStates";
 import { generica, genericaMultiForm } from "@/utils/api";
 import Cadastro from "@/components/Cadastro/Estrutura";
 import AplicarMascara from "@/utils/mascaras";
+import { useRole } from "@/context/roleContext";
 
 const cadastro = () => {
   const router = useRouter();
   const { id } = useParams();
+
+  // Obtenha activeRole e userRoles do contexto
+  const { activeRole, userRoles } = useRole();
+
+  // Verifique se o usuário é privilegiado com base na role ativa
+  const isPrivileged = activeRole === "administrador" || activeRole === "gestor";
+
   // Inicializamos com um objeto contendo 'endereco' para evitar problemas
-  const [dadosPreenchidos, setDadosPreenchidos] = useState<any[]>([]);
+  const [dadosPreenchidos, setDadosPreenchidos] = useState<any>({
+    solicitante: {
+      nome: '',
+      nomeSocial: '',
+      email: '',
+      cpf: '',
+      telefone: '',
+    },
+    perfil: {
+      fotoPerfil: null,
+      tipo: '',
+      matricula: '',
+      curso: { id: '', nome: '' },
+      cursos: [],      // para multi-select de professor
+      siape: '',
+
+    },
+    perfilSolicitado: '',    // ← adiciona aqui
+    // campos “soltos” que você usa quando não está em modo edit:
+    tipoUsuario: '',
+    matricula: '',
+    cursoId: '',
+    cursoIds: [],
+    siape: '',
+    documentos: [],
+  });
   const [cursos, setCursos] = useState<any[]>([]);
   const [documentos, setDocumentos] = useState<any[]>([]);
   const isEditMode = id && id !== "criar";
-
+  const isUserSolic = useState<any>([]);
   const getOptions = (lista: any[], selecionado: any) => {
     if (!Array.isArray(lista) || lista.length === 0) return [];
     const options = lista.map((item) => ({
@@ -51,27 +84,26 @@ const cadastro = () => {
     },
     cadastro: {
       campos: [
-        {
-          line: 1,
-          colSpan: "md:col-span-1",
-          nome: "Foto Perfil",
-          chave: "perfil.fotoPerfil",
-          tipo: "foto", // ou outro tipo apropriado
-          mensagem: "Anexe os documentos",
-          obrigatorio: false,
-          bloqueado: isEditMode,
+        // {
+        //   line: 1,
+        //   colSpan: "md:col-span-1",
+        //   nome: "Foto Perfil",
+        //   chave: "perfil.fotoPerfil",
+        //   tipo: "foto", // ou outro tipo apropriado
+        //   mensagem: "Anexe os documentos",
+        //   obrigatorio: false,
+        //   bloqueado: isEditMode,
 
-        },
+        // },
         {
 
           line: 2,
           colSpan: "md:col-span-1",
           nome: "Tipo de Perfil",
-          chave: isEditMode ? "perfil.tipo" : "tipoUsuario",
+          chave: isEditMode ? "perfilSolicitado" : "tipoUsuario",
           tipo: isEditMode ? "text" : "select",
           mensagem: "Selecione o tipo de usuário",
           selectOptions: isEditMode ? null : [
-            { chave: "ADMINISTRADOR", valor: "ADMINISTRADOR" },
             { chave: "GESTOR", valor: "GESTOR" },
             { chave: "TECNICO", valor: "TECNICO" },
             { chave: "PROFESSOR", valor: "PROFESSOR" },
@@ -156,7 +188,7 @@ const cadastro = () => {
           colSpan: "md:col-span-1",
           nome: "Curso",
           chave: isEditMode ? "perfil.curso.nome" : "cursoId",
-          tipo: isEditMode ? "select" : "text",
+          tipo: isEditMode ? "text" : "select",
           mensagem: "Selecione o curso",
           obrigatorio: true,
           selectOptions: isEditMode ? null : getOptions(cursos, dadosPreenchidos[0]?.cursoId),
@@ -191,17 +223,17 @@ const cadastro = () => {
           bloqueado: isEditMode,
 
         },
-        {
+        ...(id !== "criar" ? [{
           line: 5,
           colSpan: "md:col-span-1",
           nome: "Parecer",
           chave: "parecer",
           tipo: "text", // ou outro tipo apropriado
           mensagem: "Parecer da avaliação da solicitação",
-          obrigatorio: false,
-          bloqueado: isEditMode,
+          obrigatorio: isPrivileged ? true : false,
+          bloqueado: isEditMode && isPrivileged ? false : true,
+        }] : []),
 
-        },
         {
           line: 6,
           colSpan: "md:col-span-1",
@@ -217,10 +249,19 @@ const cadastro = () => {
 
 
       ],
-      acoes: [
-        { nome: isEditMode ? "Rejeitar" : "Cancelar", chave: isEditMode ? "rejeitar" : "voltar", tipo: "botao" },
-        { nome: isEditMode ? "Aprovar" : "Solicitar", chave: isEditMode ? "aprova" : "salvar", tipo: "submit" },
-      ],
+      acoes: isEditMode
+      ? isPrivileged
+        ? [
+            { nome: "Rejeitar", chave: "rejeitar", tipo: "submit" },
+            { nome: "Aprovar", chave: "aprovar", tipo: "submit" },
+          ]
+        : [
+            { nome: "Voltar", chave: "voltar", tipo: "botao" },
+          ]
+      : [
+          { nome: "Cancelar", chave: "voltar", tipo: "botao" },
+          { nome: "Solicitar", chave: "salvar", tipo: "submit" },
+        ],
     },
   };
 
@@ -249,7 +290,7 @@ const cadastro = () => {
         break;
     }
   };
-
+  console.log(cursos);
   const voltarRegistro = () => {
     router.push("/gestao-acesso/solicitacoes");
   };
@@ -283,11 +324,16 @@ const cadastro = () => {
    */
   const rejeitarRegistro = async (item: any) => {
     try {
+      console.log("item", item);
+      const formData = {
+        parecer: item.parecer,
+      }
+      console.log("formData", formData);
       const body = {
         metodo: "post",
         uri: "/auth/" + estrutura.uri + "/" + item.id + "/rejeitar",
         params: {},
-        data: item,
+        data: formData,
       };
       const response = await generica(body);
       if (!response || response.status < 200 || response.status >= 300) {
@@ -307,8 +353,13 @@ const cadastro = () => {
         toast(response.data.error.message, { position: "top-left" });
       } else {
         Swal.fire({
-          title: "Solicitação enviada com sucesso!",
+          title: "Solicitação rejeitada!",
           icon: "success",
+          customClass: {
+            popup: "my-swal-popup",
+            title: "my-swal-title",
+            htmlContainer: "my-swal-html",
+          },
         }).then((result) => {
           if (result.isConfirmed) {
             chamarFuncao("voltar");
@@ -322,11 +373,15 @@ const cadastro = () => {
   };
   const aprovarRegistro = async (item: any) => {
     try {
+      console.log("item", item);
+      const formData = {
+        parecer: item.parecer,
+      }
       const body = {
         metodo: "post",
         uri: "/auth/" + estrutura.uri + "/" + item.id + "/aprovar",
         params: {},
-        data: item,
+        data: formData,
       };
       const response = await generica(body);
       if (!response || response.status < 200 || response.status >= 300) {
@@ -346,48 +401,13 @@ const cadastro = () => {
         toast(response.data.error.message, { position: "top-left" });
       } else {
         Swal.fire({
-          title: "Solicitação enviada com sucesso!",
+          title: "Solicitação aprovada!",
           icon: "success",
-        }).then((result) => {
-          if (result.isConfirmed) {
-            chamarFuncao("voltar");
-          }
-        });
-      }
-    } catch (error) {
-      console.error("DEBUG: Erro ao salvar registro:", error);
-      toast.error("Erro ao salvar registro. Tente novamente!", { position: "top-left" });
-    }
-  };
-  const salvarRegistro = async (item: any) => {
-    try {
-      const body = {
-        metodo: "post",
-        uri: "/auth/" + estrutura.uri + "/" + item.tipoUsuario.toLowerCase(),
-        params: {},
-        data: item,
-      };
-      console.log(body)
-      const response = await genericaMultiForm(body);
-      if (!response || response.status < 200 || response.status >= 300) {
-        if (response) {
-          console.error("DEBUG: Status de erro:", response.status, 'statusText' in response ? response.statusText : "Sem texto de status");
-        }
-        toast.error(`Erro na requisição (HTTP ${response?.status || "desconhecido"})`, { position: "top-left" });
-        return;
-      }
-      if (response.data?.errors) {
-        Object.keys(response.data.errors).forEach((campoErro) => {
-          toast.error(`Erro em ${campoErro}: ${response.data.errors[campoErro]}`, {
-            position: "top-left",
-          });
-        });
-      } else if (response.data?.error) {
-        toast(response.data.error.message, { position: "top-left" });
-      } else {
-        Swal.fire({
-          title: "Solicitação enviada com sucesso!",
-          icon: "success",
+          customClass: {
+            popup: "my-swal-popup",
+            title: "my-swal-title",
+            htmlContainer: "my-swal-html",
+          },
         }).then((result) => {
           if (result.isConfirmed) {
             chamarFuncao("voltar");
@@ -401,121 +421,206 @@ const cadastro = () => {
   };
 
   /**
+ * Monta um FormData de acordo com item.tipoUsuario:
+ * - ALUNO    → matricula + cursoId
+ * - PROFESSOR → siape + vários cursoIds
+ * - TECNICO  → siape
+ * - GESTOR   → siape
+ * E em todos os casos anexa os arquivos em documentos[]
+ */
+  function buildSolicitacaoFormData(item: {
+    tipoUsuario: 'ALUNO' | 'PROFESSOR' | 'TECNICO' | 'GESTOR';
+    matricula?: string;
+    cursoId?: number;
+    cursoIds?: number[];
+    siape?: string;
+    documentos?: File[];
+  }): FormData {
+    
+    const fd = new FormData();
+
+    switch (item.tipoUsuario) {
+      case 'ALUNO':
+        if (item.matricula) {
+          fd.append('matricula', item.matricula);
+        }
+        if (item.cursoId != null) {
+          fd.append('cursoId', String(item.cursoId));
+        }
+        break;
+
+      case 'PROFESSOR':
+        if (item.siape) {
+          fd.append('siape', item.siape);
+        }
+        if (Array.isArray(item.cursoIds)) {
+          item.cursoIds.forEach(id =>
+            fd.append('cursoIds', String(id))
+          );
+        }
+        break;
+
+      case 'TECNICO':
+      case 'GESTOR':
+        if (item.siape) {
+          fd.append('siape', item.siape);
+        }
+        break;
+    }
+
+    // Arquivos (sempre chave "documentos")
+    if (Array.isArray(item.documentos)) {
+      item.documentos.forEach(file =>
+        fd.append('documentos', file)
+      );
+    }
+
+    return fd;
+  }
+  const salvarRegistro = async (item: any) => {
+    try {
+      // 1) monta o FormData
+      const formData = buildSolicitacaoFormData(item);
+
+      // 2) dispara a chamada multipart
+      const response = await genericaMultiForm({
+        metodo: 'post',
+        uri: `/auth/solicitacao/${item.tipoUsuario.toLowerCase()}`,
+        params: {},
+        data: formData,
+      });
+
+      // 3) tratamento de resposta…
+      if (!response) {
+        toast.error('Sem conexão: tente novamente.');
+        return;
+      }
+      if (response.status < 200 || response.status >= 300) {
+        toast.error(`Erro HTTP ${response.status}`);
+        return;
+      }
+      if (response.data?.errors) {
+        Object.entries(response.data.errors).forEach(([campo, msg]: any) =>
+          toast.error(`Erro em ${campo}: ${msg}`)
+        );
+        return;
+      }
+      if (response.data?.error) {
+        toast.error(response.data.error.message);
+        return;
+      }
+
+      await Swal.fire({
+        title: "Solicitação enviada com sucesso!",
+        icon: "success",
+        customClass: {
+          popup: "my-swal-popup",
+          title: "my-swal-title",
+          htmlContainer: "my-swal-html",
+        },
+      });
+      router.push('/gestao-acesso/solicitacoes');
+
+    } catch (err) {
+      console.error('Erro ao salvar registro:', err);
+      toast.error('Erro ao enviar solicitação. Tente novamente.');
+    }
+  };
+
+
+
+
+  /**
    * Localiza o registro para edição e preenche os dados
    */
   // Exemplo assumindo que "campo.chave" === "documentos"
   const editarRegistro = async (item: any) => {
     try {
       // 1) Carrega a solicitação principal
-      const bodySolicitacao = {
+      const responseSolicitacao = await generica({
         metodo: "get",
         uri: `/auth/${estrutura.uri}/${item}`,
         params: {},
         data: {},
-      };
-      const responseSolicitacao = await generica(bodySolicitacao);
-  
-      if (!responseSolicitacao || !responseSolicitacao.data) {
-        throw new Error("Resposta inválida do servidor para solicitação.");
-      }
-  
-      if (responseSolicitacao.data.errors) {
-        Object.keys(responseSolicitacao.data.errors).forEach((campoErro) => {
-          toast.error(
-            `Erro em ${campoErro}: ${responseSolicitacao.data.errors[campoErro]}`,
-            { position: "top-left" }
-          );
-        });
-        return;
-      } else if (responseSolicitacao.data.error) {
-        toast.error(responseSolicitacao.data.error.message, {
-          position: "top-left",
-        });
-        return;
-      }
-  
-      // Atualiza o estado com os dados da solicitação
-      setDadosPreenchidos(responseSolicitacao.data);
-  
-      // 2) Agora carrega os documentos
-      const bodyDocumentos = {
+      });
+      const dto = responseSolicitacao?.data;
+      console.log("DEBUG: dto", dto);
+      // Clareza: perfilSolicitado pode vir de dto.perfilSolicitado ou dto.tipoUsuario
+      const perfilReq = (dto.perfilSolicitado ?? dto.tipoUsuario ?? "").toUpperCase();
+
+      // 2) Atualiza o estado com **tudo** que veio do servidor
+      setDadosPreenchidos({
+        id: dto.id,
+        solicitante: {
+          nome: dto.solicitante.nome,
+          nomeSocial: dto.solicitante.nomeSocial,
+          email: dto.solicitante.email,
+          cpf: dto.solicitante.cpf,
+          telefone: dto.solicitante.telefone,
+        },
+        perfil: {
+          // fotoPerfil você pode preencher se vier no dto.perfil
+          fotoPerfil: dto.perfil.fotoPerfil ?? null,
+          tipo: perfilReq,
+          matricula: dto.perfil.matricula ?? "",
+          curso: dto.perfil.curso
+            ? { id: dto.perfil.curso.id, nome: dto.perfil.curso.nome }
+            : { id: "", nome: "" },
+          cursos: Array.isArray(dto.perfil.cursos)
+            ? dto.perfil.cursos.map((c: any) => ({ id: c.id, nome: c.nome }))
+            : [],
+          siape: dto.perfil.siape ?? "",
+        },
+        parecer: dto.parecer ?? "",
+        perfilSolicitado: perfilReq,     // campo raiz só leitura em modo edição
+        tipoUsuario: perfilReq,          // para o select, se precisar
+        matricula: dto.perfil.matricula ?? "",
+        cursoId: dto.perfil.curso?.id ?? "",
+        cursoIds: Array.isArray(dto.perfil.cursos)
+          ? dto.perfil.cursos.map((c: any) => c.id)
+          : [],
+        siape: dto.perfil.siape ?? "",
+        documentos: [],                  // vai montar após buscar documentos
+      });
+
+      // 3) Busca e converte documentos (se houver)
+      const responseDocumentos = await generica({
         metodo: "get",
         uri: `/auth/${estrutura.uri}/${item}/documentos`,
         params: {},
         data: {},
-      };
-      const responseDocumentos = await generica(bodyDocumentos);
-      console.log("DEBUG: Resposta de documentos:", responseDocumentos);
-      if (!responseDocumentos || !responseDocumentos.data) {
-        throw new Error("Resposta inválida do servidor para documentos.");
-      }
-  
-      if (responseDocumentos.data.errors) {
-        Object.keys(responseDocumentos.data.errors).forEach((campoErro) => {
-          toast.error(
-            `Erro em ${campoErro}: ${responseDocumentos.data.errors[campoErro]}`,
-            { position: "top-left" }
-          );
-        });
-        return;
-      } else if (responseDocumentos.data.error) {
-        toast.error(responseDocumentos.data.error.message, {
-          position: "top-left",
-        });
-        return;
-      }
-  
-      // Se o data dos documentos não for um array, converte para array
-      const docList = Array.isArray(responseDocumentos.data)
+      });
+      const docList = responseDocumentos && Array.isArray(responseDocumentos.data)
         ? responseDocumentos.data
-        : [responseDocumentos.data];
-  
-      // Converte cada documento para o formato File utilizando Blob, se houver base64
+        : responseDocumentos?.data
+          ? [responseDocumentos.data]
+          : [];
       const arquivosConvertidos = docList
         .map((doc: any) => {
-          if (
-            doc.base64 &&
-            typeof doc.base64 === "string" &&
-            doc.base64.trim() !== ""
-          ) {
-            try {
-              // Converte a string base64 em bytes
-              const byteCharacters = atob(doc.base64);
-              const byteNumbers = new Array(byteCharacters.length);
-              for (let i = 0; i < byteCharacters.length; i++) {
-                byteNumbers[i] = byteCharacters.charCodeAt(i);
-              }
-              const byteArray = new Uint8Array(byteNumbers);
-  
-              // Define um tipo padrão: se doc.tipo existir, usa-o; se não, verifica a extensão do nome
-              const fileType = doc.tipo
-                ? doc.tipo
-                : doc.nome && doc.nome.toLowerCase().endsWith(".pdf")
-                ? "application/pdf"
-                : "application/octet-stream";
-  
-              // Cria um Blob a partir do array de bytes
-              const blob = new Blob([byteArray], { type: fileType });
-              // Define um nome padrão se doc.nome estiver indefinido
-              const fileName = doc.nome ? doc.nome : "arquivo";
-              // Cria um objeto File a partir do Blob
-              return new File([blob], fileName, { type: fileType });
-            } catch (error) {
-              console.error("Erro ao converter base64 para File:", error);
-              return null;
+          if (doc.base64) {
+            const bytes = atob(doc.base64);
+            const arr = new Uint8Array(bytes.length);
+            for (let i = 0; i < bytes.length; i++) {
+              arr[i] = bytes.charCodeAt(i);
             }
+            const blob = new Blob([arr], {
+              type:
+                doc.tipo ??
+                (doc.nome?.toLowerCase().endsWith(".pdf")
+                  ? "application/pdf"
+                  : "application/octet-stream"),
+            });
+            return new File([blob], doc.nome ?? "documento", { type: blob.type });
           }
           return null;
         })
-        .filter((file) => file !== null);
-  
-      // Atualiza o estado com os documentos convertidos
+        .filter((f) => f !== null) as File[];
+
+      // 4) Finaliza preenchendo os docs
       setDadosPreenchidos((prev: any) => ({
         ...prev,
         documentos: arquivosConvertidos,
       }));
-  
-      console.log("Documentos carregados:", arquivosConvertidos);
     } catch (error) {
       console.error("DEBUG: Erro ao localizar registro:", error);
       toast.error("Erro ao localizar registro. Tente novamente!", {
@@ -523,17 +628,71 @@ const cadastro = () => {
       });
     }
   };
-  
+
+
+  // 2) Refatore currentUser para mapear o response.data nesse shape:
+  const currentUser = async () => {
+    try {
+      const response = await generica({
+        metodo: 'get',
+        uri: '/auth/usuario/current',
+        data: {}
+      });
+
+      if (!response) {
+        toast.error('Erro de conexão. Tente novamente.');
+        return;
+      }
+
+      const user = response.data;
+      const upperProfile = (user.tipoUsuario ?? '').toUpperCase();
+
+      const mappedData = {
+        solicitante: {
+          nome: user.nome || '',
+          nomeSocial: user.nomeSocial || '',
+          email: user.email || '',
+          cpf: user.cpf || '',
+          telefone: user.telefone || '',
+        },
+        perfil: {
+          fotoPerfil: user.fotoPerfil || null,
+          tipo: user.tipoUsuario || user.perfil?.tipo || '',
+          matricula: user.perfil?.matricula || '',
+          curso: user.perfil?.curso || {
+            id: user.cursoId || '',
+            nome: user.perfil?.curso?.nome || ''
+          },
+          cursos: user.perfil?.cursos || [],  // array de { id, nome }
+          siape: user.perfil?.siape || '',
+
+        },
+        perfilSolicitado: upperProfile,  // ← aqui
+        // para os campos que não estão dentro de “perfil”
+        tipoUsuario: user.tipoUsuario || '',
+        matricula: user.perfil?.matricula || '',
+        cursoId: user.perfil?.curso?.id || '',
+        cursoIds: user.perfil?.cursos?.map((c: any) => c.id) || [],
+        siape: user.perfil?.siape || '',
+        documentos: [],  // continua vazio aqui, você carrega depois em editarRegistro
+      };
+
+      setDadosPreenchidos(mappedData);
+    } catch (error) {
+      console.error('Erro ao carregar usuário atual:', error);
+      toast.error('Não foi possível carregar o usuário atual.');
+    }
+  };
+
   // Efeito exclusivo para o modo de edição
   useEffect(() => {
     pesquisarRegistroCursos();
-
+    if (id === "criar") {
+      currentUser();
+    }
     if (id && id !== "criar") {
       chamarFuncao("visualizar", id);
     }
-
-    console.log(dadosPreenchidos)
-
   }, [id]);
 
   return (

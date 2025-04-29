@@ -59,13 +59,11 @@ export const generica = async ({ metodo = '', uri = '', params = {}, data = {} }
     try {
         const url = `${BASE_URL}${uri}`;
         const accessToken = AuthTokenService.getAccessToken();
-
         if (accessToken === null) {
             toast.error("Sessão expirada. Redirecionando...", { position: "top-left" });
             router.push("/conta/sair");
             return null;
         }
-
         const response = await axios({
             method: metodo,
             url: url,
@@ -76,7 +74,6 @@ export const generica = async ({ metodo = '', uri = '', params = {}, data = {} }
                 "Authorization": `Bearer ${accessToken}`,
             }
         });
-
         return response;
 
     } catch (error: any) {

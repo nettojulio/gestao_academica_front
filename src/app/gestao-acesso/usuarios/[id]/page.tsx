@@ -182,7 +182,6 @@ const cadastro = () => {
       if (!response) {
         throw new Error("Resposta inválida do servidor.");
       }
-      console.log(response)
 
       if (response.data?.errors) {
         Object.keys(response.data.errors).forEach((campoErro) => {

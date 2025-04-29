@@ -13,7 +13,8 @@ const PagePerfil = () => {
   const isEditMode = id && id !== "criar";
   const [cursos, setCursos] = useState<any[]>([]);
   const [dadosPreenchidos, setDadosPreenchidos] = useState<any[]>([]);
-  const [dadosPerfil, setDadosPerfil] = useState<any>({ content:[] })
+  const [dadosPerfil, setDadosPerfil] = useState<any>({ content:[] });
+  
 
   const getOptions = (lista: any[], selecionado: any) => {
     if (!Array.isArray(lista) || lista.length === 0) return [];
@@ -38,12 +39,12 @@ const PagePerfil = () => {
           metodo: 'get',
           uri: '/auth/usuario/current',
           //+ '/page',
-          params: params != null ? params : { size: 25, page: 0 },
+          //params: params != null ? params : { size: 25, page: 0 },
           data: {}
         }
         console.log("requisição", body.uri);
         const response = await generica(body);
-        console.log(response?.data)
+        console.log("Response current User",response)
         //tratamento dos erros
         if (response && response.data.errors != undefined) {
           toast("Erro. Tente novamente!", { position: "top-left" });
