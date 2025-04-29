@@ -6,6 +6,7 @@ import '../auth-styles.css';
 import Link from "next/link";
 import { genericaApiAuth } from "@/utils/api";
 import { useRouter } from "next/navigation";
+import { toast } from "react-toastify";
 
 const openPopup = (url: any) => {
     window.open(url, 'popup', 'width=600,height=600,scrollbars=no,resizable=no');
@@ -82,79 +83,104 @@ export default function PageRegister() {
         }
     };
 
-    const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
-        setErrorMessage("");
-        setSuccessMessage("");
-        setErrorMessageEmail(null);
-        setErrorMessageSenha(null);
+    const validarCPF = (cpf: string) => {
+    cpf = cpf.replace(/\D/g, ''); // Remove caracteres não numéricos
+    if (cpf.length !== 11 || /^(\d)\1+$/.test(cpf)) return false;
 
-        if (!formData.termosUso) {
-            setErrorMessage("Você deve ler e aceitar os Termos de Uso antes de criar uma conta");
-            return;
-        }
-        if (formData.email !== formData.repetirEmail) {
-            setErrorMessageEmail("O email e a confirmação não correspondem");
-            return;
-        }
-        if (!mostrarSenha && formData.senha !== formData.repetirSenha) {
-            setErrorMessageSenha("A senha e a confirmação não correspondem");
-            return;
-        }
+    let soma = 0;
+    let resto;
 
-        const formDataWithDate = {
-            ...formData,
-        };
+    for (let i = 1; i <= 9; i++) soma += parseInt(cpf.substring(i - 1, i)) * (11 - i);
+    resto = (soma * 10) % 11;
+    if (resto === 10 || resto === 11) resto = 0;
+    if (resto !== parseInt(cpf.substring(9, 10))) return false;
 
-        const body =
-        {
-            metodo: 'post',
-            uri: '/usuario',
-            params: {},
-            data: formDataWithDate
-        };
+    soma = 0;
+    for (let i = 1; i <= 10; i++) soma += parseInt(cpf.substring(i - 1, i)) * (12 - i);
+    resto = (soma * 10) % 11;
+    if (resto === 10 || resto === 11) resto = 0;
+    if (resto !== parseInt(cpf.substring(10, 11))) return false;
 
-        const response = await genericaApiAuth(body);
+    return true;
+};
 
-        console.log("response: " + JSON.stringify(response));
+const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setErrorMessage("");
+    setSuccessMessage("");
+    setErrorMessageEmail(null);
+    setErrorMessageSenha(null);
 
-        if (response.status && response.status === 500) {
-            if (response.data && response.data.message)
-                setErrorMessage(response.data.message);
-            else
-                setErrorMessage(response.data);
-        }
-        if (response.data.errors) {
-            // Tratando erros individuais para cada campo
-            const errors = response.data.errors;
-            if (errors.email) setErrorMessageEmail(errors.email);
-            if (errors.senha) setErrorMessageSenha(errors.senha);
+    if (!validarCPF(formData.cpf)) {
+        toast.error("CPF inválido!", { position: "top-right" });
+        return;
+    }
 
-            // setErrorMessage("Por favor, corrija os erros no formulário.");
-            console.error("#1 " + JSON.stringify(errors));
-        }
-        else
-            if (response.data.error) {
-                console.error("#2 " + 'Erro ao salvar registro:', response.data.error.message);
-                setErrorMessage("Erro ao criar a conta. " + response.data.error.message);
-            }
-            else
-                if (response.data.detail) {
-                    console.error(`Erro: ${response.data.detail}`);
-                    setErrorMessage(`${response.data.detail}`);
-                }
-                else
-                    if (response.status === 200)
-                        router.push('/conta/criar-conta/sucesso');
-                    else {
-                        console.log(JSON.stringify(response));
+    if (formData.senha.length < 8) {
+        toast.error("A senha deve ter pelo menos 8 caracteres!", { position: "top-right" });
+        return;
+    }
 
-                        if (response.status === 400)
-                            console.log(JSON.stringify(response.data));
-                        else
-                            console.log(`${response.data.detail}`);
-                    }
+    if (!formData.termosUso) {
+        setErrorMessage("Você deve ler e aceitar os Termos de Uso antes de criar uma conta");
+        return;
+    }
+    if (formData.email !== formData.repetirEmail) {
+        setErrorMessageEmail("O email e a confirmação não correspondem");
+        return;
+    }
+    if (!mostrarSenha && formData.senha !== formData.repetirSenha) {
+        setErrorMessageSenha("A senha e a confirmação não correspondem");
+        return;
+    }
+
+    const formDataWithDate = {
+        ...formData,
     };
+
+    const body = {
+        metodo: 'post',
+        uri: '/usuario',
+        params: {},
+        data: formDataWithDate
+    };
+
+    const response = await genericaApiAuth(body);
+
+    console.log("response: " + JSON.stringify(response));
+
+    if (response.status === 409) {
+        toast.error("CPF já cadastrado!", { position: "top-right" });
+        return;
+    }
+
+    if (response.status && response.status === 500) {
+        if (response.data && response.data.message)
+            setErrorMessage(response.data.message);
+        else
+            setErrorMessage(response.data);
+    }
+    if (response.data.errors) {
+        const errors = response.data.errors;
+        if (errors.email) setErrorMessageEmail(errors.email);
+        if (errors.senha) setErrorMessageSenha(errors.senha);
+        console.error("#1 " + JSON.stringify(errors));
+    } else if (response.data.error) {
+        console.error("#2 " + 'Erro ao salvar registro:', response.data.error.message);
+        setErrorMessage("Erro ao criar a conta. " + response.data.error.message);
+    } else if (response.data.detail) {
+        console.error(`Erro: ${response.data.detail}`);
+        setErrorMessage(`${response.data.detail}`);
+    } else if (response.status === 200) {
+        router.push('/conta/criar-conta/sucesso');
+    } else {
+        console.log(JSON.stringify(response));
+        if (response.status === 400)
+            console.log(JSON.stringify(response.data));
+        else
+            console.log(`${response.data.detail}`);
+    }
+};
 
     return (
         <div className="min-h-screen flex flex-col items-center justify-center px-6 pt-10 mx-auto bg-gray-100">
