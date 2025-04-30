@@ -68,7 +68,6 @@ const Cadastro = ({
   const { id } = useParams();
   // Ajuste sua regra para isEditMode
   const isEditMode = id && id !== "criar";
-  console.log(dadosPreenchidos, "dadosPreenchidos");
   // -------------------------------------------------------------
   // Estados internos para multi-select e outros
   // -------------------------------------------------------------

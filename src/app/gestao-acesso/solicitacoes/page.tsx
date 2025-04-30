@@ -143,7 +143,6 @@ const PageLista = () => {
       }
 
       // 4) Atualiza estado
-      console.log(respRegs.data);
       setDados(respRegs.data);
     } catch (err) {
       console.error('Erro ao carregar registros:', err);

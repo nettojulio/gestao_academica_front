@@ -291,7 +291,6 @@ const cadastro = () => {
         break;
     }
   };
-  console.log(cursos);
   const voltarRegistro = () => {
     router.push("/gestao-acesso/solicitacoes");
   };
@@ -325,11 +324,9 @@ const cadastro = () => {
    */
   const rejeitarRegistro = async (item: any) => {
     try {
-      console.log("item", item);
       const formData = {
         parecer: item.parecer,
       }
-      console.log("formData", formData);
       const body = {
         metodo: "post",
         uri: "/auth/" + estrutura.uri + "/" + item.id + "/rejeitar",
@@ -374,7 +371,6 @@ const cadastro = () => {
   };
   const aprovarRegistro = async (item: any) => {
     try {
-      console.log("item", item);
       const formData = {
         parecer: item.parecer,
       }
@@ -545,7 +541,6 @@ const cadastro = () => {
         data: {},
       });
       const dto = responseSolicitacao?.data;
-      console.log("DEBUG: dto", dto);
       // Clareza: perfilSolicitado pode vir de dto.perfilSolicitado ou dto.tipoUsuario
       const perfilReq = (dto.perfilSolicitado ?? dto.tipoUsuario ?? "").toUpperCase();
 
