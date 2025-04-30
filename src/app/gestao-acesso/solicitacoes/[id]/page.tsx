@@ -74,7 +74,8 @@ const cadastro = () => {
     cabecalho: {
       titulo: isEditMode ? "Visualizar Solicitação" : "Solicitar Perfil",
       migalha: [
-        { nome: "Home", link: "/gestao-acesso/home" },
+        { nome: 'Inicio', link: '/home' },
+        { nome: 'Gestão Acesso', link: '/gestao-acesso' },
         { nome: "Solicitações", link: "/gestao-acesso/solicitacoes" },
         {
           nome: isEditMode ? "visualizar" : "Criar",
@@ -250,15 +251,15 @@ const cadastro = () => {
 
       ],
       acoes: isEditMode
-      ? isPrivileged
-        ? [
+        ? isPrivileged
+          ? [
             { nome: "Rejeitar", chave: "rejeitar", tipo: "submit" },
             { nome: "Aprovar", chave: "aprovar", tipo: "submit" },
           ]
-        : [
+          : [
             { nome: "Voltar", chave: "voltar", tipo: "botao" },
           ]
-      : [
+        : [
           { nome: "Cancelar", chave: "voltar", tipo: "botao" },
           { nome: "Solicitar", chave: "salvar", tipo: "submit" },
         ],
@@ -290,7 +291,6 @@ const cadastro = () => {
         break;
     }
   };
-  console.log(cursos);
   const voltarRegistro = () => {
     router.push("/gestao-acesso/solicitacoes");
   };
@@ -324,11 +324,9 @@ const cadastro = () => {
    */
   const rejeitarRegistro = async (item: any) => {
     try {
-      console.log("item", item);
       const formData = {
         parecer: item.parecer,
       }
-      console.log("formData", formData);
       const body = {
         metodo: "post",
         uri: "/auth/" + estrutura.uri + "/" + item.id + "/rejeitar",
@@ -373,7 +371,6 @@ const cadastro = () => {
   };
   const aprovarRegistro = async (item: any) => {
     try {
-      console.log("item", item);
       const formData = {
         parecer: item.parecer,
       }
@@ -436,7 +433,7 @@ const cadastro = () => {
     siape?: string;
     documentos?: File[];
   }): FormData {
-    
+
     const fd = new FormData();
 
     switch (item.tipoUsuario) {
@@ -544,7 +541,6 @@ const cadastro = () => {
         data: {},
       });
       const dto = responseSolicitacao?.data;
-      console.log("DEBUG: dto", dto);
       // Clareza: perfilSolicitado pode vir de dto.perfilSolicitado ou dto.tipoUsuario
       const perfilReq = (dto.perfilSolicitado ?? dto.tipoUsuario ?? "").toUpperCase();
 

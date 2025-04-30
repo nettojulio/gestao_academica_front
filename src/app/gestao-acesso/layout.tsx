@@ -51,20 +51,20 @@ export default function EfrotasLayout({ children }: { children: React.ReactNode 
         {
           label: "Inicio",
           route: "/home",
-          icon: <House fontSize="small" className="text-white"/>,
-          roles: ["administrador", "gestor", "tecnico", "aluno", "visitante"],
+          icon: <House fontSize="small" className="text-white" />,
+          roles: ["administrador", "gestor", "tecnico", "professor", "aluno", "visitante"],
         },
         {
           label: "Cursos",
           route: "/gestao-acesso/cursos",
-          icon: <Book fontSize="small" className="text-white"/>,
+          icon: <Book fontSize="small" className="text-white" />,
           roles: ["administrador"],
         },
         {
           label: "Solicitações",
           route: "/gestao-acesso/solicitacoes",
-          icon: <PendingActions fontSize="small" className="text-white"/>,
-          roles: ["administrador", "gestor", "tecnico", "aluno", "visitante"],
+          icon: <PendingActions fontSize="small" className="text-white" />,
+          roles: ["administrador", "gestor", "tecnico", "professor", "aluno", "visitante"],
           // subItems: [
           //   {
           //     label: "Aguardando",
@@ -81,20 +81,32 @@ export default function EfrotasLayout({ children }: { children: React.ReactNode 
         {
           label: "Tipos de Unidades Administrativas",
           route: "/gestao-acesso/tipo-unidade-administrativa",
-          icon: <Summarize fontSize="small"  className="text-white"/>,
+          icon: <Summarize fontSize="small" className="text-white" />,
           roles: ["administrador"],
         },
         {
           label: "Unidades Administrativas",
           route: "/gestao-acesso/unidades-administrativas",
-          icon: <School fontSize="small"  className="text-white"/>,
+          icon: <School fontSize="small" className="text-white" />,
           roles: ["administrador"],
+        },
+        {
+          label: "Alocar Gestor",
+          route: "/gestao-acesso/alocar-gestor",
+          icon: <Summarize fontSize="small" className="text-white" />,
+          roles: ["administrador"],
+        },
+        {
+          label: "Alocar Colaborador",
+          route: "/gestao-acesso/alocar-colaborador",
+          icon: <Summarize fontSize="small" className="text-white" />,
+          roles: ["gestor"],
         },
         {
           label: "Usuários",
           route: "/gestao-acesso/usuarios",
-          icon: <Groups2 fontSize="small"  className="text-white"/>,
-          roles: ["administrador", "gestor"],
+          icon: <Groups2 fontSize="small" className="text-white" />,
+          roles: ["administrador"],
         },
       ],
     },

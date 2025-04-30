@@ -86,7 +86,8 @@ export default function Layout({ children, layoutConfig }: LayoutProps) {
 
   useEffect(() => {
     setIsLogin(
-      pathname === "/home"
+      pathname === "/home" || 
+      pathname === "/conta/perfil"
     );
   }, [pathname]);
   // Configuração default (caso não seja passada)

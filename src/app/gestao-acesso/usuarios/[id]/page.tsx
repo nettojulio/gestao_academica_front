@@ -23,7 +23,8 @@ const cadastro = () => {
     cabecalho: {
       titulo: isEditMode ? "Visualizar Usuario" : "Cadastrar Usuario",
       migalha: [
-        { nome: "Inicio", link: "/gestao-acesso/" },
+        { nome: 'Inicio', link: '/home' },
+        { nome: 'Gestão Acesso', link: '/gestao-acesso' },
         { nome: "Usuarios", link: "/gestao-acesso/usuarios" },
       ],
     },
@@ -90,7 +91,7 @@ const cadastro = () => {
       ],
     },
   };
-  
+
   /**
    * Chama funções de acordo com o botão clicado
    */

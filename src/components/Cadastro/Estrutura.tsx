@@ -68,7 +68,6 @@ const Cadastro = ({
   const { id } = useParams();
   // Ajuste sua regra para isEditMode
   const isEditMode = id && id !== "criar";
-  console.log(dadosPreenchidos, "dadosPreenchidos");
   // -------------------------------------------------------------
   // Estados internos para multi-select e outros
   // -------------------------------------------------------------
@@ -240,7 +239,6 @@ const Cadastro = ({
     if(dadosPreenchidos.parecer){
       data.parecer= dadosPreenchidos.parecer;
     }
-    console.log("estruturaaaaaaaaaaaaaaaaaa",estrutura.cadastro.acoes);
     chamarFuncao(action, data);
   };
 
