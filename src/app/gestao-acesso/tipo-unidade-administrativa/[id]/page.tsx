@@ -36,7 +36,8 @@ const cadastro = () => {
         cabecalho: {
             titulo: isEditMode ? "Editar o Tipo de Unidade Administrativa" : "Cadastrar o Tipo de Unidade Administrativa",
             migalha: [
-                { nome: "Home", link: "/gestao-acesso/home" },
+                { nome: 'Inicio', link: '/home' },
+                { nome: 'Gestão Acesso', link: '/gestao-acesso' },
                 { nome: "Tipos de Unidades Administrativas", link: "/gestao-acesso/tipo-unidade-administrativa" },
                 { nome: isEditMode ? "Editar" : "Criar", link: `/gestao-acesso/tipo-unidade-administrativa/${isEditMode ? id : "criar"}` },
             ],
@@ -80,45 +81,45 @@ const cadastro = () => {
         router.push("/gestao-acesso/tipo-unidade-administrativa");
     };
 
-const salvarRegistro = async (item: any) => {
-    try {
-      const body = {
-        metodo: `${isEditMode ? "patch" : "post"}`,
-        uri: "/auth/" + `${isEditMode ? estrutura.uri + "/" + item.id : estrutura.uri }`,
-        params: {},
-        data: item,
-      };
-      const response = await generica(body);
-      if (!response || response.status < 200 || response.status >= 300) {
-        if (response) {
-          console.error("DEBUG: Status de erro:", response.status, 'statusText' in response ? response.statusText : "Sem texto de status");
+    const salvarRegistro = async (item: any) => {
+        try {
+            const body = {
+                metodo: `${isEditMode ? "patch" : "post"}`,
+                uri: "/auth/" + `${isEditMode ? estrutura.uri + "/" + item.id : estrutura.uri}`,
+                params: {},
+                data: item,
+            };
+            const response = await generica(body);
+            if (!response || response.status < 200 || response.status >= 300) {
+                if (response) {
+                    console.error("DEBUG: Status de erro:", response.status, 'statusText' in response ? response.statusText : "Sem texto de status");
+                }
+                toast.error(`Erro na requisição (HTTP ${response?.status || "desconhecido"})`, { position: "top-left" });
+                return;
+            }
+            if (response.data?.errors) {
+                Object.keys(response.data.errors).forEach((campoErro) => {
+                    toast.error(`Erro em ${campoErro}: ${response.data.errors[campoErro]}`, {
+                        position: "top-left",
+                    });
+                });
+            } else if (response.data?.error) {
+                toast(response.data.error.message, { position: "top-left" });
+            } else {
+                Swal.fire({
+                    title: "Tipo de UA salvo com sucesso!",
+                    icon: "success",
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        chamarFuncao("voltar");
+                    }
+                });
+            }
+        } catch (error) {
+            console.error("DEBUG: Erro ao salvar registro:", error);
+            toast.error("Erro ao salvar registro. Tente novamente!", { position: "top-left" });
         }
-        toast.error(`Erro na requisição (HTTP ${response?.status || "desconhecido"})`, { position: "top-left" });
-        return;
-      }
-      if (response.data?.errors) {
-        Object.keys(response.data.errors).forEach((campoErro) => {
-          toast.error(`Erro em ${campoErro}: ${response.data.errors[campoErro]}`, {
-            position: "top-left",
-          });
-        });
-      } else if (response.data?.error) {
-        toast(response.data.error.message, { position: "top-left" });
-      } else {
-        Swal.fire({
-          title: "Tipo de UA salvo com sucesso!",
-          icon: "success",
-        }).then((result) => {
-          if (result.isConfirmed) {
-            chamarFuncao("voltar");
-          }
-        });
-      }
-    } catch (error) {
-      console.error("DEBUG: Erro ao salvar registro:", error);
-      toast.error("Erro ao salvar registro. Tente novamente!", { position: "top-left" });
-    }
-  };
+    };
 
     const editarRegistro = async (item: any) => {
         try {

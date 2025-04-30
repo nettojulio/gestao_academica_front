@@ -74,7 +74,8 @@ const cadastro = () => {
     cabecalho: {
       titulo: isEditMode ? "Visualizar Solicitação" : "Solicitar Perfil",
       migalha: [
-        { nome: "Home", link: "/gestao-acesso/home" },
+        { nome: 'Inicio', link: '/home' },
+        { nome: 'Gestão Acesso', link: '/gestao-acesso' },
         { nome: "Solicitações", link: "/gestao-acesso/solicitacoes" },
         {
           nome: isEditMode ? "visualizar" : "Criar",
@@ -250,15 +251,15 @@ const cadastro = () => {
 
       ],
       acoes: isEditMode
-      ? isPrivileged
-        ? [
+        ? isPrivileged
+          ? [
             { nome: "Rejeitar", chave: "rejeitar", tipo: "submit" },
             { nome: "Aprovar", chave: "aprovar", tipo: "submit" },
           ]
-        : [
+          : [
             { nome: "Voltar", chave: "voltar", tipo: "botao" },
           ]
-      : [
+        : [
           { nome: "Cancelar", chave: "voltar", tipo: "botao" },
           { nome: "Solicitar", chave: "salvar", tipo: "submit" },
         ],
@@ -436,7 +437,7 @@ const cadastro = () => {
     siape?: string;
     documentos?: File[];
   }): FormData {
-    
+
     const fd = new FormData();
 
     switch (item.tipoUsuario) {

@@ -16,8 +16,9 @@ const estrutura: any = {
     cabecalho: {
         titulo: "Tipos de Unidades Administrativas",
         migalha: [
-            { nome: 'Home', link: '/gestao-acesso/home' },
-            { nome: 'Tipos de Unidades Administrativas', link: '/gestao-acesso/tipo-unidade-administrativa'},
+            { nome: 'Inicio', link: '/home' },
+            { nome: 'Gestão Acesso', link: '/gestao-acesso' },
+            { nome: 'Tipos de Unidades Administrativas', link: '/gestao-acesso/tipo-unidade-administrativa' },
         ]
     },
 
@@ -121,7 +122,7 @@ const PageLista = () => {
                     metodo: 'delete',
                     uri: '/auth/' + estrutura.uri + '/' + item.id,
                     params: {},
-                    
+
                 };
 
                 const response = await generica(body);

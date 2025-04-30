@@ -240,7 +240,6 @@ const Cadastro = ({
     if(dadosPreenchidos.parecer){
       data.parecer= dadosPreenchidos.parecer;
     }
-    console.log("estruturaaaaaaaaaaaaaaaaaa",estrutura.cadastro.acoes);
     chamarFuncao(action, data);
   };
 

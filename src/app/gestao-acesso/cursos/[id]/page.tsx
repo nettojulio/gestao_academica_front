@@ -40,7 +40,8 @@ const cadastro = () => {
     cabecalho: {
       titulo: isEditMode ? "Editar Curso" : "Cadastrar Curso",
       migalha: [
-        { nome: "Home", link: "/gestao-acesso/home" },
+        { nome: 'Inicio', link: '/home' },
+        { nome: 'Gestão Acesso', link: '/gestao-acesso' },
         { nome: "Curso", link: "/gestao-acesso/cursos" },
         {
           nome: isEditMode ? "Editar" : "Criar",
@@ -109,7 +110,7 @@ const cadastro = () => {
     try {
       const body = {
         metodo: `${isEditMode ? "patch" : "post"}`,
-        uri: "/auth/" + `${isEditMode ? estrutura.uri+"/"+ item.id : estrutura.uri }`,
+        uri: "/auth/" + `${isEditMode ? estrutura.uri + "/" + item.id : estrutura.uri}`,
         params: {},
         data: item,
       };
@@ -166,7 +167,7 @@ const cadastro = () => {
         });
       } else if (response.data?.error) {
         toast.error(response.data.error.message, { position: "top-left" });
-      } else {       
+      } else {
         setDadosPreenchidos(response.data);
       }
     } catch (error) {

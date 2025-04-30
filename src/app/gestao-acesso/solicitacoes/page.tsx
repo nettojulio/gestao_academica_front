@@ -16,7 +16,8 @@ const estrutura = {
   cabecalho: {
     titulo: "Solicitações",
     migalha: [
-      { nome: 'Home', link: '/gestao-acesso/home' },
+      { nome: 'Inicio', link: '/home' },
+      { nome: 'Gestão Acesso', link: '/gestao-acesso' },
       { nome: 'Solicitações', link: '/gestao-acesso/solicitacoes' },
     ],
   },

@@ -16,7 +16,8 @@ const estrutura: any = {
   cabecalho: { //cabecalho da pagina
     titulo: "Unidades Administrativas",
     migalha: [
-      { nome: 'Home', link: '/gestao-acesso/home' },
+      { nome: 'Inicio', link: '/home' },
+      { nome: 'Gestão Acesso', link: '/gestao-acesso' },
       { nome: 'Unidade Administrativa', link: '/gestao-acesso/unidades-administrativas' },
     ]
   },
@@ -77,7 +78,7 @@ const PageLista = () => {
     try {
       let body = {
         metodo: 'get',
-        uri: '/auth/' + estrutura.uri ,
+        uri: '/auth/' + estrutura.uri,
         //+ '/page',
         params: params != null ? params : { size: 25, page: 0 },
         data: {}
@@ -87,9 +88,9 @@ const PageLista = () => {
       if (response && response.data.errors != undefined) {
         toast.error("Erro. Tente novamente!", { position: "top-left" });
       } else if (response && response.data && response.data.error != undefined) {
-          if (response && response.data && response.data.error) {
-            toast(response.data.error.message, { position: "top-left" });
-          }
+        if (response && response.data && response.data.error) {
+          toast(response.data.error.message, { position: "top-left" });
+        }
       } else {
         if (response && response.data) {
           setDados(response.data);

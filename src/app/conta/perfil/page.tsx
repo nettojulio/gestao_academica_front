@@ -7,97 +7,75 @@ import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { generica } from '@/utils/api';
+import Swal from 'sweetalert2';
 
 const PagePerfil = () => {
   const { id } = useParams();
+  const router = useRouter();
   const isEditMode = id && id !== "criar";
   const [cursos, setCursos] = useState<any[]>([]);
-  const [dadosPreenchidos, setDadosPreenchidos] = useState<any[]>([]);
-  const [dadosPerfil, setDadosPerfil] = useState<any>({ content:[] });
-  
+  const [dadosPreenchidos, setDadosPreenchidos] = useState<any>({});
+  const [editando, setEditando] = useState(false);
 
   const getOptions = (lista: any[], selecionado: any) => {
     if (!Array.isArray(lista) || lista.length === 0) return [];
     const options = lista.map((item) => ({
-      chave: item.id, // ID do item (numérico, por exemplo)
-      valor: item.nome, // Texto exibido no <option>
+      chave: item.id,
+      valor: item.nome,
     }));
     if (isEditMode && selecionado) {
-      const selectedId = Number(selecionado); // Converte para número, se necessário
+      const selectedId = Number(selecionado);
       const selectedOption = options.find((opt) => opt.chave === selectedId);
       if (selectedOption) {
-        // Coloca a opção selecionada na frente do array
         return [selectedOption, ...options.filter((opt) => opt.chave !== selectedId)];
       }
     }
     return options;
   };
 
-  const currentUser = async (params = null) => {
-      try {
-        let body = {
+  const currentUser = async () => {
+    try {
+      const response = await generica(
+        {
           metodo: 'get',
           uri: '/auth/usuario/current',
-          //+ '/page',
-          //params: params != null ? params : { size: 25, page: 0 },
           data: {}
         }
-        console.log("requisição", body.uri);
-        const response = await generica(body);
-        console.log("Response current User",response)
-        //tratamento dos erros
-        if (response && response.data.errors != undefined) {
-          toast("Erro. Tente novamente!", { position: "top-left" });
-        } else if (response && response.data.error != undefined) {
-          toast(response.data.error.message, { position: "top-left" });
-        } else {
-          if (response && response.data) {
-            setDadosPreenchidos(response.data);
-          }
-        }
-      } catch (error) {
-        console.error('Erro ao carregar registros:', error);
+      );
+      if (response?.data?.errors) {
+        toast.error("Erro ao carregar dados do usuário!", { position: "top-left" });
+      } else {
+        setDadosPreenchidos(response?.data);
       }
-    };
-
+    } catch (error) {
+      toast.error('Erro ao carregar dados!', { position: "top-left" });
+    }
+  };
 
   const estrutura: any = {
-
-    uri: "perfil", //caminho base
-  
-    cabecalho: { //cabecalho da pagina
-      titulo: "perfil",
+    uri: "perfil",
+    cabecalho: {
+      titulo: "Perfil",
       migalha: [
         { nome: 'Home', link: '/home' },
-        { nome: 'Cursos', link: '/cursos' },
-        
-
+        { nome: 'Perfil', link: '/conta/perfil' },
       ]
     },
-
     cadastro: {
       campos: [
         {
-          line: 1,
-          colSpan: "md:col-span-1",
-          nome: "Foto Perfil",
-          chave: "perfil.fotoPerfil",
-          tipo: "foto", // ou outro tipo apropriado
-          mensagem: "Anexe os documentos",
+          line: 1, colSpan: "md:col-span-1", nome: "Foto Perfil",
+          chave: "perfil.fotoPerfil", tipo: "foto",
+          mensagem: "Anexe a foto",
           obrigatorio: false,
-          bloqueado: isEditMode,
-
+          bloqueado: !editando,
         },
         {
-          line: 2,
-          colSpan: "md:col-span-1",
-          nome: "Nome do Solicitante",
+          line: 2, colSpan: "md:col-span-1",
+          nome: "Nome",
           chave: "nome",
           tipo: "text",
-          mensagem: "Digite",
-          obrigatorio: true,
-          bloqueado: true,
-          
+          bloqueado: !editando
         },
         {
           line: 2,
@@ -105,10 +83,7 @@ const PagePerfil = () => {
           nome: "Nome Social",
           chave: "nomeSocial",
           tipo: "text",
-          mensagem: "Digite o nome social",
-          obrigatorio: false,
-          bloqueado: true,
-
+          bloqueado: !editando
         },
         {
           line: 3,
@@ -116,10 +91,7 @@ const PagePerfil = () => {
           nome: "Email",
           chave: "email",
           tipo: "text",
-          mensagem: "Digite",
-          obrigatorio: true,
-          bloqueado: true,
-
+          bloqueado: true
         },
         {
           line: 3,
@@ -127,11 +99,8 @@ const PagePerfil = () => {
           nome: "CPF",
           chave: "cpf",
           tipo: "text",
-          mensagem: "Digite",
-          obrigatorio: true,
           bloqueado: true,
-          mascara: "cpf",
-         
+          mascara: "cpf"
         },
         {
           line: 4,
@@ -139,85 +108,109 @@ const PagePerfil = () => {
           nome: "Telefone",
           chave: "telefone",
           tipo: "text",
-          mensagem: "Digite",
-          obrigatorio: true,
-          bloqueado: true,
-          mascara: "celular",
-
+          bloqueado: !editando,
+          mascara: "celular"
         },
         {
           line: 4,
           colSpan: "md:col-span-1",
           nome: "Matrícula",
-          chave: isEditMode ? "perfil.matricula" : "matricula",
+          chave: "perfil.matricula",
           tipo: "text",
-          mensagem: "Digite a matrícula",
-          obrigatorio: false,
-          exibirPara: ["ALUNO"],
-          bloqueado: isEditMode,
-
+          bloqueado: !editando
         },
         {
           line: 4,
           colSpan: "md:col-span-1",
           nome: "Curso",
-          chave: isEditMode ? "perfil.curso.nome" : "cursoId",
-          tipo: isEditMode ? "select" : "text",
-          mensagem: "Selecione o curso",
-          obrigatorio: true,
-          selectOptions: isEditMode ? null : getOptions(cursos, dadosPreenchidos[0]?.cursoId),
-          exibirPara: ["ALUNO"],
-          bloqueado: isEditMode,
-
-          // selectOptions: [{ chave: "1", valor: "Engenharia" }, ...]
+          chave: "perfil.curso.id",
+          tipo: "select",
+          selectOptions: getOptions(cursos, dadosPreenchidos?.perfil?.curso?.id),
+          bloqueado: !editando, exibirPara: ["ALUNO"],
         },
         {
           line: 4,
           colSpan: "md:col-span-1",
           nome: "Cursos",
-          chave: isEditMode ? "perfil.cursos" : "cursoIds",
+          chave: "perfil.cursos",
           tipo: "multi-select",
-          mensagem: "Selecione cursos",
-          obrigatorio: false,
+          selectOptions: getOptions(cursos, dadosPreenchidos?.perfil?.cursos),
+          bloqueado: !editando,
           exibirPara: ["PROFESSOR"],
-          selectOptions: isEditMode ? null : getOptions(cursos, Array.isArray(dadosPreenchidos) && dadosPreenchidos[0]?.cursoIds),
-          multiple: true, // Permite selecionar múltiplos cursos
-          bloqueado: isEditMode,
-
+          multiple: true,
         },
         {
           line: 4,
           colSpan: "md:col-span-1",
           nome: "SIAPE",
-          chave: isEditMode ? "perfil.siape" : "siape",
+          chave: "perfil.siape",
           tipo: "text",
-          mensagem: "Digite o SIAPE",
-          obrigatorio: true,
+          bloqueado: !editando,
           exibirPara: ["ADMINISTRADOR", "GESTOR", "TECNICO", "PROFESSOR"],
-          bloqueado: isEditMode,
-
         },
+      ],
+      acoes: [
+        { nome: "Voltar", chave: "voltar", tipo: "botao" },
+        { nome: editando ? "Salvar" : "Editar", chave: editando ? "salvar" : "editar", tipo: "submit" },
       ]
+    },
+  };
 
-      },  
-    };
+  const chamarFuncao = async (nomeFuncao = "", valor: any = null) => {
+    switch (nomeFuncao) {
+      case "salvar":
+        await salvarRegistro(valor);
+        setEditando(false);
+        break;
+      case "voltar":
+        router.push("/home");
+        break;
+      case "editar":
+        setEditando(true);
+        break;
+      default:
+        break;
+    }
+  };
 
-      useEffect(() => {
-        currentUser();
-      }, []);
+  const salvarRegistro = async (item: any) => {
+    try {
+      const response = await generica({
+        metodo: "patch",
+        uri: `/auth/${estrutura.uri}/${item.id}`,
+        params: {},
+        data: item,
+      });
 
-    return (
-      <main className="flex flex-wrap justify-center mx-auto">
-        <div className="w-full sm:w-11/12 2xl:w-10/12 p-4 sm:p-6 md:p-8 lg:p-12 :p-16 2xl:p-20 pt-7 md:pt-8 md:pb-8 ">
-          <Cabecalho dados={estrutura.cabecalho}/>
-          <Cadastro 
-              estrutura={estrutura}
-              dadosPreenchidos={dadosPreenchidos}
-              setDadosPreenchidos={setDadosPreenchidos}
-          />
-        </div>
-      </main>
-    );
-} 
+      if (response && response.data?.errors) {
+        Object.values(response.data.errors).forEach((erro: any) => toast.error(erro, { position: "top-left" }));
+      } else {
+        Swal.fire({ title: "Perfil atualizado com sucesso!", icon: "success" }).then(() => {
+          router.push("/home");
+        });
+      }
+    } catch (error) {
+      toast.error("Erro ao salvar registro!", { position: "top-left" });
+    }
+  };
+
+  useEffect(() => {
+    currentUser();
+  }, []);
+
+  return (
+    <main className="flex flex-wrap justify-center mx-auto">
+      <div className="w-full sm:w-11/12 2xl:w-10/12 p-4 sm:p-6 md:p-8 lg:p-12 :p-16 2xl:p-20 pt-7 md:pt-8 md:pb-8 ">
+        <Cabecalho dados={estrutura.cabecalho} />
+        <Cadastro
+          estrutura={estrutura}
+          dadosPreenchidos={dadosPreenchidos}
+          setDadosPreenchidos={setDadosPreenchidos}
+          chamarFuncao={chamarFuncao}
+        />
+      </div>
+    </main>
+  );
+}
 
 export default withAuthorization(PagePerfil);
