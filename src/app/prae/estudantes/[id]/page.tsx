@@ -359,7 +359,7 @@ const pesquisarEtnia = async (params = null) => {
     try {
       const body = {
         metodo: `${isEditMode ? "patch" : "post"}`,
-        uri: "/prae/" + `${isEditMode ? estrutura.uri+"/"+ item.id : estrutura.uri }`,
+        uri: "/prae/" + `${isEditMode ? estrutura.uri+"/"+ item.id : estrutura.uri}`,
         params: {},
         data: item,
       };

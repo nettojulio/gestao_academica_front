@@ -101,7 +101,7 @@ const cadastro = () => {
     try {
       const body = {
         metodo: `${isEditMode ? "patch" : "post"}`,
-        uri: "/prae/" + `${isEditMode ? estrutura.uri + "/" + item.id + "/editar" : estrutura.uri + "/registrar"}`,
+        uri: "/prae/" + `${isEditMode ? estrutura.uri + "/" + item.id : estrutura.uri}`,
         params: {},
         data: item,
       };
