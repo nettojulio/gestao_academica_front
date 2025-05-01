@@ -36,9 +36,9 @@ const cadastro = () => {
   };
 
   const estrutura: any = {
-    uri: "curso",
+    uri: "dadosBancarios",
     cabecalho: {
-      titulo: isEditMode ? "Editar Curso" : "Cadastrar Curso",
+      titulo: isEditMode ? "Editar Dados Bancarios" : "Cadastrar Dados Bancarios",
       migalha: [
         { nome: 'Home', link: '/home' },
         { nome: 'Prae', link: '/prae' },
@@ -119,7 +119,7 @@ const cadastro = () => {
     try {
       const body = {
         metodo: `${isEditMode ? "patch" : "post"}`,
-        uri: "/prae/" + `${isEditMode ? estrutura.uri + "/" + item.id : estrutura.uri}`,
+        uri: "/prae/" + `${isEditMode ? estrutura.uri + "/" + item.id : estrutura.uri + "/registrar"}`,
         params: {},
         data: item,
       };

@@ -1,7 +1,7 @@
 import React from "react";
 import { Metadata } from "next";
 import ClientWrapper from "@/components/AuthProvider/ClientWrapper";
-import { School, PendingActions, Groups2, AccountCircleOutlined, House, Book, Summarize } from "@mui/icons-material";
+import { School, PendingActions, Groups2, AccountCircleOutlined, House, Book, Summarize, HowToReg, AssignmentInd } from "@mui/icons-material";
 import { InternalLayoutConfig } from "@/types/InternalLayoutConf";
 
 

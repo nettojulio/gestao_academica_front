@@ -165,7 +165,7 @@ const cadastro = () => {
   };
 
   const voltarRegistro = () => {
-    router.push("/gestao-acesso/cursos");
+    router.push("/prae/auxilio/auxilios");
   };
 
   /**
@@ -176,7 +176,7 @@ const cadastro = () => {
     try {
       const body = {
         metodo: `${isEditMode ? "patch" : "post"}`,
-        uri: "/auth/" + `${isEditMode ? estrutura.uri + "/" + item.id : estrutura.uri}`,
+        uri: "/prae/" + `${isEditMode ? estrutura.uri + "/" + item.id : estrutura.uri}`,
         params: {},
         data: item,
       };

@@ -36,7 +36,7 @@ const cadastro = () => {
   };
 
   const estrutura: any = {
-    uri: "tipoAuxilio",
+    uri: "tipo-auxilio",
     cabecalho: {
       titulo: isEditMode ? "Editar Tipo de Auxilio" : "Cadastrar Tipo de Auxilio",
       migalha: [

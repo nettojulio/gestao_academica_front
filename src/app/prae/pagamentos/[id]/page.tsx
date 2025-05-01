@@ -36,7 +36,7 @@ const cadastro = () => {
   };
 
   const estrutura: any = {
-    uri: "curso",
+    uri: "pagamento",
     cabecalho: {
       titulo: isEditMode ? "Editar Pagamentos" : "Cadastrar Pagamento",
       migalha: [

@@ -10,7 +10,7 @@ import Swal from 'sweetalert2';
 
 const estrutura: any = {
 
-  uri: "dados-bancarios", //caminho base
+  uri: "dadosBancarios", //caminho base
 
   cabecalho: { //cabecalho da pagina
     titulo: "Dados Bancários",
