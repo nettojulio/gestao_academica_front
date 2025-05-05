@@ -35,7 +35,7 @@ const cadastro = () => {
     return options;
   };
   const estrutura: any = {
-    uri: "unidade-administrativa",
+    uri: "tecnico",
     cabecalho: {
       titulo: isEditMode ? "Alocar Colaborador" : "Alocar Colaborador",
       migalha: [

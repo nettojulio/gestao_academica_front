@@ -56,10 +56,20 @@ const cadastro = () => {
           line: 1,
           colSpan: "md:col-span-1",
           nome: "Tipo Atendimento",
-          chave: "descricao",
+          chave: "nome",
           tipo: "text",
           mensagem: "Digite",
           obrigatorio: true,
+        },
+        {
+          line: 1,
+          colSpan: "md:col-span-1",
+          nome: "Tempo Atendimento",
+          chave: "tempoAtendimento",
+          tipo: "text",
+          mensagem: "Digite",
+          obrigatorio: true,
+          
         },
         {
           line: 1,
@@ -118,6 +128,17 @@ const cadastro = () => {
    * fiquem agrupados em um objeto 'endereco'.
    */
   const salvarRegistro = async (item: any) => {
+    // Supondo que item.tempoAtendimento seja uma string no formato "HH:mm"
+    const [hora, minuto] = item.tempoAtendimento.split(':').map(Number);
+    const totalMinutos = hora * 60 + minuto;
+
+    if (totalMinutos > 60) {
+      toast.error("O tempo de atendimento não pode ser maior que 1 hora", {
+        position: "top-left"
+      });
+      return;
+    }
+    
     try {
       const body = {
         metodo: `${isEditMode ? "patch" : "post"}`,
@@ -145,6 +166,11 @@ const cadastro = () => {
         Swal.fire({
           title: "Tipo de atendimento registrado com sucesso!",
           icon: "success",
+          customClass: {
+            popup: "my-swal-popup",
+            title: "my-swal-title",
+            htmlContainer: "my-swal-html",
+          },
         }).then((result) => {
           if (result.isConfirmed) {
             chamarFuncao("voltar");

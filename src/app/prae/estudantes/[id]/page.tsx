@@ -172,63 +172,103 @@ const cadastro = () => {
           line: 3,
           colSpan: "md:col-span-1",
           nome: "Etnia",
-          chave: "tipoEtnia", // Campo onde o ID será salvo
+          chave: "tipoEtniaId", // Campo onde o ID será salvo
           tipo: "select",
           mensagem: "Selecione a opção",
           obrigatorio: true,
-          selectOptions: getOptions(etnia, dadosPreenchidos?.tipoEtnia),
+          selectOptions: getOptions(etnia, dadosPreenchidos?.tipoEtniaId),
           // Adicione estas props para controlar a exibição:
           opcaoChave: "chave",   // Campo usado como valor (ID)
           opcaoValor: "valor",   // Campo exibido no select (nome/tipo)
           bloqueado: isEditMode,
         },
         {
-          line: 5,
+          line: 4,
           colSpan: "md:col-span-1",
-          nome: "Renda Percapita",
-          chave: isEditMode ? "perfil.siape" : "rendaPercapita",
+          nome: "Renda Percapta",
+          chave: isEditMode ? "perfil.siape" : "rendaPercapta",
           tipo: "text",
           mensagem: "Digite a renda percápita",
           obrigatorio: true,
           bloqueado: isEditMode,
-          mascara: "valor",
+          mascara: "valor"
         },
         {
-          line: 5,
+          line: 4,
           colSpan: "md:col-span-1",
-          nome: "Conta Bancaria",
-          chave: isEditMode ? "dadosBancarios.conta" : "dadosBancarios.conta",
+          nome: "Rua",
+          chave: isEditMode ? "perfil.siape" : "rua",
           tipo: "text",
-          mensagem: "Digite a renda percápita",
-          obrigatorio: true,
-          bloqueado: isEditMode,
-        },
-        {
-          line: 5,
-          colSpan: "md:col-span-1",
-          nome: "Agencia Bancaria",
-          chave: isEditMode ? "dadosBancarios.agencia" : "dadosBancarios.agencia",
-          tipo: "text",
-          mensagem: "Digite a renda percápita",
+          mensagem: "Digite o nome da rua",
           obrigatorio: true,
           bloqueado: isEditMode,
         },
         {
-          line: 5,
+          line: 4,
           colSpan: "md:col-span-1",
-          nome: "Conta Bancaria",
-          chave: isEditMode ? "perfil.siape" : "rendaPercapita",
+          nome: "CEP",
+          chave: isEditMode ? "perfil.siape" : "cep",
           tipo: "text",
-          mensagem: "Digite a renda percápita",
+          mensagem: "Digite o CEP",
           obrigatorio: true,
           bloqueado: isEditMode,
-          mascara: "valor",
+          mascara: "CEP"
+        },
+        {
+          line: 4,
+          colSpan: "md:col-span-1",
+          nome: "Bairro",
+          chave: isEditMode ? "perfil.siape" : "bairro",
+          tipo: "text",
+          mensagem: "Digite o bairro",
+          obrigatorio: true,
+          bloqueado: isEditMode,
+        },
+        {
+          line: 5,
+          colSpan: "md:col-span-1",
+          nome: "Cidade",
+          chave: isEditMode ? "perfil.siape" : "cidade",
+          tipo: "text",
+          mensagem: "Digite a cidade",
+          obrigatorio: true,
+          bloqueado: isEditMode,
+        },
+        {
+          line: 5,
+          colSpan: "md:col-span-1",
+          nome: "Estado",
+          chave: isEditMode ? "perfil.siape" : "estado",
+          tipo: "text",
+          mensagem: "Digite o estado",
+          obrigatorio: true,
+          bloqueado: isEditMode,
+        },
+        {
+          line: 5,
+          colSpan: "md:col-span-1",
+          nome: "Número",
+          chave: isEditMode ? "perfil.siape" : "numero",
+          tipo: "text",
+          mensagem: "Digite o numero",
+          obrigatorio: true,
+          bloqueado: isEditMode,
+        },
+        {
+          line: 5,
+          colSpan: "md:col-span-1",
+          nome: "Complemento",
+          chave: isEditMode ? "perfil.siape" : "complemento",
+          tipo: "text",
+          mensagem: "Digite o complemento",
+          obrigatorio: false,
+          bloqueado: isEditMode,
         },
         {
           line: 6,
           colSpan: "md:col-span-1",
           nome: "Contato Familiar",
-          chave: isEditMode ? "contatoFamiliar" : "contatoFamiliar",
+          chave: isEditMode ? "contatoFamilia" : "contatoFamilia",
           tipo: "text",
           mensagem: "Digite o contato familiar",
           obrigatorio: true,
@@ -239,7 +279,7 @@ const cadastro = () => {
           line: 6,
           colSpan: "md:col-span-1",
           nome: "É portador de Deficiência",
-          chave: isEditMode ? "deficiencia" : "deficiencia",
+          chave: isEditMode ? "deficiente" : "deficiente",
           tipo: "select",
           selectOptions: [
             { chave: true, valor: "Sim" },
@@ -351,17 +391,22 @@ const pesquisarEtnia = async (params = null) => {
     router.push("/prae/pagamentos");
   };
 
+  const transformarDados = (item: any) => {
+    const { cep, rua, complemento, numero, bairro, cidade, estado, tipoEtniaId, rendaPercapta, ...rest } = item;
+    return { ...rest, endereco: { cep, rua, complemento, numero, bairro, cidade, estado }, tipoEtniaId: Number(tipoEtniaId), rendaPercapta: Number(rendaPercapta) };
+  };
   /**
    * Salva o registro via POST, transformando os dados para que os itens de endereço
    * fiquem agrupados em um objeto 'endereco'.
    */
   const salvarRegistro = async (item: any) => {
     try {
+      const dataToSend = transformarDados(item);
       const body = {
         metodo: `${isEditMode ? "patch" : "post"}`,
         uri: "/prae/" + `${isEditMode ? estrutura.uri+"/"+ item.id : estrutura.uri}`,
         params: {},
-        data: item,
+        data: dataToSend,
       };
       const response = await generica(body);
       if (!response || response.status < 200 || response.status >= 300) {

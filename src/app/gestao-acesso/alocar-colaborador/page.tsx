@@ -10,7 +10,7 @@ import Swal from 'sweetalert2';
 
 const estrutura: any = {
 
-  uri: "unidade-administrativa", //caminho base
+  uri: "tecnico", //caminho base
 
   cabecalho: { //cabecalho da pagina
     titulo: "Colaboradores",
@@ -78,7 +78,7 @@ const PageLista = () => {
     try {
       let body = {
         metodo: 'get',
-        uri: '/auth/' + estrutura.uri +"/"+ id + "/funcionarios",
+        uri: '/auth/' + estrutura.uri,
         //+ '/page',
         params: params != null ? params : { size: 25, page: 0 },
         data: {}

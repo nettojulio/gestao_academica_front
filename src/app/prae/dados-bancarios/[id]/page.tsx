@@ -16,6 +16,7 @@ const cadastro = () => {
   const [dadosPreenchidos, setDadosPreenchidos] = useState<any>({ endereco: {} });
   const [unidadesGestoras, setUnidadesGestoras] = useState<any[]>([]);
   const [lastMunicipioQuery, setLastMunicipioQuery] = useState("");
+  const [nomeTitular, setNomeTitular] = useState<any[]>([]);
   const isEditMode = id && id !== "criar";
 
   const getOptions = (lista: any[], selecionado: any) => {
@@ -58,6 +59,7 @@ const cadastro = () => {
           nome: "Titular",
           chave: "idAluno", //consultar estudantes
           tipo: "select",
+          selectOptions: isEditMode ? null : getOptions(nomeTitular, dadosPreenchidos[0]?.nomeTitular),
           mensagem: "Digite",
           obrigatorio: true,
         },
@@ -106,6 +108,33 @@ const cadastro = () => {
         break;
     }
   };
+
+  const pesquisarTitular = async (params = null) => {
+    try {
+      let body = {
+        metodo: 'get',
+        uri: '/prae/' + 'estudantes',
+        //+ '/page',
+        params: params != null ? params : { size: 25, page: 0 },
+        data: {}
+      }
+      const response = await generica(body);
+      console.log('Dados de etnia recebidos:', response);
+      //tratamento dos erros
+      if (response && response.data.errors != undefined) {
+        toast("Erro. Tente novamente!", { position: "bottom-left" });
+      } else if (response && response.data.error != undefined) {
+        toast(response.data.error.message, { position: "bottom-left" });
+      } else {
+        if (response && response.data) {
+          setNomeTitular(response.data);
+        }
+      }
+    } catch (error) {
+      console.error('Erro ao carregar registros:', error);
+    }
+  };
+
 
   const voltarRegistro = () => {
     router.push("/prae/dados-bancarios");
@@ -187,6 +216,7 @@ const cadastro = () => {
 
   // Efeito exclusivo para o modo de edição
   useEffect(() => {
+    pesquisarTitular();
     if (id && id !== "criar") {
       chamarFuncao("editar", id);
     }
