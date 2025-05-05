@@ -149,8 +149,13 @@ const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
 
     console.log("response: " + JSON.stringify(response));
 
+    if (response.status === 401) {
+        toast.error("Credenciais já cadastradas!", { position: "top-right" });
+        return;
+    }
+
     if (response.status === 409) {
-        toast.error("CPF já cadastrado!", { position: "top-right" });
+        toast.error("CPF e/ou e-mail já cadastrado(s)!", { position: "top-right" });
         return;
     }
 
@@ -171,7 +176,7 @@ const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     } else if (response.data.detail) {
         console.error(`Erro: ${response.data.detail}`);
         setErrorMessage(`${response.data.detail}`);
-    } else if (response.status === 200) {
+    } else if (response.status === 201) {
         router.push('/conta/criar-conta/sucesso');
     } else {
         console.log(JSON.stringify(response));
