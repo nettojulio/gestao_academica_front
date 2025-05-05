@@ -5,8 +5,8 @@ import '../../auth-styles.css';
 export default function PageRegister() {
 
     return (
-        <div className="flex flex-col items-center justify-center px-6 pt-10 mx-auto dark:bg-gray-100 text-center">
-            <div className="w-full max-w-xl p-6 space-y-12 sm:p-8 bg-white rounded-lg shadow-lg dark:bg-gray-100">
+        <div className="flex flex-col items-center justify-center px-6 pt-10 mx-auto text-center">
+            <div className="w-full max-w-xl p-6 space-y-12 sm:p-8 bg-white rounded-lg shadow-lg">
                 <h1 className="text-3xl font-bold custom-text-color dark:text-white">
                     Conta criada com sucesso!
                 </h1>
