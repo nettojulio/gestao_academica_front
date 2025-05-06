@@ -1056,10 +1056,9 @@ const Cadastro = ({
                         })) || [])
                         : []);
                     // O valor selecionado também é adaptado
-                    const selectedValues =
-                      campo.chave === "perfil.cursos"
-                        ? (dadosPreenchidos?.perfil?.cursos?.map((curso: any) => curso.id.toString()) || [])
-                        : dadosPreenchidos[campo.chave];
+                    const selectedValues: string[] = campo.chave === "perfil.cursos"
+                    ? (dadosPreenchidos?.perfil?.cursos?.map((curso:any) => curso.id.toString()) ?? [])
+                    : (dadosPreenchidos[campo.chave] ?? []);
 
                     return (
                       <div
