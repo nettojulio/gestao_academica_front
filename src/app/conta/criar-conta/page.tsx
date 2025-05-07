@@ -264,13 +264,11 @@ export default function PageRegister() {
                         </Link>
 
                     </div>
-                    <div className="flex justify-end mt-4">
                     <button type="submit"
-                        className="max-w-[10em] w-full py-3 px-4 text-sm tracking-wide rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none">
+                        className="w-full py-3 px-4 text-sm tracking-wide rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none">
                         Criar Conta</button>
                     {errorMessage && <p className="text-red-500 text-sm">{errorMessage}</p>}
                     {successMessage && <p className="text-green-500 text-sm">{successMessage}</p>}
-                    </div>
                 </form>
             </div>
         </div>
