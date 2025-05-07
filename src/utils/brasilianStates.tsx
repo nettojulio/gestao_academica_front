@@ -51,7 +51,6 @@ export function useEstadoByMunicipio(municipio: string) {
       axios
         .get("https://brasilapi.com.br/api/ibge/municipios/v1/")
         .then((response) => {
-          console.log(response)
           // Procura o município ignorando diferenças de maiúsculas/minúsculas
           const found = response.data.find((m: any) =>
             m.nome.toLowerCase() === municipio.toLowerCase()

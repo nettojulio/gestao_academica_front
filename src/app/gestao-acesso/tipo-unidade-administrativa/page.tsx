@@ -16,8 +16,9 @@ const estrutura: any = {
     cabecalho: {
         titulo: "Tipos de Unidades Administrativas",
         migalha: [
-            { nome: 'Home', link: '/gestao-acesso/home' },
-            { nome: 'Tipos de Unidades Administrativas', link: '/gestao-acesso/tipo-unidade-administrativa'},
+            { nome: 'Inicio', link: '/home' },
+            { nome: 'Gestão Acesso', link: '/gestao-acesso' },
+            { nome: 'Tipos de Unidades Administrativas', link: '/gestao-acesso/tipo-unidade-administrativa' },
         ]
     },
 
@@ -73,7 +74,6 @@ const PageLista = () => {
                 data: {}
             }
             const response = await generica(body);
-            console.log("sufhaishdfiahus", response)
             if (response && response.data.errors != undefined) {
                 toast.error("Erro. Tente novamente!", { position: "top-left" });
             } else if (response && response.data && response.data.error != undefined) {
@@ -82,7 +82,6 @@ const PageLista = () => {
                 }
             } else {
                 if (response && response.data) {
-                    console.log(response.data);
                     setDados(response.data);
                 }
             }
@@ -121,9 +120,9 @@ const PageLista = () => {
             try {
                 const body = {
                     metodo: 'delete',
-                    uri: '/auth/' + estrutura.uri + '/' + item.id + '/deletar',
+                    uri: '/auth/' + estrutura.uri + '/' + item.id,
                     params: {},
-                    
+
                 };
 
                 const response = await generica(body);

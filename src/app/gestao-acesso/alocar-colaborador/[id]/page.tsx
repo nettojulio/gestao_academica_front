@@ -14,7 +14,8 @@ const cadastro = () => {
   // Inicializamos com um objeto contendo 'endereco' para evitar problemas
   const [dadosPreenchidos, setDadosPreenchidos] = useState<any>();
   const [UnidadesPai, setUnidadesPai] = useState<any[]>([]);
-  const [tipoUnidade, setTipoUnidade] = useState<any[]>([]);
+  const [colaboradores, setColaboradores] = useState<any[]>([]);
+  const [user, setUser] = useState<any[]>([]);	
 
   const isEditMode = id && id !== "criar";
   const getOptions = (lista: any[], selecionado: any) => {
@@ -36,63 +37,45 @@ const cadastro = () => {
   const estrutura: any = {
     uri: "unidade-administrativa",
     cabecalho: {
-      titulo: isEditMode ? "Editar Unidade Administrativa" : "Cadastrar Unidade Administrativa",
+      titulo: isEditMode ? "Alocar Colaborador" : "Alocar Colaborador",
       migalha: [
         { nome: 'Inicio', link: '/home' },
         { nome: 'Gestão Acesso', link: '/gestao-acesso' },
         { nome: "Unidades Administrativas", link: "/gestao-acesso/unidades-administrativas" },
         {
-          nome: isEditMode ? "Editar" : "Criar",
+          nome: isEditMode ? "Visualizar" : "Criar",
           link: `/gestao-acesso/unidades-administrativas/${isEditMode ? id : "criar"}`,
         },
       ],
     },
     cadastro: {
       campos: [
-        // Linha 1
-        {
-          line: 1,
-          colSpan: "md:col-span-2",
-          nome: "Nome",
-          chave: "nome",
-          tipo: "text",
-          mensagem: "Digite",
-          obrigatorio: true,
-        },
-        {
-          line: 1,
-          colSpan: "md:col-span-1",
-          nome: "Codigo",
-          chave: "codigo",
-          tipo: "text",
-          mensagem: "Digite",
-          obrigatorio: true,
-        },
 
         {
-          line: 2,
+          line: 1,
           colSpan: "md:col-span-1",
-          nome: "Tipo Unidade",
-          chave: "tipoUnidadeAdministrativaId",
-          tipo: "select",
-          mensagem: "Selecione a unidade responsavel",
-          obrigatorio: false,
-          selectOptions: getOptions(tipoUnidade, dadosPreenchidos?.tipoUnidadeAdministrativaId),
-          //exibirPara: ["ALUNO"],
-          bloqueado: isEditMode,
-        },
-        {
-          line: 2,
-          colSpan: "md:col-span-1",
-          nome: "Unidade Administrativa Responsavel",
+          nome: "Unidade Administrativa",
           chave: "unidadePaiId",
           tipo: "select",
-          mensagem: "Selecione a unidade responsavel",
+          mensagem: "Selecione a unidade",
           obrigatorio: false,
           selectOptions: getOptions(UnidadesPai, dadosPreenchidos?.unidadePaiId),
           //exibirPara: ["ALUNO"],
           bloqueado: isEditMode,
-        }
+        },
+        {
+          line: 1,
+          colSpan: "md:col-span-1",
+          nome: "Colaborador",
+          chave: "usuarioId",
+          tipo: "select",
+          mensagem: "Selecione colaborador",
+          obrigatorio: false,
+          selectOptions: getOptions(colaboradores, dadosPreenchidos?.usuarioId),
+          //exibirPara: ["ALUNO"],
+          bloqueado: isEditMode,
+        },
+        
 
       ],
       acoes: [
@@ -122,30 +105,27 @@ const cadastro = () => {
   };
 
   const voltarRegistro = () => {
-    router.push("/gestao-acesso/unidades-administrativas");
+    router.push("/gestao-acesso/alocar-colaborador");
   };
 
   /**
    * Salva o registro via POST, transformando os dados para que os itens de endereço
    * fiquem agrupados em um objeto 'endereco'.
    */
-  const salvarRegistro = async (item: any) => {
+  const salvarRegistro = async (item: any,) => {
     try {
 
       const dadosParaEnviar = {
-        nome: item.nome,
-        codigo: item.codigo,
-        tipoUnidadeAdministrativaId: item.tipoUnidadeAdministrativaId,
-        unidadePaiId: item.unidadePaiId,
+        usuarioId: item.usuarioId,
       };
 
-      if (item.unidadePaiId !== undefined && item.unidadePaiId !== null) {
-        dadosParaEnviar.unidadePaiId = item.unidadePaiId;
+      if (item.usuarioId !== undefined && item.usuarioId !== null) {
+        dadosParaEnviar.usuarioId = item.usuarioId;
       }
 
       const body = {
-        metodo: `${isEditMode ? "patch" : "post"}`,
-        uri: "/auth/" + (isEditMode ? `${estrutura.uri}/${id}` : estrutura.uri),
+        metodo: "post",
+        uri: "/auth/" + `${estrutura.uri}/${item.id}/funcionarios`,
         params: {},
         data: dadosParaEnviar,
       };
@@ -230,7 +210,7 @@ const cadastro = () => {
       toast.error("Erro ao localizar registro. Tente novamente!", { position: "top-left" });
     }
   };
-  const pesquisarUnidadesPai = async (params = null) => {
+  const pesquisarUnidadesAdm = async (params = null) => {
     try {
       let body = {
         metodo: 'get',
@@ -253,11 +233,11 @@ const cadastro = () => {
       console.error('Erro ao carregar registros:', error);
     }
   };
-  const pesquisarTipoUnidades = async (params = null) => {
+  const pesquisarColaboradores = async (params = null, id = null) => {
     try {
       let body = {
         metodo: 'get',
-        uri: '/auth/tipo-unidade-administrativa',
+        uri: '/auth/unidade-administrativa/' + id + "/funcionarios",
         params: params != null ? params : { size: 25, page: 0 },
         data: {}
       }
@@ -269,17 +249,35 @@ const cadastro = () => {
         toast(response.data.error.message, { position: "bottom-left" });
       } else if (response && response.data) {
         // Filtra os itens para manter somente aqueles sem unidade pai (unidadePaiId nulo ou indefinido)
-        setTipoUnidade(response.data);
+        setColaboradores(response.data);
       }
     } catch (error) {
       console.error('Erro ao carregar registros:', error);
     }
   };
+  const currentUser = async () => {
+    try {
+      const response = await generica(
+        {
+          metodo: 'get',
+          uri: '/auth/usuario/current',
+          data: {}
+        }
+      );
+      if (response?.data?.errors) {
+        toast.error("Erro ao carregar dados do usuário!", { position: "top-left" });
+      } else {
+        setUser(response?.data);
+      }
+    } catch (error) {
+      toast.error('Erro ao carregar dados!', { position: "top-left" });
+    }
+  };
 
   // Se estiver em modo de edição, carrega os dados ao montar
   useEffect(() => {
-    pesquisarTipoUnidades();
-    pesquisarUnidadesPai();
+    pesquisarColaboradores();
+    pesquisarUnidadesAdm();
     if (id && id !== "criar") {
       chamarFuncao("editar", id);
     }

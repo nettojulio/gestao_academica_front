@@ -25,7 +25,6 @@ export function useEmpresaByCnpj(cnpj: string) {
 
   useEffect(() => {
     const cnpjNumeros = cnpj.replace(/\D/g, "");
-    console.log("NUMEROS ",cnpjNumeros)
     if (cnpjNumeros.length === 14) {
       setLoading(true);
       axios
@@ -44,6 +43,5 @@ export function useEmpresaByCnpj(cnpj: string) {
       setEmpresa(null);
     }
   }, [cnpj]);
-  console.log(empresa)
   return { empresa, loading, error };
 }

@@ -36,7 +36,7 @@ const cadastro = () => {
   };
 
   const estrutura: any = {
-    uri: "etnia",
+    uri: "tipoEtnia",
     cabecalho: {
       titulo: isEditMode ? "Editar Etnia" : "Cadastrar Etnia",
       migalha: [
@@ -101,7 +101,7 @@ const cadastro = () => {
     try {
       const body = {
         metodo: `${isEditMode ? "patch" : "post"}`,
-        uri: "/prae/" + `${isEditMode ? estrutura.uri + "/" + item.id : estrutura.uri}`,
+        uri: "/prae/" + `${isEditMode ? estrutura.uri + "/" + item.id + "/editar" : estrutura.uri + "/registrar"}`,
         params: {},
         data: item,
       };
@@ -123,7 +123,7 @@ const cadastro = () => {
         toast(response.data.error.message, { position: "top-left" });
       } else {
         Swal.fire({
-          title: "Etnia registrada com sucesso!",
+          title: isEditMode ? "Etnia editada com sucesso!" : "Etnia registrada com sucesso!",
           icon: "success",
         }).then((result) => {
           if (result.isConfirmed) {
