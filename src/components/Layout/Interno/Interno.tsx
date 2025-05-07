@@ -2,7 +2,7 @@
 
 import React, { ReactNode, useEffect, useState, useRef } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/components/AuthProvider/AuthProvider";
 
 // Ícones do Material‑UI
@@ -69,7 +69,8 @@ interface LayoutProps {
 export default function Layout({ children, layoutConfig }: LayoutProps) {
   const router = useRouter();
   const { isAuthenticated, setIsAuthenticated } = useAuth();
-
+  const pathname = usePathname();
+  const [isLogin, setIsLogin] = useState(false);
   // Estados do menu lateral e submenus
   const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
   const [openSubMenus, setOpenSubMenus] = useState<Record<string, boolean>>({});
@@ -83,6 +84,12 @@ export default function Layout({ children, layoutConfig }: LayoutProps) {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const dropdownRef = useRef<any>(null);
 
+  useEffect(() => {
+    setIsLogin(
+      pathname === "/home" || 
+      pathname === "/conta/perfil"
+    );
+  }, [pathname]);
   // Configuração default (caso não seja passada)
   const defaultConfig: InternalLayoutConfig = {
     header: {
@@ -215,9 +222,8 @@ export default function Layout({ children, layoutConfig }: LayoutProps) {
     <>
       {/* Cabeçalho */}
       <div
-        className={`fixed top-0 z-10 bg-white shadow-sm transition-all duration-200 left-0 right-0 ${
-          isMenuOpen ? "sm:left-60" : "sm:left-12"
-        }`}
+        className={`fixed top-0 z-10 bg-white shadow-sm transition-all duration-200 left-0 right-0 ${isLogin ? "sm:left: 0" : isMenuOpen ? "sm:left-60" : "sm:left-12"
+          }`}
       >
         <div className="flex items-center justify-between p-3 pl-5 pr-5 shadow-lg">
           <div className="flex items-center">
@@ -300,51 +306,54 @@ export default function Layout({ children, layoutConfig }: LayoutProps) {
       </div>
 
       {/* MENU LATERAL */}
-      <div
-        className={`fixed top-0 left-0 h-screen bg-secondary-500 shadow-lg transition-all duration-200 z-20 ${
-          isMenuOpen ? "w-60" : "w-12"
-        } ${!isMenuOpen ? "max-sm:hidden" : ""}`}
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
-      >
-        <div
-          className={`border-b border-gray-500 overflow-hidden transition-all duration-300 flex items-center justify-center ${
-            isMenuOpen ? "w-60" : "w-12"
-          } h-12`}
-        >
-          <a href="/" title="WS Consultoria Pública" className="flex items-center">
-            <GpsFixed fontSize="medium" className="text-white" />
-          </a>
-          {isMenuOpen && <span className="ml-3 text-white">{config.sidebar.logo.text}</span>}
-        </div>
-        <div className="flex flex-col h-[calc(100vh-3rem)]">
-          <div className="pt-4 px-2 flex-1 overflow-y-auto">
-            <ul className="space-y-4 text-gray-500">
-              {config.sidebar.menuItems.map((item, idx) => (
-                <SidebarMenuItem
-                  key={idx}
-                  item={item}
-                  isMenuOpen={isMenuOpen}
-                  openSubMenus={openSubMenus}
-                  toggleSubMenu={toggleSubMenu}
-                  activeRole={activeRole} // Passa a role ativa para filtrar os itens
-                />
-              ))}
-            </ul>
-          </div>
-          <div className="p-2">
-            <Link
-              href="/home"
-              className={`flex items-center rounded-md p-2 transition-colors duration-200 ${
-                isMenuOpen ? "hover:bg-primary-900 justify-start" : "justify-center"
-              }`}
+      {!isLogin && (
+        <>
+
+          <div
+            className={`fixed top-0 left-0 h-screen bg-secondary-500 shadow-lg transition-all duration-200 z-20 ${isMenuOpen ? "w-60" : "w-12"
+              } ${!isMenuOpen ? "max-sm:hidden" : ""}`}
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+          >
+            <div
+              className={`border-b border-gray-500 overflow-hidden transition-all duration-300 flex items-center justify-center ${isMenuOpen ? "w-60" : "w-12"
+                } h-12`}
             >
-              <HelpOutline fontSize="medium" className="text-white" />
-              {isMenuOpen && <span className="ml-3 text-white">Ajuda</span>}
-            </Link>
+              <a href="/" title="WS Consultoria Pública" className="flex items-center">
+                <GpsFixed fontSize="medium" className="text-white" />
+              </a>
+              {isMenuOpen && <span className="ml-3 text-white">{config.sidebar.logo.text}</span>}
+            </div>
+            <div className="flex flex-col h-[calc(100vh-3rem)]">
+              <div className="pt-4 px-2 flex-1 overflow-y-auto">
+                <ul className="space-y-4 text-gray-500">
+                  {config.sidebar.menuItems.map((item, idx) => (
+                    <SidebarMenuItem
+                      key={idx}
+                      item={item}
+                      isMenuOpen={isMenuOpen}
+                      openSubMenus={openSubMenus}
+                      toggleSubMenu={toggleSubMenu}
+                      activeRole={activeRole} // Passa a role ativa para filtrar os itens
+                    />
+                  ))}
+                </ul>
+              </div>
+              <div className="p-2">
+                <Link
+                  href="/home"
+                  className={`flex items-center rounded-md p-2 transition-colors duration-200 ${isMenuOpen ? "hover:bg-primary-900 justify-start" : "justify-center"
+                    }`}
+                >
+                  <HelpOutline fontSize="medium" className="text-white" />
+                  {isMenuOpen && <span className="ml-3 text-white">Ajuda</span>}
+                </Link>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
+        </>
+      )}
+
 
       {/* CONTEÚDO PRINCIPAL */}
       <div className="pt-12">

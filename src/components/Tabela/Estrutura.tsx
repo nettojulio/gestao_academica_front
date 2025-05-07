@@ -7,7 +7,6 @@ const Tabela = ({ dados = null, estrutura = null, chamarFuncao = null }: any) =>
   const [bodyParams, setBodyParams] = useState<any>({ size: 25 });
   const [showFilters, setShowFilters] = useState(false);
   const [isDesktop, setIsDesktop] = useState(false);
-  console.log("Dadoss", dados);
   // Hook para detectar a largura da tela
   useEffect(() => {
     const handleResize = () => {
@@ -66,7 +65,7 @@ const Tabela = ({ dados = null, estrutura = null, chamarFuncao = null }: any) =>
 
     return (
       <div className="flex flex-wrap gap-4 w-full">
-        {filters.map((item: any, index: any) => (
+        {filters?.map((item: any, index: any) => (
           <div
             key={`filtro_${index}`}
             // Ocupa 100% da largura no mobile; em telas maiores,

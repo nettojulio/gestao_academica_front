@@ -15,7 +15,8 @@ const estrutura: any = {
   cabecalho: { //cabecalho da pagina
     titulo: "Cursos",
     migalha: [
-      { nome: 'Home', link: '/gestao-acesso/home' },
+      { nome: 'Inicio', link: '/home' },
+      { nome: 'Gestão Acesso', link: '/gestao-acesso' },
       { nome: 'Cursos', link: '/gestao-acesso/cursos' },
     ]
   },
@@ -31,6 +32,7 @@ const estrutura: any = {
     ],
     colunas: [ //colunas da tabela
       { nome: "Nome do Curso", chave: "nome", tipo: "texto", selectOptions: null, sort: false, pesquisar: true }, //nome(string),chave(string),tipo(text,select),selectOpcoes([{chave:string, valor:string}]),pesquisar(booleano)
+      { nome: "Períodos", chave: "numeroPeriodos", tipo: "texto", selectOptions: null, sort: false, pesquisar: true }, //nome(string),chave(string),tipo(text,select),selectOpcoes([{chave:string, valor:string}]),pesquisar(booleano)
       { nome: "ações", chave: "acoes", tipo: "button", selectOptions: null, sort: false, pesquisar: false },
     ],
     acoes_dropdown: [ //botão de acoes de cada registro

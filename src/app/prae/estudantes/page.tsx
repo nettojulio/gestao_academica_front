@@ -10,7 +10,7 @@ import Swal from 'sweetalert2';
 
 const estrutura: any = {
 
-  uri: "esstudante", //caminho base
+  uri: "estudantes", //caminho base
 
   cabecalho: { //cabecalho da pagina
     titulo: "Estudantes",
@@ -128,7 +128,7 @@ const PageLista = () => {
       try {
         const body = {
           metodo: 'delete',
-          uri: '/prae/' + estrutura.uri + '/' + item.id,
+          uri: '/prae/' + estrutura.uri + '/' + item,
           params: {},
           data: {}
         };

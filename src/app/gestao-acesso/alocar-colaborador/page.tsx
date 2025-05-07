@@ -10,14 +10,14 @@ import Swal from 'sweetalert2';
 
 const estrutura: any = {
 
-  uri: "usuario", //caminho base
+  uri: "unidade-administrativa", //caminho base
 
   cabecalho: { //cabecalho da pagina
-    titulo: "Usuários",
+    titulo: "Colaboradores",
     migalha: [
       { nome: 'Inicio', link: '/home' },
       { nome: 'Gestão Acesso', link: '/gestao-acesso' },
-      { nome: 'Usuários', link: '/gestao-acesso/usuarios' },
+      { nome: 'Colaboradores', link: '/gestao-acesso/alocar-colaborador' },
     ]
   },
 
@@ -27,18 +27,24 @@ const estrutura: any = {
       cabecalho: true,//cabecalho da tabela (booleano)
       rodape: true,//rodape da tabela (booleano)
     },
+    botoes: [ //links
+      { nome: 'Adicionar', chave: 'adicionar', bloqueado: false }, //nome(string),chave(string),bloqueado(booleano)
+    ],
     colunas: [ //colunas da tabela
       //{nome:"Código",chave:"id",tipo:"texto",selectOptions:null,sort:true,pesquisar:true}, //nome(string),chave(string),tipo(text,select),selectOpcoes([{chave:string, valor:string}]),pesquisar(booleano)
       { nome: "Nome", chave: "nome", tipo: "texto", selectOptions: null, sort: false, pesquisar: true }, //nome(string),chave(string),tipo(text,select),selectOpcoes([{chave:string, valor:string}]),pesquisar(booleano)
-      { nome: "Nome Social", chave: "nomeSocial", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
-      { nome: "Telefone", chave: "telefone", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
-      { nome: "CPF", chave: "cpf", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
-
+      { nome: "Codigo", chave: "codigo", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
+      // {
+      //   nome: "Status", chave: "ativo", tipo: "boolean", selectOptions: [
+      //     { chave: true, valor: "Ativa" },
+      //     { chave: false, valor: "Inativa" },
+      //   ], sort: false, pesquisar: true
+      // },      
       { nome: "ações", chave: "acoes", tipo: "button", selectOptions: null, sort: false, pesquisar: false },
     ],
     acoes_dropdown: [ //botão de acoes de cada registro
       { nome: 'Visualizar', chave: 'editar' }, //nome(string),chave(string),bloqueado(booleano)
-      { nome: 'Deletar', chave: 'deletar' },
+      { nome: 'Remover', chave: 'deletar' },
     ]
   }
 
@@ -47,11 +53,12 @@ const estrutura: any = {
 const PageLista = () => {
   const router = useRouter();
   const [dados, setDados] = useState<any>({ content: [] });
+  const [user, setUser] = useState<any>({});
 
-  const chamarFuncao = (nomeFuncao = "", valor: any = null) => {
+  const chamarFuncao = (nomeFuncao = "", valor: any = null, id: any = null) => {
     switch (nomeFuncao) {
       case 'pesquisar':
-        pesquisarRegistro(valor);
+        pesquisarRegistro(valor, id);
         break;
       case 'adicionar':
         adicionarRegistro();
@@ -60,29 +67,30 @@ const PageLista = () => {
         editarRegistro(valor);
         break;
       case 'deletar':
-        deletarRegistro(valor);
+        deletarRegistro(valor, id);
         break;
       default:
         break;
     }
   }
   // Função para carregar os dados
-  const pesquisarRegistro = async (params = null) => {
+  const pesquisarRegistro = async (params = null, id=null) => {
     try {
       let body = {
         metodo: 'get',
-        uri: '/auth/' + estrutura.uri,
+        uri: '/auth/' + estrutura.uri +"/"+ id + "/funcionarios",
         //+ '/page',
         params: params != null ? params : { size: 25, page: 0 },
         data: {}
       }
       const response = await generica(body);
-
       //tratamento dos erros
-      if (response && response.data && response.data.errors != undefined) {
+      if (response && response.data.errors != undefined) {
         toast.error("Erro. Tente novamente!", { position: "top-left" });
       } else if (response && response.data && response.data.error != undefined) {
-        toast(response.data.error.message, { position: "top-left" });
+          if (response && response.data && response.data.error) {
+            toast(response.data.error.message, { position: "top-left" });
+          }
       } else {
         if (response && response.data) {
           setDados(response.data);
@@ -94,16 +102,16 @@ const PageLista = () => {
   };
   // Função que redireciona para a tela adicionar
   const adicionarRegistro = () => {
-    router.push('/gestao-acesso/usuarios/criar');
+    router.push('/gestao-acesso/alocar-colaborador/criar');
   };
   // Função que redireciona para a tela editar
   const editarRegistro = (item: any) => {
-    router.push('/gestao-acesso/usuarios/' + item.id);
+    router.push('/gestao-acesso/alocar-colaborador/' + item);
   };
   // Função que deleta um registro
-  const deletarRegistro = async (item: any) => {
+  const deletarRegistro = async (item: any, id: any) => {
     const confirmacao = await Swal.fire({
-      title: `Você deseja deletar o usuário ${item.nome}?`,
+      title: `Você deseja remover o colaborador da unidade administrativa?`,
       text: "Essa ação não poderá ser desfeita",
       icon: "warning",
       showCancelButton: true,
@@ -128,9 +136,8 @@ const PageLista = () => {
       try {
         const body = {
           metodo: 'delete',
-          uri: '/' + estrutura.uri + '/' + item.id,
+          uri: '/auth/' + estrutura.uri + '/' + item +"funcionarios" + '/' + id,
           params: {},
-          data: {}
         };
 
         const response = await generica(body);
@@ -138,25 +145,42 @@ const PageLista = () => {
         if (response && response.data && response.data.errors) {
           toast.error("Erro. Tente novamente!", { position: "top-left" });
         } else if (response && response.data && response.data.error) {
-          if (response && response.data && response.data.error) {
-            toast.error(response.data.error.message, { position: "top-left" });
-          }
+          toast(response.data.error.message, { position: "top-left" });
         } else {
           pesquisarRegistro();
           Swal.fire({
-            title: "Usuário deletado com sucesso!",
+            title: "Colaborador removido com sucesso!",
             icon: "success"
           });
         }
       } catch (error) {
-        console.error('Erro ao deletar registro:', error);
-        toast.error("Erro ao deletar registro. Tente novamente!", { position: "top-left" });
+        console.error('Erro ao remover colaborador:', error);
+        toast.error("Erro ao remover colaborador. Tente novamente!", { position: "top-left" });
       }
+    }
+  };
+  const currentUser = async () => {
+    try {
+      const response = await generica(
+        {
+          metodo: 'get',
+          uri: '/auth/usuario/current',
+          data: {}
+        }
+      );
+      if (response?.data?.errors) {
+        toast.error("Erro ao carregar dados do usuário!", { position: "top-left" });
+      } else {
+        setUser(response?.data);
+      }
+    } catch (error) {
+      toast.error('Erro ao carregar dados!', { position: "top-left" });
     }
   };
 
   useEffect(() => {
-    chamarFuncao('pesquisar', null);
+    currentUser();
+    chamarFuncao('pesquisar', null, user.id);
   }, []);
 
   return (
