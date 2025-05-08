@@ -16,6 +16,7 @@ const cadastro = () => {
   const [dadosPreenchidos, setDadosPreenchidos] = useState<any>({ endereco: {} });
   const [cursos, setCursos] = useState<any[]>([]);
   const [lastMunicipioQuery, setLastMunicipioQuery] = useState("");
+  const [isDeficiencia, setIsDeficiencia] = useState();
   const [etnia, setEtnia] = useState<any[]>([]);
   const isEditMode = id && id !== "criar";
 
@@ -191,7 +192,6 @@ const cadastro = () => {
           mensagem: "Digite a renda percápita",
           obrigatorio: true,
           bloqueado: isEditMode,
-          mascara: "valor"
         },
         {
           line: 4,
@@ -316,7 +316,6 @@ const cadastro = () => {
     },
   };
 
-
   const currentUser = async (params = null) => {
       try {
         let body = {
@@ -388,7 +387,7 @@ const pesquisarEtnia = async (params = null) => {
   };
 
   const voltarRegistro = () => {
-    router.push("/prae/pagamentos");
+    router.push("/prae/estudantes");
   };
 
   const transformarDados = (item: any) => {
@@ -426,7 +425,7 @@ const pesquisarEtnia = async (params = null) => {
         toast(response.data.error.message, { position: "top-left" });
       } else {
         Swal.fire({
-          title: "Pagamento registrado com sucesso!",
+          title: "Aluno registrado com sucesso!",
           icon: "success",
         }).then((result) => {
           if (result.isConfirmed) {
@@ -452,6 +451,7 @@ const pesquisarEtnia = async (params = null) => {
         data: item,
       };
       const response = await generica(body);
+      console.log(response?.data)
       if (!response) throw new Error("Resposta inválida do servidor.");
       if (response.data?.errors) {
         Object.keys(response.data.errors).forEach((campoErro) => {
@@ -462,7 +462,10 @@ const pesquisarEtnia = async (params = null) => {
       } else if (response.data?.error) {
         toast.error(response.data.error.message, { position: "top-left" });
       } else {       
-        setDadosPreenchidos(response.data);
+        setDadosPreenchidos({
+          ...response.data,
+          cep: response.data.endereco.cep,
+        });
       }
     } catch (error) {
       console.error("DEBUG: Erro ao localizar registro:", error);
@@ -474,7 +477,8 @@ const pesquisarEtnia = async (params = null) => {
   useEffect(() => {
     currentUser();
     pesquisarEtnia();
-
+    if(dadosPreenchidos.deficiente === true) {
+    }
     if (id && id !== "criar") {
       chamarFuncao("editar", id);
     }

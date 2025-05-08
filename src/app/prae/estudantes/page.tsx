@@ -13,7 +13,7 @@ const estrutura: any = {
   uri: "estudantes", //caminho base
 
   cabecalho: { //cabecalho da pagina
-    titulo: "Estudantes",
+    titulo: "estudantes",
     migalha: [
       { nome: 'Home', link: '/home' },
       { nome: 'Prae', link: '/prae' },
@@ -34,7 +34,7 @@ const estrutura: any = {
       { nome: "Nome", chave: "aluno.nome", tipo: "texto", selectOptions: null, sort: false, pesquisar: true }, //nome(string),chave(string),tipo(text,select),selectOpcoes([{chave:string, valor:string}]),pesquisar(booleano)
       { nome: "CPF", chave: "aluno.cpf", tipo: "texto", selectOptions: null, sort: false, pesquisar: true }, //nome(string),chave(string),tipo(text,select),selectOpcoes([{chave:string, valor:string}]),pesquisar(booleano)
       { nome: "Email", chave: "aluno.email", tipo: "texto", selectOptions: null, sort: false, pesquisar: true }, //nome(string),chave(string),tipo(text,select),selectOpcoes([{chave:string, valor:string}]),pesquisar(booleano)
-      { nome: "Contato", chave: "aluno.celular", tipo: "texto", selectOptions: null, sort: false, pesquisar: true }, //nome(string),chave(string),tipo(text,select),selectOpcoes([{chave:string, valor:string}]),pesquisar(booleano)
+      { nome: "Contato", chave: "aluno.telefone", tipo: "texto", selectOptions: null, sort: false, pesquisar: true }, //nome(string),chave(string),tipo(text,select),selectOpcoes([{chave:string, valor:string}]),pesquisar(booleano)
       { nome: "ações", chave: "acoes", tipo: "button", selectOptions: null, sort: false, pesquisar: false },
     ],
     acoes_dropdown: [ //botão de acoes de cada registro
@@ -78,6 +78,7 @@ const PageLista = () => {
         data: {}
       }
       const response = await generica(body);
+      console.log(response?.data)
       //tratamento dos erros
       if (response && response.data.errors != undefined) {
         toast("Erro. Tente novamente!", { position: "bottom-left" });
@@ -142,7 +143,7 @@ const PageLista = () => {
         } else {
           pesquisarRegistro();
           Swal.fire({
-            title: "Pagamento deletado com sucesso!",
+            title: "Estudante deletado com sucesso!",
             icon: "success"
           });
         }

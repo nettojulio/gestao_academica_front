@@ -214,7 +214,7 @@ const cadastro = () => {
     try {
       let body = {
         metodo: 'get',
-        uri: '/auth/' + estrutura.uri + "",
+        uri: '/auth/' + "unidade-administrativa" + "",
         params: params != null ? params : { size: 25, page: 0 },
         data: {}
       }

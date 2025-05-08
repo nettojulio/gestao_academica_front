@@ -56,7 +56,7 @@ const cadastro = () => {
           line: 1,
           colSpan: "md:col-span-1",
           nome: "Beneficiario",
-          chave: "idUsuarioCadastro",
+          chave: "auxilioId",
           tipo: "text",
           mensagem: "Digite",
           obrigatorio: true,
@@ -118,11 +118,23 @@ const cadastro = () => {
    */
   const salvarRegistro = async (item: any) => {
     try {
+      const valorNumerico = parseFloat(
+        String(item.valor).replace(/\./g, '').replace(',', '.')
+      );
+  
+      // Cria uma cópia com o valor convertido
+      const itemCorrigido = {
+        ...item,
+        valor: valorNumerico,
+        auxilioId: Number(item.auxilioId),
+      };  
+      
+
       const body = {
         metodo: `${isEditMode ? "patch" : "post"}`,
         uri: "/prae/" + `${isEditMode ? estrutura.uri+"/"+ item.id : estrutura.uri }`,
         params: {},
-        data: item,
+        data: itemCorrigido,
       };
       const response = await generica(body);
       if (!response || response.status < 200 || response.status >= 300) {
