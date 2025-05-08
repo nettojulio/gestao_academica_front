@@ -98,7 +98,7 @@ const PageLista = () => {
     };
     const deletarRegistro = async (item: any) => {
         const confirmacao = await Swal.fire({
-            title: `Você deseja deletar o tipo de unidade administrativa ${item.nome}?`,
+            title: `Você deseja deletar o tipo de bolsa ${item.descricao}?`,
             text: "Essa ação não poderá ser desfeita",
             icon: "warning",
             showCancelButton: true,
