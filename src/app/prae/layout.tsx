@@ -1,7 +1,7 @@
 import React from "react";
 import { Metadata } from "next";
 import ClientWrapper from "@/components/AuthProvider/ClientWrapper";
-import { School, PendingActions, Groups2, AccountCircleOutlined, CalendarMonth, EventNote, Schedule, Payment, VolunteerActivism, AccountBalance, Diversity3, Home } from "@mui/icons-material";
+import { School, PendingActions, Groups2, AccountCircleOutlined, CalendarMonth, EventNote, Schedule, Payment, VolunteerActivism, AccountBalance, Diversity3, Home, BusinessCenter } from "@mui/icons-material";
 import { InternalLayoutConfig } from "@/types/InternalLayoutConf";
 
 
@@ -126,6 +126,13 @@ export default function PraeLayout({ children }: { children: React.ReactNode }) 
           icon: <CalendarMonth fontSize="small" className="text-white" />,
           roles: ["administrador", "aluno", "estudante"],
         },
+                {
+          label: "Tipos de Bolsa",
+          route: "/prae/tipos-de-bolsa",
+          icon: <BusinessCenter fontSize="small" className="text-white" />,
+          roles: ["administrador", "gestor", "tecnico"],
+        },
+
       ],
     },
   };
