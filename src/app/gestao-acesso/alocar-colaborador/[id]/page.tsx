@@ -16,6 +16,7 @@ const cadastro = () => {
   const [UnidadesPai, setUnidadesPai] = useState<any[]>([]);
   const [colaboradores, setColaboradores] = useState<any[]>([]);
   const [user, setUser] = useState<any[]>([]);	
+  
 
   const isEditMode = id && id !== "criar";
   const getOptions = (lista: any[], selecionado: any) => {
@@ -214,7 +215,7 @@ const cadastro = () => {
     try {
       let body = {
         metodo: 'get',
-        uri: '/auth/' + estrutura.uri + "",
+        uri: '/auth/' + "unidade-administrativa",
         params: params != null ? params : { size: 25, page: 0 },
         data: {}
       }

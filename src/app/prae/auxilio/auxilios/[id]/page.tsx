@@ -55,8 +55,8 @@ const cadastro = () => {
         {
           line: 1,
           colSpan: "md:col-span-1",
-          nome: "Tipo do Auxilio",
-          chave: "tipoAuxilio",
+          nome: "Tipo do Auxilio ID",
+          chave: "tipoAuxilioId",
           tipo: "text",
           mensagem: "Digite",
           obrigatorio: true,
@@ -65,7 +65,7 @@ const cadastro = () => {
           line: 1,
           colSpan: "md:col-span-1",
           nome: "Tipo da Bolsa",
-          chave: "tipoBolsa",
+          chave: "tipoBolsaId",
           tipo: "text",
           mensagem: "Digite",
           obrigatorio: true,
@@ -144,7 +144,6 @@ const cadastro = () => {
     },
   };
 
-
   /**
    * Chama funções de acordo com o botão clicado
    */
@@ -164,6 +163,11 @@ const cadastro = () => {
     }
   };
 
+  const transformarDados = (item: any) => {
+    const { valorBolsa, horasBolsa, tipoBolsaId, tipoAuxilioId, ...rest } = item;
+    return { ...rest, valorBolsa: Number(valorBolsa), horasBolsa: Number(horasBolsa), tipoBolsaId: Number(tipoBolsaId), tipoAuxilioId: Number(tipoAuxilioId) };
+  };
+  
   const voltarRegistro = () => {
     router.push("/prae/auxilio/auxilios");
   };
@@ -173,12 +177,13 @@ const cadastro = () => {
    * fiquem agrupados em um objeto 'endereco'.
    */
   const salvarRegistro = async (item: any) => {
+    const dataToSend = transformarDados(item);
     try {
       const body = {
         metodo: `${isEditMode ? "patch" : "post"}`,
         uri: "/prae/" + `${isEditMode ? estrutura.uri + "/" + item.id : estrutura.uri}`,
         params: {},
-        data: item,
+        data: dataToSend,
       };
       const response = await generica(body);
       if (!response || response.status < 200 || response.status >= 300) {
