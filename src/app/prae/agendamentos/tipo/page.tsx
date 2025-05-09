@@ -13,7 +13,7 @@ const estrutura: any = {
   uri: "tipo-atendimento", //caminho base
 
   cabecalho: { //cabecalho da pagina
-    titulo: "tipo-atendimento",
+    titulo: "Tipo Atendimento",
     migalha: [
       { nome: 'Home', link: '/home' },
       { nome: 'Prae', link: '/prae' },
@@ -31,8 +31,8 @@ const estrutura: any = {
       { nome: 'Adicionar', chave: 'adicionar', bloqueado: false }, //nome(string),chave(string),bloqueado(booleano)
     ],
     colunas: [ //colunas da tabela
-      { nome: "Tipo Atendimento", chave: "descricao", tipo: "texto", selectOptions: null, sort: false, pesquisar: true }, //nome(string),chave(string),tipo(text,select),selectOpcoes([{chave:string, valor:string}]),pesquisar(booleano)
-      { nome: "Horarios", chave: "horarios", tipo: "texto", selectOptions: null, sort: false, pesquisar: true }, //nome(string),chave(string),tipo(text,select),selectOpcoes([{chave:string, valor:string}]),pesquisar(booleano)
+      { nome: "Tipo Atendimento", chave: "nome", tipo: "texto", selectOptions: null, sort: false, pesquisar: true }, //nome(string),chave(string),tipo(text,select),selectOpcoes([{chave:string, valor:string}]),pesquisar(booleano)
+      { nome: "Tempo Atendimento", chave: "tempoAtendimento", tipo: "texto", selectOptions: null, sort: false, pesquisar: true }, //nome(string),chave(string),tipo(text,select),selectOpcoes([{chave:string, valor:string}]),pesquisar(booleano)
       { nome: "ações", chave: "acoes", tipo: "button", selectOptions: null, sort: false, pesquisar: false },
     ],
     acoes_dropdown: [ //botão de acoes de cada registro
@@ -91,17 +91,20 @@ const PageLista = () => {
     }
   };
   // Função que redireciona para a tela adicionar
-  const adicionarRegistro = () => {
+ const adicionarRegistro = () => {
     router.push('/prae/agendamentos/tipo/criar');
   };
+
   // Função que redireciona para a tela editar
-  const editarRegistro = (item: any) => {
+ const editarRegistro = (item: any) => {
     router.push('/prae/agendamentos/tipo/' + item.id);
   };
+
   // Função que deleta um registro
   const deletarRegistro = async (item: any) => {
+    console.log('item', item);
     const confirmacao = await Swal.fire({
-      title: `Você deseja deletar o tipo de atendimento:  ${item.descricao}?`,
+      title: `Você deseja deletar o tipo de atendimento:  ${item.nome}?`,
       text: "Essa ação não poderá ser desfeita",
       icon: "warning",
       showCancelButton: true,
