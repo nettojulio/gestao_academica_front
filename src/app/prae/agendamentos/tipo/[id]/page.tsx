@@ -35,6 +35,7 @@ const cadastro = () => {
     return options;
   };
 
+
   const estrutura: any = {
     uri: "tipo-atendimento",
     cabecalho: {
@@ -67,7 +68,7 @@ const cadastro = () => {
           nome: "Tempo Atendimento",
           chave: "tempoAtendimento",
           tipo: "text",
-          mensagem: "Digite",
+          mensagem: "Digite no padrão hh:mm",
           obrigatorio: true,
           
         },
@@ -187,31 +188,43 @@ const cadastro = () => {
    * Localiza o registro para edição e preenche os dados
    */
   const editarRegistro = async (item: any) => {
-    try {
-      const body = {
-        metodo: "get",
-        uri: "/prae/" + estrutura.uri + "/" + item,
-        params: {},
-        data: item,
-      };
-      const response = await generica(body);
-      if (!response) throw new Error("Resposta inválida do servidor.");
-      if (response.data?.errors) {
-        Object.keys(response.data.errors).forEach((campoErro) => {
-          toast(`Erro em ${campoErro}: ${response.data.errors[campoErro]}`, {
-            position: "top-left",
-          });
+  try {
+    const body = {
+      metodo: "get",
+      uri: "/prae/" + estrutura.uri + "/" + item,
+      params: {},
+      data: item,
+    };
+    const response = await generica(body);
+    if (!response) throw new Error("Resposta inválida do servidor.");
+    if (response.data?.errors) {
+      Object.keys(response.data.errors).forEach((campoErro) => {
+        toast(`Erro em ${campoErro}: ${response.data.errors[campoErro]}`, {
+          position: "top-left",
         });
-      } else if (response.data?.error) {
-        toast.error(response.data.error.message, { position: "top-left" });
-      } else {
-        setDadosPreenchidos(response.data);
-      }
-    } catch (error) {
-      console.error("DEBUG: Erro ao localizar registro:", error);
-      toast.error("Erro ao localizar registro. Tente novamente!", { position: "top-left" });
+      });
+    } else if (response.data?.error) {
+      toast.error(response.data.error.message, { position: "top-left" });
+    } else {
+      const dados = response.data;
+
+      // Transformar 'horarios' para o formato "HH:mm"
+      dados.horarios = Array.isArray(dados.horarios)
+        ? dados.horarios.map((horario: string) => horario.slice(0, 5)) // Remove os segundos
+        : [];
+
+      // Transformar 'tempoAtendimento' para o formato "HH:mm"
+      dados.tempoAtendimento = dados.tempoAtendimento
+        ? dados.tempoAtendimento.slice(0, 5) // Remove os segundos
+        : "";
+
+      setDadosPreenchidos(dados);
     }
-  };
+  } catch (error) {
+    console.error("DEBUG: Erro ao localizar registro:", error);
+    toast.error("Erro ao localizar registro. Tente novamente!", { position: "top-left" });
+  }
+};
 
   // Efeito exclusivo para o modo de edição
   useEffect(() => {

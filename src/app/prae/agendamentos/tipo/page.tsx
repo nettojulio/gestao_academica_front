@@ -13,7 +13,7 @@ const estrutura: any = {
   uri: "tipo-atendimento", //caminho base
 
   cabecalho: { //cabecalho da pagina
-    titulo: "tipo-atendimento",
+    titulo: "Tipo Atendimento",
     migalha: [
       { nome: 'Home', link: '/home' },
       { nome: 'Prae', link: '/prae' },
@@ -91,17 +91,20 @@ const PageLista = () => {
     }
   };
   // Função que redireciona para a tela adicionar
-  const adicionarRegistro = () => {
+ const adicionarRegistro = () => {
     router.push('/prae/agendamentos/tipo/criar');
   };
+
   // Função que redireciona para a tela editar
-  const editarRegistro = (item: any) => {
+ const editarRegistro = (item: any) => {
     router.push('/prae/agendamentos/tipo/' + item.id);
   };
+
   // Função que deleta um registro
   const deletarRegistro = async (item: any) => {
+    console.log('item', item);
     const confirmacao = await Swal.fire({
-      title: `Você deseja deletar o tipo de atendimento:  ${item.descricao}?`,
+      title: `Você deseja deletar o tipo de atendimento:  ${item.nome}?`,
       text: "Essa ação não poderá ser desfeita",
       icon: "warning",
       showCancelButton: true,
