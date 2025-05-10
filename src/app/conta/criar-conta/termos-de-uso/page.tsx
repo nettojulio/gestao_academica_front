@@ -34,7 +34,7 @@ export default function PageRegister() {
                 </h3>
                 <div className="container">
                     <p className="text-[1.3em] font-bold custom-text-color dark:text-white text-white text-left">1. Introdução</p>
-                    <p>Bem-vindo aos termos de uso da Sistema de Gestão Universitária. Estes termos rejem o uso do nosso aplicativo web.</p>
+                    <p>Bem-vindo aos termos de uso da Sistema de Gestão Universitária. Estes termos regem o uso do nosso aplicativo web.</p>
                     <br></br>
 
                     <p className="text-[1.3em] font-bold custom-text-color dark:text-white text-white text-left">2. Aceitação do Termo de Uso e Política de Privacidade</p>
@@ -115,7 +115,7 @@ export default function PageRegister() {
                 </h3>
                 <div>
                     <p className="text-[1.3em] font-bold custom-text-color dark:text-white text-white text-left">1. Introdução</p>
-                    <p>Bem-vindo ao avido de privacidade do Sistema de Gestão Universitária. Estes termos rejem o uso do nosso aplicativo web.</p>
+                    <p>Bem-vindo ao avido de privacidade do Sistema de Gestão Universitária. Estes termos regem o uso do nosso aplicativo web.</p>
                     <br></br>
 
                     <p className="text-[1.3em] font-bold custom-text-color dark:text-white text-white text-left">2. Aceitação da Política de Privacidade</p>
@@ -160,7 +160,7 @@ export default function PageRegister() {
 
                     <p className="text-[1.3em] font-bold custom-text-color dark:text-white text-white text-left">5. Armazenamento dos Dados</p>
                     <p>5.1 - Os dados pessoais tratados pelo sistema serão utilizados e armazenados nos servidores da Universidade, durante o tempo necessário da prestação do serviço ou para que as finalidades listadas neste Aviso de Privacidade sejam atingidas, considerando os direitos
-                        dos usuários e dos responsáveis pelo tratamento ddos dados pessoais.
+                        dos usuários e dos responsáveis pelo tratamento dos dados pessoais.
                     </p>
                     <p>5.2 - Os dados serão mantidos enquanto relevante. Após período em que os dados pessoais precisam permanecer armazenados, estes serão excluídos de nossa base de dados ou anonimizados, respeitando as hipóteses legalmente previstas no art. 16 da LGPD.</p>
                     <br></br>
