@@ -134,7 +134,12 @@ const PageLista = () => {
                     pesquisarRegistro();
                     Swal.fire({
                         title: "O tipo de unidade administrativa foi deletada com sucesso!",
-                        icon: "success"
+                        icon: "success",
+                        customClass: {
+                            popup: "my-swal-popup",
+                            title: "my-swal-title",
+                            htmlContainer: "my-swal-html",
+                        },
                     });
                 }
             } catch (error) {

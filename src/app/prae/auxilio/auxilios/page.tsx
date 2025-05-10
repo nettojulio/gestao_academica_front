@@ -31,11 +31,21 @@ const estrutura: any = {
       { nome: 'Adicionar', chave: 'adicionar', bloqueado: false }, //nome(string),chave(string),bloqueado(booleano)
     ],
     colunas: [ //colunas da tabela
-      { nome: "Tipo Auxilio", chave: "tipoAuxilio", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
-      { nome: "valor Auxilio", chave: "valorAuxilio", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
-      { nome: "Tipo Bolsa", chave: "tipoBolsa", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
+      { nome: "Tipo Auxilio", chave: "tipoAuxilio.tipo", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
+      { nome: "valor Auxilio", chave: "tipoAuxilio.valorAuxilio", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
+      { nome: "Tipo Bolsa", chave: "tipoBolsa.descricao", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
       { nome: "valor Bolsa", chave: "valorBolsa", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
-      { nome: "Status", chave: "status", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
+      {
+        nome: "Status",
+        chave: "status",
+        tipo: "booleano",
+        selectOptions: [
+          { chave: "APROVADA", valor: "Ativo" },
+          { chave: "REJEITADA", valor: "Não-Ativo" },
+        ],
+        sort: false,
+        pesquisar: true,
+      },
       { nome: "ações", chave: "acoes", tipo: "button", selectOptions: null, sort: false, pesquisar: false },
     ],
     acoes_dropdown: [ //botão de acoes de cada registro

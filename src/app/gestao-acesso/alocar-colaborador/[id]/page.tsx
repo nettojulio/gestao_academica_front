@@ -17,7 +17,6 @@ const cadastro = () => {
   const [colaboradores, setColaboradores] = useState<any[]>([]);
   const [user, setUser] = useState<any[]>([]);	
   
-
   const isEditMode = id && id !== "criar";
   const getOptions = (lista: any[], selecionado: any) => {
     if (!Array.isArray(lista) || lista.length === 0) return [];
@@ -161,6 +160,11 @@ const cadastro = () => {
         Swal.fire({
           title: "Unidade gestora salvo com sucesso!",
           icon: "success",
+          customClass: {
+            popup: "my-swal-popup",
+            title: "my-swal-title",
+            htmlContainer: "my-swal-html",
+            },
         }).then((result) => {
           if (result.isConfirmed) {
             chamarFuncao("voltar");

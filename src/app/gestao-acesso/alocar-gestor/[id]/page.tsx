@@ -125,7 +125,7 @@ const cadastro = () => {
 
       const body = {
         metodo: "post",
-        uri: "/auth/" + `${estrutura.uri}/${item.id}/funcionarios`,
+        uri: "/auth/" + `unidade-administrativa/${item.id}/gestores`,
         params: {},
         data: dadosParaEnviar,
       };
@@ -160,6 +160,11 @@ const cadastro = () => {
         Swal.fire({
           title: "Unidade gestora salvo com sucesso!",
           icon: "success",
+          customClass: {
+            popup: "my-swal-popup",
+            title: "my-swal-title",
+            htmlContainer: "my-swal-html",
+          },
         }).then((result) => {
           if (result.isConfirmed) {
             chamarFuncao("voltar");

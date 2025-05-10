@@ -13,17 +13,42 @@ const cadastro = () => {
   const router = useRouter();
   const { id } = useParams();
   // Inicializamos com um objeto contendo 'endereco' para evitar problemas
-  const [dadosPreenchidos, setDadosPreenchidos] = useState<any>({ endereco: {} });
+   const [dadosPreenchidos, setDadosPreenchidos] = useState<any>({
+    solicitante: {
+      nome: '',
+      nomeSocial: '',
+      email: '',
+      cpf: '',
+      telefone: '',
+    },
+    perfil: {
+      fotoPerfil: null,
+      tipo: '',
+      matricula: '',
+      curso: { id: '', nome: '' },
+      cursos: [],      // para multi-select de professor
+      siape: '',
+
+    },
+    perfilSolicitado: '',    // ← adiciona aqui
+    // campos “soltos” que você usa quando não está em modo edit:
+    tipoUsuario: '',
+    matricula: '',
+    cursoId: '',
+    cursoIds: [],
+    siape: '',
+    documentos: [],
+  });
   const [unidadesGestoras, setUnidadesGestoras] = useState<any[]>([]);
   const [lastMunicipioQuery, setLastMunicipioQuery] = useState("");
-  const [nomeTitular, setNomeTitular] = useState<any[]>([]);
+  const [nome, setNome] = useState<any[]>([]);
   const isEditMode = id && id !== "criar";
 
   const getOptions = (lista: any[], selecionado: any) => {
     if (!Array.isArray(lista) || lista.length === 0) return [];
     const options = lista.map((item) => ({
       chave: item.id, // ID do item (numérico, por exemplo)
-      valor: item.nome, // Texto exibido no <option>
+      valor: item.nome || item.aluno.nome, // Texto exibido no <option>, // Texto exibido no <option>
     }));
     if (isEditMode && selecionado) {
       const selectedId = Number(selecionado); // Converte para número, se necessário
@@ -59,7 +84,7 @@ const cadastro = () => {
           nome: "Titular",
           chave: "idAluno", //consultar estudantes
           tipo: "select",
-          selectOptions: isEditMode ? null : getOptions(nomeTitular, dadosPreenchidos[0]?.nomeTitular),
+          selectOptions: isEditMode ? null : getOptions(nome, dadosPreenchidos[0]?.nome),
           mensagem: "Digite",
           obrigatorio: true,
         },
@@ -119,7 +144,7 @@ const cadastro = () => {
         data: {}
       }
       const response = await generica(body);
-      console.log('Dados de etnia recebidos:', response);
+      console.log('Full response:', dadosPreenchidos); 
       //tratamento dos erros
       if (response && response.data.errors != undefined) {
         toast("Erro. Tente novamente!", { position: "bottom-left" });
@@ -127,7 +152,7 @@ const cadastro = () => {
         toast(response.data.error.message, { position: "bottom-left" });
       } else {
         if (response && response.data) {
-          setNomeTitular(response.data);
+          setNome(response.data);
         }
       }
     } catch (error) {

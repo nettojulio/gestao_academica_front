@@ -28,12 +28,12 @@ const estrutura: any = {
             { nome: 'Adicionar', chave: 'adicionar', bloqueado: false },
         ],
         colunas: [
-            { nome: "Nome", chave: "nome", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
-            { nome: "U. administrativa", chave: "unidadeAdministrativa", tipo: "button", selectOptions: null, sort: false, pesquisar: false },
+            { nome: "Nome do Gestor", chave: "nome", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
+            { nome: "U. administrativa", chave: "nomesUA", tipo: "button", selectOptions: null, sort: false, pesquisar: false },
             { nome: "Ações", chave: "acoes", tipo: "button", selectOptions: null, sort: false, pesquisar: false },
         ],
         acoes_dropdown: [
-            { nome: 'Editar', chave: 'editar' },
+            { nome: 'Visualizar', chave: 'editar' },
             { nome: 'Deletar', chave: 'deletar' },
         ]
     }
@@ -42,6 +42,7 @@ const estrutura: any = {
 const PageLista = () => {
     const router = useRouter();
     const [dados, setDados] = useState<any>({ content: [] });
+    const [UnidadesPai, setUnidadesPai] = useState<any[]>([]);
 
     const chamarFuncao = (nomeFuncao = "", valor: any = null) => {
         switch (nomeFuncao) {
@@ -61,6 +62,32 @@ const PageLista = () => {
                 break;
         }
     }
+
+    const pesquisarUnidadesAdm = async (params = null) => {
+        try {
+          let body = {
+            metodo: 'get',
+            uri: '/auth/' + "unidade-administrativa" + "",
+            params: params != null ? params : { size: 25, page: 0 },
+            data: {}
+          }
+          const response = await generica(body);
+          // Tratamento de erros
+          if (response && response.data.errors != undefined) {
+            toast("Erro. Tente novamente!", { position: "bottom-left" });
+          } else if (response && response.data.error != undefined) {
+            toast(response.data.error.message, { position: "bottom-left" });
+          } else if (response && response.data) {
+            // Filtra os itens para manter somente aqueles sem unidade pai (unidadePaiId nulo ou indefinido)
+            //const unidadesSemPai = response.data.filter((item: any) => item.unidadePaiId == null || item.unidadePaiId == undefined || item.unidadePaiId == "");
+            const nomesUA = response.data.map((item: any) => item.nome);
+            console.log('Nomes das Unidades Administrativas:', nomesUA);
+            setUnidadesPai(response.data);
+          }
+        } catch (error) {
+          console.error('Erro ao carregar registros:', error);
+        }
+      };
 
     const pesquisarRegistro = async (params = null) => {
         try {
@@ -133,7 +160,12 @@ const PageLista = () => {
                     pesquisarRegistro();
                     Swal.fire({
                         title: "O tipo de unidade administrativa foi deletada com sucesso!",
-                        icon: "success"
+                        icon: "success",
+                        customClass: {
+                            popup: "my-swal-popup",
+                            title: "my-swal-title",
+                            htmlContainer: "my-swal-html",
+                        },                           
                     });
                 }
             } catch (error) {
@@ -145,6 +177,7 @@ const PageLista = () => {
 
     useEffect(() => {
         chamarFuncao('pesquisar', null);
+        pesquisarUnidadesAdm();
     }, []);
 
     return (
