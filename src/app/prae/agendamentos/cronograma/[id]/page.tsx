@@ -16,6 +16,7 @@ const cadastro = () => {
   const [dadosPreenchidos, setDadosPreenchidos] = useState<any>({ endereco: {} });
   const [unidadesGestoras, setUnidadesGestoras] = useState<any[]>([]);
   const [lastMunicipioQuery, setLastMunicipioQuery] = useState("");
+  const [tiposAtendimento, setTiposAtendimento] = useState<any[]>([]);
   const isEditMode = id && id !== "criar";
 
   const getOptions = (lista: any[], selecionado: any) => {
@@ -35,10 +36,38 @@ const cadastro = () => {
     return options;
   };
 
+  const fetchTiposAtendimento = async () => {
+    try {
+      const response = await generica({
+        metodo: "get",
+        uri: "/prae/tipo-atendimento",
+        params: {},
+      });
+      if (response && response.data) {
+        setTiposAtendimento(
+          response.data.map((tipo: any) => ({
+            chave: tipo.id,
+            valor: tipo.nome,
+          }))
+        );
+      }
+    } catch (error) {
+      console.error("Erro ao buscar tipos de atendimento:", error);
+      toast.error("Erro ao carregar tipos de atendimento.", { position: "top-left" });
+    }
+  };
+
+    useEffect(() => {
+    fetchTiposAtendimento();
+    if (id && id !== "criar") {
+      chamarFuncao("editar", id);
+    }
+  }, [id]);
+
   const estrutura: any = {
-    uri: "curso",
+    uri: "cronograma",
     cabecalho: {
-      titulo: isEditMode ? "Editar Curso" : "Cadastrar Curso",
+      titulo: isEditMode ? "Editar Cronograma" : "Cadastrar Cronograma",
       migalha: [
         { nome: 'Home', link: '/home' },
         { nome: 'Prae', link: '/prae' },
@@ -56,26 +85,18 @@ const cadastro = () => {
           line: 1,
           colSpan: "md:col-span-1",
           nome: "Tipo de Atendimento",
-          chave: "tipoAtendimento",
+          chave: "tipoAtendimentoId",
           tipo: "select",
-          mensagem: "Digite",
+          mensagem: "Selecione o tipo de atendimento",
           obrigatorio: true,
+          selectOptions: tiposAtendimento, 
         },
         {
           line: 1,
           colSpan: "md:col-span-1",
           nome: "Dia do Atendimento",
-          chave: "dia",
+          chave: "data",
           tipo: "date",
-          mensagem: "Digite",
-          obrigatorio: true,
-        },
-        {
-          line: 1,
-          colSpan: "md:col-span-1",
-          nome: "Quantidade de Vagas",
-          chave: "qtdVagas",
-          tipo: "number",
           mensagem: "Digite",
           obrigatorio: true,
         },
@@ -116,44 +137,61 @@ const cadastro = () => {
    * fiquem agrupados em um objeto 'endereco'.
    */
   const salvarRegistro = async (item: any) => {
-    try {
-      const body = {
-        metodo: `${isEditMode ? "patch" : "post"}`,
-        uri: "/prae/" + `${isEditMode ? estrutura.uri+"/"+ item.id : estrutura.uri }`,
-        params: {},
-        data: item,
-      };
-      const response = await generica(body);
-      if (!response || response.status < 200 || response.status >= 300) {
-        if (response) {
-          console.error("DEBUG: Status de erro:", response.status, 'statusText' in response ? response.statusText : "Sem texto de status");
-        }
-        toast.error(`Erro na requisição (HTTP ${response?.status || "desconhecido"})`, { position: "top-left" });
-        return;
+  // Ajusta os dados para o formato esperado pelo backend
+  const dadosFormatados = {
+    data: new Date(item.data).toLocaleDateString("pt-BR"), // Converte a data para DD/MM/YYYY
+    tipoAtendimentoId: Number(item.tipoAtendimentoId), // Converte para número
+    };
+
+  console.log("DEBUG: Dados enviados formatados:", dadosFormatados);
+
+  try {
+    const body = {
+      metodo: `${isEditMode ? "patch" : "post"}`,
+      uri: "/prae/" + `${isEditMode ? estrutura.uri + "/" + item.id : estrutura.uri}`,
+      params: {},
+      data: dadosFormatados,
+    };
+
+    const response = await generica(body);
+
+    if (!response || response.status < 200 || response.status >= 300) {
+      if (response) {
+        console.error(
+          "DEBUG: Status de erro:",
+          response.status,
+          "statusText" in response ? response.statusText : "Sem texto de status"
+        );
       }
-      if (response.data?.errors) {
-        Object.keys(response.data.errors).forEach((campoErro) => {
-          toast.error(`Erro em ${campoErro}: ${response.data.errors[campoErro]}`, {
-            position: "top-left",
-          });
-        });
-      } else if (response.data?.error) {
-        toast(response.data.error.message, { position: "top-left" });
-      } else {
-        Swal.fire({
-          title: "Cronograma salvo com sucesso!",
-          icon: "success",
-        }).then((result) => {
-          if (result.isConfirmed) {
-            chamarFuncao("voltar");
-          }
-        });
-      }
-    } catch (error) {
-      console.error("DEBUG: Erro ao salvar registro:", error);
-      toast.error("Erro ao salvar registro. Tente novamente!", { position: "top-left" });
+      toast.error(`Erro na requisição (HTTP ${response?.status || "desconhecido"})`, {
+        position: "top-left",
+      });
+      return;
     }
-  };
+
+    if (response.data?.errors) {
+      Object.keys(response.data.errors).forEach((campoErro) => {
+        toast.error(`Erro em ${campoErro}: ${response.data.errors[campoErro]}`, {
+          position: "top-left",
+        });
+      });
+    } else if (response.data?.error) {
+      toast.error(response.data.error.message, { position: "top-left" });
+    } else {
+      Swal.fire({
+        title: "Cronograma salvo com sucesso!",
+        icon: "success",
+      }).then((result) => {
+        if (result.isConfirmed) {
+          chamarFuncao("voltar");
+        }
+      });
+    }
+  } catch (error) {
+    console.error("DEBUG: Erro ao salvar registro:", error);
+    toast.error("Erro ao salvar registro. Tente novamente!", { position: "top-left" });
+  }
+};
 
   /**
    * Localiza o registro para edição e preenche os dados
