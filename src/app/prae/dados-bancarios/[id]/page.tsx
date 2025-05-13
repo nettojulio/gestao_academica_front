@@ -13,16 +13,42 @@ const cadastro = () => {
   const router = useRouter();
   const { id } = useParams();
   // Inicializamos com um objeto contendo 'endereco' para evitar problemas
-  const [dadosPreenchidos, setDadosPreenchidos] = useState<any>({ endereco: {} });
+   const [dadosPreenchidos, setDadosPreenchidos] = useState<any>({
+    solicitante: {
+      nome: '',
+      nomeSocial: '',
+      email: '',
+      cpf: '',
+      telefone: '',
+    },
+    perfil: {
+      fotoPerfil: null,
+      tipo: '',
+      matricula: '',
+      curso: { id: '', nome: '' },
+      cursos: [],      // para multi-select de professor
+      siape: '',
+
+    },
+    perfilSolicitado: '',    // ← adiciona aqui
+    // campos “soltos” que você usa quando não está em modo edit:
+    tipoUsuario: '',
+    matricula: '',
+    cursoId: '',
+    cursoIds: [],
+    siape: '',
+    documentos: [],
+  });
   const [unidadesGestoras, setUnidadesGestoras] = useState<any[]>([]);
   const [lastMunicipioQuery, setLastMunicipioQuery] = useState("");
+  const [nome, setNome] = useState<any[]>([]);
   const isEditMode = id && id !== "criar";
 
   const getOptions = (lista: any[], selecionado: any) => {
     if (!Array.isArray(lista) || lista.length === 0) return [];
     const options = lista.map((item) => ({
       chave: item.id, // ID do item (numérico, por exemplo)
-      valor: item.nome, // Texto exibido no <option>
+      valor: item.nome || item.aluno.nome, // Texto exibido no <option>, // Texto exibido no <option>
     }));
     if (isEditMode && selecionado) {
       const selectedId = Number(selecionado); // Converte para número, se necessário
@@ -36,9 +62,9 @@ const cadastro = () => {
   };
 
   const estrutura: any = {
-    uri: "curso",
+    uri: "dadosBancarios",
     cabecalho: {
-      titulo: isEditMode ? "Editar Curso" : "Cadastrar Curso",
+      titulo: isEditMode ? "Editar Dados Bancarios" : "Cadastrar Dados Bancarios",
       migalha: [
         { nome: 'Home', link: '/home' },
         { nome: 'Prae', link: '/prae' },
@@ -58,6 +84,7 @@ const cadastro = () => {
           nome: "Titular",
           chave: "idAluno", //consultar estudantes
           tipo: "select",
+          selectOptions: isEditMode ? null : getOptions(nome, dadosPreenchidos[0]?.nome),
           mensagem: "Digite",
           obrigatorio: true,
         },
@@ -107,6 +134,33 @@ const cadastro = () => {
     }
   };
 
+  const pesquisarTitular = async (params = null) => {
+    try {
+      let body = {
+        metodo: 'get',
+        uri: '/prae/' + 'estudantes',
+        //+ '/page',
+        params: params != null ? params : { size: 25, page: 0 },
+        data: {}
+      }
+      const response = await generica(body);
+      console.log('Full response:', dadosPreenchidos); 
+      //tratamento dos erros
+      if (response && response.data.errors != undefined) {
+        toast("Erro. Tente novamente!", { position: "bottom-left" });
+      } else if (response && response.data.error != undefined) {
+        toast(response.data.error.message, { position: "bottom-left" });
+      } else {
+        if (response && response.data) {
+          setNome(response.data);
+        }
+      }
+    } catch (error) {
+      console.error('Erro ao carregar registros:', error);
+    }
+  };
+
+
   const voltarRegistro = () => {
     router.push("/prae/dados-bancarios");
   };
@@ -119,7 +173,7 @@ const cadastro = () => {
     try {
       const body = {
         metodo: `${isEditMode ? "patch" : "post"}`,
-        uri: "/prae/" + `${isEditMode ? estrutura.uri + "/" + item.id : estrutura.uri}`,
+        uri: "/prae/" + `${isEditMode ? estrutura.uri + "/" + item.id : estrutura.uri + "/registrar"}`,
         params: {},
         data: item,
       };
@@ -187,6 +241,7 @@ const cadastro = () => {
 
   // Efeito exclusivo para o modo de edição
   useEffect(() => {
+    pesquisarTitular();
     if (id && id !== "criar") {
       chamarFuncao("editar", id);
     }

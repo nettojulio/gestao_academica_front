@@ -31,6 +31,8 @@ const estrutura: any = {
       { nome: 'Adicionar', chave: 'adicionar', bloqueado: false }, //nome(string),chave(string),bloqueado(booleano)
     ],
     colunas: [ //colunas da tabela
+      { nome: "CPF ", chave: "cpf", tipo: "texto", selectOptions: null, sort: false, pesquisar: true }, //nome
+      { nome: "Nome ", chave: "nome", tipo: "texto", selectOptions: null, sort: false, pesquisar: true }, //nome
       { nome: "Valor Pago", chave: "valor", tipo: "texto", selectOptions: null, sort: false, pesquisar: true }, //nome(string),chave(string),tipo(text,select),selectOpcoes([{chave:string, valor:string}]),pesquisar(booleano)
       { nome: "Data Pagamento ", chave: "data", tipo: "texto", selectOptions: null, sort: false, pesquisar: true }, //nome(string),chave(string),tipo(text,select),selectOpcoes([{chave:string, valor:string}]),pesquisar(booleano)
       { nome: "ações", chave: "acoes", tipo: "button", selectOptions: null, sort: false, pesquisar: false },
@@ -76,6 +78,7 @@ const PageLista = () => {
         data: {}
       }
       const response = await generica(body);
+      console.log(response?.data)
       //tratamento dos erros
       if (response && response.data.errors != undefined) {
         toast("Erro. Tente novamente!", { position: "bottom-left" });
@@ -101,7 +104,7 @@ const PageLista = () => {
   // Função que deleta um registro
   const deletarRegistro = async (item: any) => {
     const confirmacao = await Swal.fire({
-      title: `Você deseja deletar o pagameto ${item.idUsuarioCadastro}?`,
+      title: `Você deseja deletar o pagameto ${item.id}?`, // Trocar para o nome do usuario quando atualizar
       text: "Essa ação não poderá ser desfeita",
       icon: "warning",
       showCancelButton: true,

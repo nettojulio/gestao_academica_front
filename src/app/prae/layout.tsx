@@ -65,7 +65,7 @@ export default function PraeLayout({ children }: { children: React.ReactNode }) 
           label: "Estudantes",
           route: "/prae/estudantes",
           icon: <School fontSize="small" className="text-white" />,
-          roles: ["administrador", "gestor", "tecnico"],
+          roles: ["administrador", "gestor", "tecnico", "aluno"],
         },
         {
           label: "Dados Bancários",

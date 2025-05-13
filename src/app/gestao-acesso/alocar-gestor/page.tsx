@@ -11,15 +11,11 @@ import Swal from 'sweetalert2';
 import { any } from 'zod';
 
 const estrutura: any = {
-    uri: "tipo-unidade-administrativa",
+    uri: "gestor",
 
     cabecalho: {
-        titulo: "Tipos de Unidades Administrativas",
-        migalha: [
-            { nome: 'Inicio', link: '/home' },
-            { nome: 'Gestão Acesso', link: '/gestao-acesso' },
-            { nome: 'Tipos de Unidades Administrativas', link: '/gestao-acesso/tipo-unidade-administrativa' },
-        ]
+        titulo: "Atribuir Gestor",
+        migalha: []
     },
 
     tabela: {
@@ -32,11 +28,12 @@ const estrutura: any = {
             { nome: 'Adicionar', chave: 'adicionar', bloqueado: false },
         ],
         colunas: [
-            { nome: "Nome", chave: "nome", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
+            { nome: "Nome do Gestor", chave: "nome", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
+            { nome: "U. administrativa", chave: "nomesUA", tipo: "button", selectOptions: null, sort: false, pesquisar: false },
             { nome: "Ações", chave: "acoes", tipo: "button", selectOptions: null, sort: false, pesquisar: false },
         ],
         acoes_dropdown: [
-            { nome: 'Editar', chave: 'editar' },
+            { nome: 'Visualizar', chave: 'editar' },
             { nome: 'Deletar', chave: 'deletar' },
         ]
     }
@@ -45,6 +42,7 @@ const estrutura: any = {
 const PageLista = () => {
     const router = useRouter();
     const [dados, setDados] = useState<any>({ content: [] });
+    const [UnidadesPai, setUnidadesPai] = useState<any[]>([]);
 
     const chamarFuncao = (nomeFuncao = "", valor: any = null) => {
         switch (nomeFuncao) {
@@ -65,6 +63,32 @@ const PageLista = () => {
         }
     }
 
+    const pesquisarUnidadesAdm = async (params = null) => {
+        try {
+          let body = {
+            metodo: 'get',
+            uri: '/auth/' + "unidade-administrativa" + "",
+            params: params != null ? params : { size: 25, page: 0 },
+            data: {}
+          }
+          const response = await generica(body);
+          // Tratamento de erros
+          if (response && response.data.errors != undefined) {
+            toast("Erro. Tente novamente!", { position: "bottom-left" });
+          } else if (response && response.data.error != undefined) {
+            toast(response.data.error.message, { position: "bottom-left" });
+          } else if (response && response.data) {
+            // Filtra os itens para manter somente aqueles sem unidade pai (unidadePaiId nulo ou indefinido)
+            //const unidadesSemPai = response.data.filter((item: any) => item.unidadePaiId == null || item.unidadePaiId == undefined || item.unidadePaiId == "");
+            const nomesUA = response.data.map((item: any) => item.nome);
+            console.log('Nomes das Unidades Administrativas:', nomesUA);
+            setUnidadesPai(response.data);
+          }
+        } catch (error) {
+          console.error('Erro ao carregar registros:', error);
+        }
+      };
+
     const pesquisarRegistro = async (params = null) => {
         try {
             let body = {
@@ -74,6 +98,7 @@ const PageLista = () => {
                 data: {}
             }
             const response = await generica(body);
+            console.log("sufhaishdfiahus", response)
             if (response && response.data.errors != undefined) {
                 toast.error("Erro. Tente novamente!", { position: "top-left" });
             } else if (response && response.data && response.data.error != undefined) {
@@ -82,6 +107,7 @@ const PageLista = () => {
                 }
             } else {
                 if (response && response.data) {
+                    console.log(response.data);
                     setDados(response.data);
                 }
             }
@@ -91,10 +117,10 @@ const PageLista = () => {
     };
 
     const adicionarRegistro = () => {
-        router.push('/gestao-acesso/tipo-unidade-administrativa/criar');
+        router.push('/gestao-acesso/alocar-gestor/criar');
     };
     const editarRegistro = (item: any) => {
-        router.push('/gestao-acesso/tipo-unidade-administrativa/' + item.id);
+        router.push('/gestao-acesso/alocar-gestor/' + item.id);
     };
     const deletarRegistro = async (item: any) => {
         const confirmacao = await Swal.fire({
@@ -122,7 +148,7 @@ const PageLista = () => {
                     metodo: 'delete',
                     uri: '/auth/' + estrutura.uri + '/' + item.id,
                     params: {},
-
+                    
                 };
 
                 const response = await generica(body);
@@ -139,7 +165,7 @@ const PageLista = () => {
                             popup: "my-swal-popup",
                             title: "my-swal-title",
                             htmlContainer: "my-swal-html",
-                        },
+                        },                           
                     });
                 }
             } catch (error) {
@@ -151,6 +177,7 @@ const PageLista = () => {
 
     useEffect(() => {
         chamarFuncao('pesquisar', null);
+        pesquisarUnidadesAdm();
     }, []);
 
     return (
