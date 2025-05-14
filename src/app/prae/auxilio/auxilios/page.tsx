@@ -38,7 +38,7 @@ const estrutura: any = {
       {
         nome: "Status",
         chave: "status",
-        tipo: "booleano",
+        tipo: "boolean",
         selectOptions: [
           { chave: "APROVADA", valor: "Ativo" },
           { chave: "REJEITADA", valor: "Não-Ativo" },
