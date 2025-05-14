@@ -16,7 +16,7 @@ const cadastro = () => {
   const [UnidadesPai, setUnidadesPai] = useState<any[]>([]);
   const [colaboradores, setColaboradores] = useState<any[]>([]);
   const [user, setUser] = useState<any[]>([]);	
-
+  
   const isEditMode = id && id !== "criar";
   const getOptions = (lista: any[], selecionado: any) => {
     if (!Array.isArray(lista) || lista.length === 0) return [];
@@ -35,7 +35,7 @@ const cadastro = () => {
     return options;
   };
   const estrutura: any = {
-    uri: "unidade-administrativa",
+    uri: "tecnico",
     cabecalho: {
       titulo: isEditMode ? "Alocar Colaborador" : "Alocar Colaborador",
       migalha: [
@@ -160,6 +160,11 @@ const cadastro = () => {
         Swal.fire({
           title: "Unidade gestora salvo com sucesso!",
           icon: "success",
+          customClass: {
+            popup: "my-swal-popup",
+            title: "my-swal-title",
+            htmlContainer: "my-swal-html",
+            },
         }).then((result) => {
           if (result.isConfirmed) {
             chamarFuncao("voltar");
@@ -214,7 +219,7 @@ const cadastro = () => {
     try {
       let body = {
         metodo: 'get',
-        uri: '/auth/' + estrutura.uri + "",
+        uri: '/auth/' + "unidade-administrativa",
         params: params != null ? params : { size: 25, page: 0 },
         data: {}
       }

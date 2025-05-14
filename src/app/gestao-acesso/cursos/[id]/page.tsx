@@ -134,6 +134,11 @@ const cadastro = () => {
         Swal.fire({
           title: "Curso salvo com sucesso!",
           icon: "success",
+          customClass: {
+            popup: "my-swal-popup",
+            title: "my-swal-title",
+            htmlContainer: "my-swal-html",
+          },
         }).then((result) => {
           if (result.isConfirmed) {
             chamarFuncao("voltar");

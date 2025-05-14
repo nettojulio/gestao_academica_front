@@ -195,6 +195,11 @@ const PageLista = () => {
           Swal.fire({
             title: "Solicitação deletada com sucesso!",
             icon: "success",
+            customClass: {
+              popup: "my-swal-popup",
+              title: "my-swal-title",
+              htmlContainer: "my-swal-html",
+            },
           });
         }
       } catch (error) {

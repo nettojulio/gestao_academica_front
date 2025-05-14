@@ -16,18 +16,20 @@ const cadastro = () => {
   const [dadosPreenchidos, setDadosPreenchidos] = useState<any>({ endereco: {} });
   const [cursos, setCursos] = useState<any[]>([]);
   const [lastMunicipioQuery, setLastMunicipioQuery] = useState("");
+  const [isDeficiencia, setIsDeficiencia] = useState();
   const [etnia, setEtnia] = useState<any[]>([]);
+  const [isDeficiente, setIsDeficiente] = useState<boolean>(false);
   const isEditMode = id && id !== "criar";
 
   const getOptions = (lista: any[], selecionado: any) => {
     if (!Array.isArray(lista)) return [];
-    
+
     // Mapeia para { chave: id, valor: nome } → Select mostrará "valor" (nome)
     const options = lista.map((item) => ({
       chave: item.id,       // ID (valor salvo no formulário)
       valor: item.nome || item.tipo     // Nome (exibido no select)
     }));
-  
+
     // Debug: Verifique as opções geradas
     console.log("Opções do select (nome exibido):", options);
     return options;
@@ -58,7 +60,6 @@ const cadastro = () => {
           mensagem: "Anexe os documentos",
           obrigatorio: false,
           bloqueado: isEditMode,
-
         },
         {
           line: 2,
@@ -69,7 +70,6 @@ const cadastro = () => {
           mensagem: "Digite",
           obrigatorio: true,
           bloqueado: true,
-          
         },
         {
           line: 2,
@@ -80,7 +80,6 @@ const cadastro = () => {
           mensagem: "Digite o nome social",
           obrigatorio: false,
           bloqueado: true,
-
         },
         {
           line: 2,
@@ -91,7 +90,6 @@ const cadastro = () => {
           mensagem: "Digite",
           obrigatorio: true,
           bloqueado: true,
-
         },
         {
           line: 3,
@@ -103,7 +101,6 @@ const cadastro = () => {
           obrigatorio: true,
           bloqueado: true,
           mascara: "cpf",
-         
         },
         {
           line: 3,
@@ -115,7 +112,6 @@ const cadastro = () => {
           obrigatorio: true,
           bloqueado: true,
           mascara: "celular",
-
         },
         {
           line: 3,
@@ -127,7 +123,6 @@ const cadastro = () => {
           obrigatorio: false,
           exibirPara: ["ALUNO"],
           bloqueado: isEditMode,
-
         },
         {
           line: 3,
@@ -140,8 +135,6 @@ const cadastro = () => {
           selectOptions: isEditMode ? null : getOptions(cursos, dadosPreenchidos[0]?.cursoId),
           exibirPara: ["ALUNO"],
           bloqueado: isEditMode,
-
-          // selectOptions: [{ chave: "1", valor: "Engenharia" }, ...]
         },
         {
           line: 3,
@@ -153,9 +146,8 @@ const cadastro = () => {
           obrigatorio: false,
           exibirPara: ["PROFESSOR"],
           selectOptions: isEditMode ? null : getOptions(cursos, Array.isArray(dadosPreenchidos) && dadosPreenchidos[0]?.cursoIds),
-          multiple: true, // Permite selecionar múltiplos cursos
+          multiple: true,
           bloqueado: isEditMode,
-
         },
         {
           line: 3,
@@ -172,21 +164,20 @@ const cadastro = () => {
           line: 3,
           colSpan: "md:col-span-1",
           nome: "Etnia",
-          chave: "tipoEtnia", // Campo onde o ID será salvo
+          chave: "tipoEtniaId",
           tipo: "select",
           mensagem: "Selecione a opção",
           obrigatorio: true,
-          selectOptions: getOptions(etnia, dadosPreenchidos?.tipoEtnia),
-          // Adicione estas props para controlar a exibição:
-          opcaoChave: "chave",   // Campo usado como valor (ID)
-          opcaoValor: "valor",   // Campo exibido no select (nome/tipo)
+          selectOptions: getOptions(etnia, dadosPreenchidos?.tipoEtniaId),
+          opcaoChave: "chave",
+          opcaoValor: "valor",
           bloqueado: isEditMode,
         },
         {
-          line: 5,
+          line: 4,
           colSpan: "md:col-span-1",
-          nome: "Renda Percapita",
-          chave: isEditMode ? "perfil.siape" : "rendaPercapita",
+          nome: "Renda Percapta",
+          chave: isEditMode ? "rendaPercapta" : "rendaPercapta",
           tipo: "text",
           mensagem: "Digite a renda percápita",
           obrigatorio: true,
@@ -194,41 +185,81 @@ const cadastro = () => {
           mascara: "valor",
         },
         {
-          line: 5,
+          line: 4,
           colSpan: "md:col-span-1",
-          nome: "Conta Bancaria",
-          chave: isEditMode ? "dadosBancarios.conta" : "dadosBancarios.conta",
+          nome: "CEP",
+          chave: isEditMode ? "cep" : "cep",
           tipo: "text",
-          mensagem: "Digite a renda percápita",
+          mensagem: "Digite o CEP",
+          obrigatorio: true,
+          bloqueado: isEditMode,
+          mascara: "CEP",
+        },
+        {
+          line: 4,
+          colSpan: "md:col-span-1",
+          nome: "Rua",
+          chave: isEditMode ? "rua" : "rua",
+          tipo: "text",
+          mensagem: "Digite o nome da rua",
+          obrigatorio: true,
+          bloqueado: isEditMode,
+        },
+        {
+          line: 4,
+          colSpan: "md:col-span-1",
+          nome: "Bairro",
+          chave: isEditMode ? "bairro" : "bairro",
+          tipo: "text",
+          mensagem: "Digite o bairro",
           obrigatorio: true,
           bloqueado: isEditMode,
         },
         {
           line: 5,
           colSpan: "md:col-span-1",
-          nome: "Agencia Bancaria",
-          chave: isEditMode ? "dadosBancarios.agencia" : "dadosBancarios.agencia",
+          nome: "Cidade",
+          chave: isEditMode ? "cidade" : "cidade",
           tipo: "text",
-          mensagem: "Digite a renda percápita",
+          mensagem: "Digite a cidade",
           obrigatorio: true,
           bloqueado: isEditMode,
         },
         {
           line: 5,
           colSpan: "md:col-span-1",
-          nome: "Conta Bancaria",
-          chave: isEditMode ? "perfil.siape" : "rendaPercapita",
+          nome: "Estado",
+          chave: isEditMode ? "estado" : "estado",
           tipo: "text",
-          mensagem: "Digite a renda percápita",
+          mensagem: "Digite o estado",
           obrigatorio: true,
           bloqueado: isEditMode,
-          mascara: "valor",
+        },
+        {
+          line: 5,
+          colSpan: "md:col-span-1",
+          nome: "Número",
+          chave: isEditMode ? "numero" : "numero",
+          tipo: "text",
+          mensagem: "Digite o numero",
+          obrigatorio: true,
+          bloqueado: isEditMode,
+        },
+        {
+          line: 5,
+          colSpan: "md:col-span-1",
+          nome: "Complemento",
+          chave: isEditMode ? "complemento" : "complemento",
+          tipo: "text",
+          mensagem: "Digite o complemento",
+          obrigatorio: false,
+          bloqueado: isEditMode,
         },
         {
           line: 6,
           colSpan: "md:col-span-1",
           nome: "Contato Familiar",
-          chave: isEditMode ? "contatoFamiliar" : "contatoFamiliar",
+          chave: isEditMode ? "contatoFamilia" : "contatoFamilia",
           tipo: "text",
           mensagem: "Digite o contato familiar",
           obrigatorio: true,
@@ -239,7 +270,7 @@ const cadastro = () => {
           line: 6,
           colSpan: "md:col-span-1",
           nome: "É portador de Deficiência",
-          chave: isEditMode ? "deficiencia" : "deficiencia",
+          chave: "deficiente",
           tipo: "select",
           selectOptions: [
             { chave: true, valor: "Sim" },
@@ -254,7 +285,7 @@ const cadastro = () => {
           line: 6,
           colSpan: "md:col-span-1",
           nome: "Se sim, qual deficiência",
-          chave: isEditMode ? "tipoDeficiencia" : "tipoDeficiencia",
+          chave: "tipoDeficiencia",
           tipo: "text",
           mensagem: "Qual o tipo da deficiência",
           obrigatorio: true,
@@ -264,7 +295,7 @@ const cadastro = () => {
           line: 7,
           colSpan: "md:col-span-1",
           nome: "Laudo Médico",
-          chave: isEditMode ? "laudo" : "laudo",
+          chave: "laudo",
           tipo: "documento",
           bloqueado: isEditMode,
         },
@@ -276,31 +307,38 @@ const cadastro = () => {
     },
   };
 
+  // Sincroniza isDeficiente com o valor selecionado em dadosPreenchidos.deficiente
+  useEffect(() => {
+    setIsDeficiente(
+      dadosPreenchidos.deficiente === true ||
+      dadosPreenchidos.deficiente === "true"
+    );
+  }, [dadosPreenchidos.deficiente]);
+
+  // Filtra os campos 'tipoDeficiencia' e 'laudo' com base em isDeficiente
+  const camposFiltrados = estrutura.cadastro.campos.filter((campo:any) => {
+    if (campo.chave === "tipoDeficiencia" || campo.chave === "laudo") {
+      return isDeficiente;
+    }
+    return true;
+  });
 
   const currentUser = async (params = null) => {
-      try {
-        let body = {
-          metodo: 'get',
-          uri: '/auth/usuario/current',
-          //+ '/page',
-          params: params != null ? params : { size: 25, page: 0 },
-          data: {}
-        }
-        const response = await generica(body);
-        //tratamento dos erros
-        if (response && response.data.errors != undefined) {
-          toast("Erro. Tente novamente!", { position: "top-left" });
-        } else if (response && response.data.error != undefined) {
-          toast(response.data.error.message, { position: "top-left" });
-        } else {
-          if (response && response.data) {
-            setDadosPreenchidos(response.data);
-          }
-        }
-      } catch (error) {
-        console.error('Erro ao carregar registros:', error);
+    try {
+      let body = {
+        metodo: 'get',
+        uri: '/auth/usuario/current',
+        params: params != null ? params : { size: 25, page: 0 },
+        data: {}
+      };
+      const response = await generica(body);
+      if (response && response.data) {
+        setDadosPreenchidos(response.data);
       }
-    };
+    } catch (error) {
+      console.error('Erro ao carregar registros:', error);
+    }
+  };
 
   /**
    * Chama funções de acordo com o botão clicado
@@ -321,26 +359,17 @@ const cadastro = () => {
     }
   };
 
-const pesquisarEtnia = async (params = null) => {
+  const pesquisarEtnia = async (params = null) => {
     try {
       let body = {
         metodo: 'get',
         uri: '/prae/' + 'tipoEtnia',
-        //+ '/page',
         params: params != null ? params : { size: 25, page: 0 },
         data: {}
-      }
+      };
       const response = await generica(body);
-      console.log('Dados de etnia recebidos:', response);
-      //tratamento dos erros
-      if (response && response.data.errors != undefined) {
-        toast("Erro. Tente novamente!", { position: "bottom-left" });
-      } else if (response && response.data.error != undefined) {
-        toast(response.data.error.message, { position: "bottom-left" });
-      } else {
-        if (response && response.data) {
-          setEtnia(response.data);
-        }
+      if (response && response.data) {
+        setEtnia(response.data);
       }
     } catch (error) {
       console.error('Erro ao carregar registros:', error);
@@ -348,7 +377,17 @@ const pesquisarEtnia = async (params = null) => {
   };
 
   const voltarRegistro = () => {
-    router.push("/prae/pagamentos");
+    router.push("/prae/estudantes");
+  };
+
+  const transformarDados = (item: any) => {
+    const { cep, rua, complemento, numero, bairro, cidade, estado, tipoEtniaId, rendaPercapta, ...rest } = item;
+    return {
+      ...rest,
+      endereco: { cep, rua, complemento, numero, bairro, cidade, estado },
+      tipoEtniaId: Number(tipoEtniaId),
+      rendaPercapta: Number(rendaPercapta)
+    };
   };
 
   /**
@@ -357,17 +396,15 @@ const pesquisarEtnia = async (params = null) => {
    */
   const salvarRegistro = async (item: any) => {
     try {
+      const dataToSend = transformarDados(item);
       const body = {
         metodo: `${isEditMode ? "patch" : "post"}`,
-        uri: "/prae/" + `${isEditMode ? estrutura.uri+"/"+ item.id : estrutura.uri }`,
+        uri: "/prae/" + `${isEditMode ? estrutura.uri + "/" + item.id : estrutura.uri}`,
         params: {},
-        data: item,
+        data: dataToSend,
       };
       const response = await generica(body);
       if (!response || response.status < 200 || response.status >= 300) {
-        if (response) {
-          console.error("DEBUG: Status de erro:", response.status, 'statusText' in response ? response.statusText : "Sem texto de status");
-        }
         toast.error(`Erro na requisição (HTTP ${response?.status || "desconhecido"})`, { position: "top-left" });
         return;
       }
@@ -381,7 +418,7 @@ const pesquisarEtnia = async (params = null) => {
         toast(response.data.error.message, { position: "top-left" });
       } else {
         Swal.fire({
-          title: "Pagamento registrado com sucesso!",
+          title: "Aluno registrado com sucesso!",
           icon: "success",
         }).then((result) => {
           if (result.isConfirmed) {
@@ -416,8 +453,24 @@ const pesquisarEtnia = async (params = null) => {
         });
       } else if (response.data?.error) {
         toast.error(response.data.error.message, { position: "top-left" });
-      } else {       
-        setDadosPreenchidos(response.data);
+      } else {
+        setDadosPreenchidos({
+          ...response.data,
+          nome: response.data.aluno.nome,
+          nomeSocial: response.data.aluno.nomeSocial,
+          email: response.data.aluno.email,
+          cpf: response.data.aluno.cpf,
+          telefone: response.data.aluno.telefone,
+          etnia: response.data.tipoEtnia,
+          cep: response.data.endereco.cep,
+          rua: response.data.endereco.rua,
+          cidade: response.data.endereco.cidade,
+          estado: response.data.endereco.estado,
+          numero: response.data.endereco.numero,
+          complemento: response.data.endereco.complemento,
+          bairro: response.data.endereco.bairro,
+          tipoEtniaId: response.data.tipoEtnia.id,
+        });
       }
     } catch (error) {
       console.error("DEBUG: Erro ao localizar registro:", error);
@@ -429,7 +482,6 @@ const pesquisarEtnia = async (params = null) => {
   useEffect(() => {
     currentUser();
     pesquisarEtnia();
-
     if (id && id !== "criar") {
       chamarFuncao("editar", id);
     }
@@ -440,7 +492,13 @@ const pesquisarEtnia = async (params = null) => {
       <div className="w-full md:w-11/12 lg:w-10/12 2xl:w-3/4 max-w-6xl p-4 pt-10 md:pt-12 md:pb-12">
         <Cabecalho dados={estrutura.cabecalho} />
         <Cadastro
-          estrutura={estrutura}
+          estrutura={{
+            ...estrutura,
+            cadastro: {
+              ...estrutura.cadastro,
+              campos: camposFiltrados
+            }
+          }}
           dadosPreenchidos={dadosPreenchidos}
           setDadosPreenchidos={setDadosPreenchidos}
           chamarFuncao={chamarFuncao}

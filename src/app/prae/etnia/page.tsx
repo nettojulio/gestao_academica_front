@@ -125,7 +125,7 @@ const PageLista = () => {
       try {
         const body = {
           metodo: 'delete',
-          uri: '/prae/' + estrutura.uri + '/' + item.id + "/deletar",
+          uri: '/prae/' + estrutura.uri + '/' + item.id,
           params: {},
           data: {}
         };

@@ -70,6 +70,34 @@ function maskCNH(value: string) {
     .replace(/(\d{3}) (\d{3}) (\d{3})(\d{1,2})/, "$1 $2 $3 $4"); // Último espaço antes dos dois últimos dígitos
 }
 
+function maskHora(value: string) {
+  // Remove tudo que não for dígito e considera apenas os 4 primeiros dígitos
+  let digits = value.replace(/\D/g, '').substring(0, 4);
+
+  // Separa os dígitos em hora e minuto
+  let hour = digits.substring(0, 2);
+  let minute = digits.substring(2, 4);
+
+  // Valida e ajusta a hora se necessário (máximo 23)
+  if (hour.length === 2) {
+    const h = parseInt(hour, 10);
+    if (h > 23) {
+      hour = '23';
+    }
+  }
+
+  // Valida e ajusta os minutos se necessário (máximo 59)
+  if (minute.length === 2) {
+    const m = parseInt(minute, 10);
+    if (m > 59) {
+      minute = '59';
+    }
+  }
+
+  // Se houver minutos, insere o separador ":"
+  return minute ? `${hour}:${minute}` : hour;
+}
+
 /**
  * Função principal que decide qual máscara usar com base em `tipoMascara`.
  */
@@ -106,6 +134,8 @@ export default function aplicarMascara(value: string, tipoMascara?: string): str
       return maskCNH(value);
     case "valor":
       return maskValorMonetario(value);
+    case "hora":  // Adicionando a máscara de hora
+      return maskHora(value);
     default:
       return value; // se não for nenhum dos acima, retorna sem formatação
   }
