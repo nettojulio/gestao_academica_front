@@ -134,15 +134,6 @@ const cadastro = () => {
           mensagem: "Digite",
           obrigatorio: true,
         },
-        {
-          line: 6,
-          colSpan: "md:col-span-1",
-          nome: "Status",
-          chave: "status",
-          tipo: "boolean",
-          mensagem: "Digite",
-          obrigatorio: true,
-        },
       ],
       acoes: [
         { nome: "Cancelar", chave: "voltar", tipo: "botao" },
