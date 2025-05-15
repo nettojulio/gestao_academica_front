@@ -101,58 +101,58 @@ const PageLista = () => {
   const editarRegistro = (item: any) => {
     router.push('/prae/agendamentos/cronograma/' + item.id);
   };
-  // Função que deleta um registro
-  const deletarRegistro = async (item: any) => {
-    const confirmacao = await Swal.fire({
-      title: `Você deseja deletar o cronograma do dia ${item.dia}?`,
-      text: "Essa ação não poderá ser desfeita",
-      icon: "warning",
-      showCancelButton: true,
 
-      // Ajuste as cores conforme seu tema
-      confirmButtonColor: "#1A759F",
-      cancelButtonColor: "#9F2A1A",
+const formatarDataBR = (data: string) => {
+  if (!data) return '';
+  const [ano, mes, dia] = data.split('-');
+  return `${dia}/${mes}/${ano}`;
+};
 
-      confirmButtonText: "Sim, quero deletar!",
-      cancelButtonText: "Cancelar",
+const deletarRegistro = async (item: any) => {
+  const confirmacao = await Swal.fire({
+    title: `Você deseja deletar o cronograma do dia ${formatarDataBR(item.data)}?`,
+    text: "Essa ação não poderá ser desfeita",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#1A759F",
+    cancelButtonColor: "#9F2A1A",
+    confirmButtonText: "Sim, quero deletar!",
+    cancelButtonText: "Cancelar",
+    customClass: {
+      popup: "my-swal-popup",
+      title: "my-swal-title",
+      htmlContainer: "my-swal-html",
+    },
+  });
 
-      // Classes personalizadas
-      customClass: {
-        popup: "my-swal-popup",
-        title: "my-swal-title",
-        htmlContainer: "my-swal-html",
-      },
-    });
+  if (confirmacao.isConfirmed) {
+    try {
+      const body = {
+        metodo: 'delete',
+        uri: '/prae/' + estrutura.uri + '/' + item.id,
+        params: {},
+        data: {}
+      };
 
+      const response = await generica(body);
 
-    if (confirmacao.isConfirmed) {
-      try {
-        const body = {
-          metodo: 'delete',
-          uri: '/prae/' + estrutura.uri + '/' + item.id,
-          params: {},
-          data: {}
-        };
-
-        const response = await generica(body);
-
-        if (response && response.data && response.data.errors) {
-          toast.error("Erro. Tente novamente!", { position: "top-left" });
-        } else if (response && response.data && response.data.error) {
-          toast.error(response.data.error.message, { position: "top-left" });
-        } else {
-          pesquisarRegistro();
-          Swal.fire({
-            title: "Cronograma deletado com sucesso!",
-            icon: "success"
-          });
-        }
-      } catch (error) {
-        console.error('Erro ao deletar registro:', error);
-        toast.error("Erro ao deletar registro. Tente novamente!", { position: "top-left" });
+      if (response && response.data && response.data.errors) {
+        toast.error("Erro. Tente novamente!", { position: "top-left" });
+      } else if (response && response.data && response.data.error) {
+        toast.error(response.data.error.message, { position: "top-left" });
+      } else {
+        pesquisarRegistro();
+        Swal.fire({
+          title: "Cronograma deletado com sucesso!",
+          icon: "success"
+        });
       }
+    } catch (error) {
+      console.error('Erro ao deletar registro:', error);
+      toast.error("Erro ao deletar registro. Tente novamente!", { position: "top-left" });
     }
-  };
+  }
+};
 
   useEffect(() => {
     chamarFuncao('pesquisar', null);
