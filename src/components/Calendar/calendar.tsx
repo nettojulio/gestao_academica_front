@@ -11,8 +11,10 @@ interface DaySlot {
 }
 
 interface MonthCronograma {
-  data: string;          // formato "dd/MM/yyyy"
-  slots: DaySlot[];      // lista de horários e se estão ou não agendados
+  data: string;
+  slots: DaySlot[];
+  tipoAtendimentoId: number;
+  tipoAtendimentoNome: string;
 }
 
 interface CalendarProps {
@@ -36,6 +38,7 @@ const convertDateFormat = (dateStr: string): string => {
   const [day, month, year] = dateStr.split('/');
   return `${day.padStart(2, '0')}/${month.padStart(2, '0')}/${year}`;
 };
+
 
 const Calendar: React.FC<CalendarProps> = ({
   userRole,

@@ -29,8 +29,10 @@ interface DaySlot {
 }
 
 interface MonthCronograma {
-  data: string; // formato "yyyy-MM-dd"
+  data: string;
   slots: DaySlot[];
+  tipoAtendimentoId: number;
+  tipoAtendimentoNome: string;
 }
 
 const convertDateFormat = (dateStr: string): string => {
@@ -38,6 +40,7 @@ const convertDateFormat = (dateStr: string): string => {
   const [day, month, year] = dateStr.split('/');
   return `${day.padStart(2, '0')}/${month.padStart(2, '0')}/${year}`;
 };
+
 
 
 const transformCronogramas = (data: any[]): MonthCronograma[] => {
@@ -48,7 +51,9 @@ const transformCronogramas = (data: any[]): MonthCronograma[] => {
     slots: (item.vagas || []).map((vaga: any) => ({
       horario: vaga.horaInicio,
       userScheduled: !vaga.disponivel
-    }))
+    })),
+    tipoAtendimentoId: item.tipoAtendimento?.id,
+    tipoAtendimentoNome: item.tipoAtendimento?.nome
   }));
 };
 
@@ -74,6 +79,15 @@ const PageLista = () => {
   // Obtenha activeRole e userRoles do contexto
   const { activeRole, userRoles } = useRole();
   const [cronogramas, setCronogramas] = useState<MonthCronograma[]>([]);
+  const [tipoFiltro, setTipoFiltro] = useState<number | null>(null);
+
+const tiposAtendimentoUnicos = Array.from(
+  new Map(cronogramas.map(c => [c.tipoAtendimentoId, c.tipoAtendimentoNome])).entries()
+);
+
+  const cronogramasFiltrados = tipoFiltro
+    ? cronogramas.filter(c => c.tipoAtendimentoId === tipoFiltro)
+    : cronogramas;
 
   // Verifique se o usuário é privilegiado com base na role ativa
   const isPrivileged = 'profissional';//activeRole === "administrador" || activeRole === "gestor";
@@ -207,28 +221,33 @@ useEffect(() => {
   };
 
   return (
-    <main className="flex flex-wrap justify-center mx-auto">
-      {/* 
-      Em telas muito pequenas: w-full, p-4
-      A partir de sm (>=640px): p-6
-      A partir de md (>=768px): p-8
-      A partir de lg (>=1024px): p-12
-      A partir de xl (>=1280px): p-16
-      A partir de 2xl (>=1536px): p-20 e w-10/12
-    */}
-      <div className="w-full sm:w-11/12 2xl:w-10/12 p-4 sm:p-6 md:p-8 lg:p-12 :p-16 2xl:p-20 pt-7 md:pt-8 md:pb-8 ">
-        <Cabecalho dados={estrutura.cabecalho} />
+  <main className="flex flex-wrap justify-center mx-auto">
+    <div className="w-full sm:w-11/12 2xl:w-10/12 p-4 sm:p-6 md:p-8 lg:p-12 :p-16 2xl:p-20 pt-7 md:pt-8 md:pb-8 ">
+      <Cabecalho dados={estrutura.cabecalho} />
 
-        <Calendar
-          userRole={isPrivileged}
-          cronogramas={cronogramas}
-          onAgendar={handleAgendar}
-          onCancelar={handleCancelar}
-        />
+      <div className="mb-4">
+        <label className="mr-2 font-semibold">Filtrar por tipo de atendimento:</label>
+        <select
+          value={tipoFiltro ?? ''}
+          onChange={e => setTipoFiltro(e.target.value ? Number(e.target.value) : null)}
+          className="border rounded px-2 py-1"
+        >
+          <option value="">Todos</option>
+          {tiposAtendimentoUnicos.map(([id, nome]) => (
+            <option key={id} value={id}>{nome}</option>
+          ))}
+        </select>
       </div>
-    </main>
 
-  );
+      <Calendar
+        userRole={isPrivileged}
+        cronogramas={cronogramasFiltrados}
+        onAgendar={handleAgendar}
+        onCancelar={handleCancelar}
+      />
+    </div>
+  </main>
+);
 };
 
 export default withAuthorization(PageLista);
