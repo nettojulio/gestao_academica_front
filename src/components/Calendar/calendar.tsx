@@ -27,9 +27,9 @@ interface CalendarProps {
 
 // Função para formatar data para "dd/MM/yyyy"
 const formatDate = (date: Date): string => {
-  const day   = String(date.getDate()).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
   const month = String(date.getMonth() + 1).padStart(2, '0');
-  const year  = date.getFullYear();
+  const year = date.getFullYear();
   return `${day}/${month}/${year}`;
 };
 
@@ -160,17 +160,34 @@ const Calendar: React.FC<CalendarProps> = ({
               <div className="text-lg font-semibold text-neutrals-800">
                 {day.getDate()}
               </div>
-              {cronogramaDay && cronogramaDay.slots.length > 0 ? (
-                <button
-                  onClick={() => handleDayClick(day)}
-                  className="mt-2 px-2 py-1 text-sm text-white bg-green-500 rounded-md"
-                >
-                  {vagasDisponiveis > 0 
-                    ? `${vagasDisponiveis} vaga${vagasDisponiveis > 1 ? 's' : ''}` 
-                    : 'Sem vagas'
-                  }
-                </button>
-              ) : (
+              {cronogramaDay && cronogramaDay.slots.length > 0 ? (() => {
+                const vagasDisponiveis = cronogramaDay.slots.filter(s => !s.userScheduled).length;
+                const vagasAgendadas = cronogramaDay.slots.filter(s => s.userScheduled).length;
+
+                if (vagasDisponiveis > 0) {
+                  return (
+                    <button
+                      onClick={() => handleDayClick(day)}
+                      className="mt-2 px-2 py-1 text-sm text-white bg-green-500 rounded-md"
+                    >
+                      {`${vagasDisponiveis} vaga${vagasDisponiveis > 1 ? 's' : ''}`}
+                    </button>
+                  );
+                } else if (vagasAgendadas > 0) {
+                  return (
+                    <button
+                      onClick={() => handleDayClick(day)}
+                      className="mt-2 px-2 py-1 text-sm text-white bg-red-500 rounded-md"
+                    >
+                      {`${vagasAgendadas} agendamento${vagasAgendadas > 1 ? 's' : ''}`}
+                    </button>
+                  );
+                } else {
+                  return (
+                    <p className="mt-2 text-sm text-gray-500">Sem vagas</p>
+                  );
+                }
+              })() : (
                 <p className="mt-2 text-sm text-gray-500">Sem vagas</p>
               )}
             </div>

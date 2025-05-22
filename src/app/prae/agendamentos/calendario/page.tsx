@@ -80,24 +80,34 @@ const PageLista = () => {
   const { activeRole, userRoles } = useRole();
   const [cronogramas, setCronogramas] = useState<MonthCronograma[]>([]);
   const [tipoFiltro, setTipoFiltro] = useState<number | null>(null);
+  const [filtroVagas, setFiltroVagas] = useState<'todas' | 'disponiveis' | 'agendadas'>('todas');
 
-const tiposAtendimentoUnicos = Array.from(
-  new Map(cronogramas.map(c => [c.tipoAtendimentoId, c.tipoAtendimentoNome])).entries()
-);
+  const tiposAtendimentoUnicos = Array.from(
+    new Map(cronogramas.map(c => [c.tipoAtendimentoId, c.tipoAtendimentoNome])).entries()
+  );
 
-  const cronogramasFiltrados = tipoFiltro
+  const cronogramasFiltrados = (tipoFiltro
     ? cronogramas.filter(c => c.tipoAtendimentoId === tipoFiltro)
-    : cronogramas;
+    : cronogramas
+  ).map(c => ({
+    ...c,
+    slots:
+      filtroVagas === 'todas'
+        ? c.slots
+        : filtroVagas === 'disponiveis'
+          ? c.slots.filter(s => !s.userScheduled)
+          : c.slots.filter(s => s.userScheduled)
+  }));
 
   // Verifique se o usuário é privilegiado com base na role ativa
-  const isPrivileged = 'profissional';//activeRole === "administrador" || activeRole === "gestor";
+  const isPrivileged = activeRole;//activeRole === "administrador" || activeRole === "gestor";
   const today = new Date();
   const month = String(today.getMonth() + 1).padStart(2, '0'); // formata o mês para 2 dígitos
   const year = today.getFullYear();
 
-useEffect(() => {
-  chamarFuncao('pesquisar', null);
-}, []);
+  useEffect(() => {
+    chamarFuncao('pesquisar', null);
+  }, []);
 
   const chamarFuncao = (nomeFuncao = "", valor: any = null) => {
     switch (nomeFuncao) {
@@ -119,30 +129,30 @@ useEffect(() => {
   }
   // Função para carregar os dados
   const pesquisarRegistro = async (params = null) => {
-  try {
-    let body = {
-      metodo: 'get',
-      uri: '/prae/cronograma',
-      params: params != null ? params : { size: 25, page: 0 },
-      data: {}
-    }
-    const response = await generica(body);
-    if (response && response.data.errors != undefined) {
-      toast("Erro. Tente novamente!", { position: "bottom-left" });
-    } else if (response && response.data.error != undefined) {
-      toast(response.data.error.message, { position: "bottom-left" });
-    } else {
-      if (response && response.data) {
-        setDados(response.data);
-        // Aqui transforma e seta os cronogramas para o calendário
-        const transformed = transformCronogramas(response.data.content || response.data);
-        setCronogramas(transformed);
+    try {
+      let body = {
+        metodo: 'get',
+        uri: '/prae/cronograma',
+        params: params != null ? params : { size: 25, page: 0 },
+        data: {}
       }
+      const response = await generica(body);
+      if (response && response.data.errors != undefined) {
+        toast("Erro. Tente novamente!", { position: "bottom-left" });
+      } else if (response && response.data.error != undefined) {
+        toast(response.data.error.message, { position: "bottom-left" });
+      } else {
+        if (response && response.data) {
+          setDados(response.data);
+          // Aqui transforma e seta os cronogramas para o calendário
+          const transformed = transformCronogramas(response.data.content || response.data);
+          setCronogramas(transformed);
+        }
+      }
+    } catch (error) {
+      console.error('Erro ao carregar registros:', error);
     }
-  } catch (error) {
-    console.error('Erro ao carregar registros:', error);
-  }
-};
+  };
   // Função que redireciona para a tela adicionar
   const adicionarRegistro = () => {
     router.push('/prae/agendamentos/tipo/criar');
@@ -221,33 +231,46 @@ useEffect(() => {
   };
 
   return (
-  <main className="flex flex-wrap justify-center mx-auto">
-    <div className="w-full sm:w-11/12 2xl:w-10/12 p-4 sm:p-6 md:p-8 lg:p-12 :p-16 2xl:p-20 pt-7 md:pt-8 md:pb-8 ">
-      <Cabecalho dados={estrutura.cabecalho} />
+    <main className="flex flex-wrap justify-center mx-auto">
+      <div className="w-full sm:w-11/12 2xl:w-10/12 p-4 sm:p-6 md:p-8 lg:p-12 :p-16 2xl:p-20 pt-7 md:pt-8 md:pb-8 ">
+        <Cabecalho dados={estrutura.cabecalho} />
+        <div className="mb-4 flex gap-4">
+          <div>
+            <label className="mr-2 font-semibold">Tipo de atendimento:</label>
+            <select
+              value={tipoFiltro ?? ''}
+              onChange={e => setTipoFiltro(e.target.value ? Number(e.target.value) : null)}
+              className="border rounded px-2 py-1"
+            >
+              <option value="">Todos</option>
+              {tiposAtendimentoUnicos.map(([id, nome]) => (
+                <option key={id} value={id}>{nome}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="mr-2 font-semibold">Vagas:</label>
+            <select
+              value={filtroVagas}
+              onChange={e => setFiltroVagas(e.target.value as any)}
+              className="border rounded px-2 py-1"
+            >
+              <option value="todas">Todas</option>
+              <option value="disponiveis">Disponíveis</option>
+              <option value="agendadas">Agendadas</option>
+            </select>
+          </div>
+        </div>
 
-      <div className="mb-4">
-        <label className="mr-2 font-semibold">Filtrar por tipo de atendimento:</label>
-        <select
-          value={tipoFiltro ?? ''}
-          onChange={e => setTipoFiltro(e.target.value ? Number(e.target.value) : null)}
-          className="border rounded px-2 py-1"
-        >
-          <option value="">Todos</option>
-          {tiposAtendimentoUnicos.map(([id, nome]) => (
-            <option key={id} value={id}>{nome}</option>
-          ))}
-        </select>
+        <Calendar
+          userRole={isPrivileged}
+          cronogramas={cronogramasFiltrados}
+          onAgendar={handleAgendar}
+          onCancelar={handleCancelar}
+        />
       </div>
-
-      <Calendar
-        userRole={isPrivileged}
-        cronogramas={cronogramasFiltrados}
-        onAgendar={handleAgendar}
-        onCancelar={handleCancelar}
-      />
-    </div>
-  </main>
-);
+    </main>
+  );
 };
 
 export default withAuthorization(PageLista);
