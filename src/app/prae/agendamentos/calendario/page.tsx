@@ -40,16 +40,16 @@ const convertDateFormat = (dateStr: string): string => {
 };
 
 
-const transformCronogramas = (data: CronogramaOriginal[]): MonthCronograma[] => {
-  return data.map(item => {
-    return {
-      data: convertDateFormat(item.data), // agora retornará "dd/MM/yyyy"
-      slots: item.tipoAtendimento.horarios.map(horario => ({
-        horario,
-        userScheduled: false // ou conforme a lógica de agendamento
-      }))
-    };
-  });
+const transformCronogramas = (data: any[]): MonthCronograma[] => {
+  return data.map(item => ({
+    data: item.data
+      ? item.data.split('-').reverse().join('/') // "2025-05-22" -> "22/05/2025"
+      : '',
+    slots: (item.vagas || []).map((vaga: any) => ({
+      horario: vaga.horaInicio,
+      userScheduled: !vaga.disponivel
+    }))
+  }));
 };
 
 
@@ -81,53 +81,9 @@ const PageLista = () => {
   const month = String(today.getMonth() + 1).padStart(2, '0'); // formata o mês para 2 dígitos
   const year = today.getFullYear();
 
-  useEffect(() => {
-    // Simulando a requisição para obter o mock no formato original
-    // Substitua isto por sua chamada à API se necessário
-    const mockData: CronogramaOriginal[] = [
-      {
-        "data": "09/04/2025",
-        "tipoAtendimentoId": 1,
-        "tipoAtendimento": {
-          "nome": "Psicologico",
-          "tempoAtendimento": "01:30",
-          "horarios": [
-            "07:00",
-            "12:00",
-            "19:00"
-          ]
-        }
-      },
-      {
-        "data": "10/04/2025",
-        "tipoAtendimentoId": 1,
-        "tipoAtendimento": {
-          "nome": "Psicologico",
-          "tempoAtendimento": "01:30",
-          "horarios": [
-            "07:00",
-            "12:00",
-            "19:00"
-          ]
-        }
-      },
-      {
-        "data": "11/04/2025",
-        "tipoAtendimentoId": 1,
-        "tipoAtendimento": {
-          "nome": "Psicologico",
-          "tempoAtendimento": "01:30",
-          "horarios": [
-            "07:00",
-            "12:00",
-            "19:00"
-          ]
-        }
-      }
-    ];
-    const transformed = transformCronogramas(mockData);
-    setCronogramas(transformed);
-  }, []);
+useEffect(() => {
+  chamarFuncao('pesquisar', null);
+}, []);
 
   const chamarFuncao = (nomeFuncao = "", valor: any = null) => {
     switch (nomeFuncao) {
@@ -149,29 +105,30 @@ const PageLista = () => {
   }
   // Função para carregar os dados
   const pesquisarRegistro = async (params = null) => {
-    try {
-      let body = {
-        metodo: 'get',
-        uri: '/prae/' + estrutura.uri,
-        //+ '/page',
-        params: params != null ? params : { size: 25, page: 0 },
-        data: {}
-      }
-      const response = await generica(body);
-      //tratamento dos erros
-      if (response && response.data.errors != undefined) {
-        toast("Erro. Tente novamente!", { position: "bottom-left" });
-      } else if (response && response.data.error != undefined) {
-        toast(response.data.error.message, { position: "bottom-left" });
-      } else {
-        if (response && response.data) {
-          setDados(response.data);
-        }
-      }
-    } catch (error) {
-      console.error('Erro ao carregar registros:', error);
+  try {
+    let body = {
+      metodo: 'get',
+      uri: '/prae/cronograma',
+      params: params != null ? params : { size: 25, page: 0 },
+      data: {}
     }
-  };
+    const response = await generica(body);
+    if (response && response.data.errors != undefined) {
+      toast("Erro. Tente novamente!", { position: "bottom-left" });
+    } else if (response && response.data.error != undefined) {
+      toast(response.data.error.message, { position: "bottom-left" });
+    } else {
+      if (response && response.data) {
+        setDados(response.data);
+        // Aqui transforma e seta os cronogramas para o calendário
+        const transformed = transformCronogramas(response.data.content || response.data);
+        setCronogramas(transformed);
+      }
+    }
+  } catch (error) {
+    console.error('Erro ao carregar registros:', error);
+  }
+};
   // Função que redireciona para a tela adicionar
   const adicionarRegistro = () => {
     router.push('/prae/agendamentos/tipo/criar');
@@ -261,12 +218,12 @@ const PageLista = () => {
     */}
       <div className="w-full sm:w-11/12 2xl:w-10/12 p-4 sm:p-6 md:p-8 lg:p-12 :p-16 2xl:p-20 pt-7 md:pt-8 md:pb-8 ">
         <Cabecalho dados={estrutura.cabecalho} />
+
         <Calendar
           userRole={isPrivileged}
           cronogramas={cronogramas}
           onAgendar={handleAgendar}
           onCancelar={handleCancelar}
-          tipoAtendimento="Psicologico"
         />
       </div>
     </main>
