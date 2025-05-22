@@ -6,8 +6,9 @@ import { toast } from 'react-toastify';
 import Modal from 'react-modal';
 
 interface DaySlot {
-  horario: string;       // ex: "07:00", "12:00"
-  userScheduled: boolean;// indica se o usuário atual já agendou esse horário
+  id: number;
+  horario: string;
+  userScheduled: boolean;
 }
 
 interface MonthCronograma {

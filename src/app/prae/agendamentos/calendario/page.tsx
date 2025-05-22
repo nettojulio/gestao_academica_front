@@ -24,6 +24,7 @@ interface CronogramaOriginal {
 
 // Interfaces esperadas pelo Calendar
 interface DaySlot {
+  id: number;
   horario: string;
   userScheduled: boolean;
 }
@@ -49,6 +50,7 @@ const transformCronogramas = (data: any[]): MonthCronograma[] => {
       ? item.data.split('-').reverse().join('/') // "2025-05-22" -> "22/05/2025"
       : '',
     slots: (item.vagas || []).map((vaga: any) => ({
+      id: vaga.id,
       horario: vaga.horaInicio,
       userScheduled: !vaga.disponivel
     })),
@@ -220,10 +222,36 @@ const PageLista = () => {
   }, []);
 
   // Callbacks de agendar/cancelar
-  const handleAgendar = (data: string, horario: string) => {
-    // Lógica para chamar API e efetivar agendamento
-    console.log(`Agendar: dia ${data}, horário ${horario}`);
-  };
+  const handleAgendar = async (data: string, horario: string) => {
+  const cronograma = cronogramas.find(c => c.data === data);
+  const slot = cronograma?.slots.find(s => s.horario === horario);
+
+  if (!slot) {
+    toast.error("Vaga não encontrada!");
+    return;
+  }
+
+  try {
+    const body = {
+      metodo: 'post',
+      uri: `/prae/agendamento/${slot.id}/agendar`,
+      params: {},
+      data: {}
+    };
+    const response = await generica(body);
+    if (response && response.data && !response.data.errors && !response.data.error) {
+      toast.success("Agendamento realizado com sucesso!");
+      chamarFuncao('pesquisar', null); // Atualiza os dados
+    } else if (response && response.data.errors) {
+      toast.error("Erro ao agendar.");
+    } else if (response && response.data.error) {
+      toast.error(response.data.error.message);
+    }
+  } catch (error) {
+    toast.error("Erro ao agendar.");
+    console.error(error);
+  }
+};
 
   const handleCancelar = (data: string, horario: string) => {
     // Lógica para cancelar agendamento
