@@ -27,6 +27,7 @@ interface DaySlot {
   id: number;
   horario: string;
   userScheduled: boolean;
+  agendamentoId?: number | null;
 }
 
 interface MonthCronograma {
@@ -47,13 +48,17 @@ const convertDateFormat = (dateStr: string): string => {
 const transformCronogramas = (data: any[]): MonthCronograma[] => {
   return data.map(item => ({
     data: item.data
-      ? item.data.split('-').reverse().join('/') // "2025-05-22" -> "22/05/2025"
+      ? item.data.split('-').reverse().join('/')
       : '',
-    slots: (item.vagas || []).map((vaga: any) => ({
-      id: vaga.id,
-      horario: vaga.horaInicio,
-      userScheduled: !vaga.disponivel
-    })),
+    slots: (item.vagas || []).map((vaga: any) => {
+      const agendamento = (item.agendamentos || []).find((a: any) => a.vaga.id === vaga.id);
+      return {
+        id: vaga.id,
+        horario: vaga.horaInicio,
+        userScheduled: !vaga.disponivel,
+        agendamentoId: agendamento ? agendamento.id : null
+      };
+    }),
     tipoAtendimentoId: item.tipoAtendimento?.id,
     tipoAtendimentoNome: item.tipoAtendimento?.nome
   }));
@@ -81,28 +86,51 @@ const PageLista = () => {
   // Obtenha activeRole e userRoles do contexto
   const { activeRole, userRoles } = useRole();
   const [cronogramas, setCronogramas] = useState<MonthCronograma[]>([]);
-  const [tipoFiltro, setTipoFiltro] = useState<number | null>(null);
+  const [tipoFiltro, setTipoFiltro] = useState<number | ''>('');
   const [filtroVagas, setFiltroVagas] = useState<'todas' | 'disponiveis' | 'agendadas'>('todas');
 
   const tiposAtendimentoUnicos = Array.from(
     new Map(cronogramas.map(c => [c.tipoAtendimentoId, c.tipoAtendimentoNome])).entries()
   );
 
-  const cronogramasFiltrados = (tipoFiltro
-    ? cronogramas.filter(c => c.tipoAtendimentoId === tipoFiltro)
-    : cronogramas
-  ).map(c => ({
-    ...c,
-    slots:
-      filtroVagas === 'todas'
-        ? c.slots
-        : filtroVagas === 'disponiveis'
-          ? c.slots.filter(s => !s.userScheduled)
-          : c.slots.filter(s => s.userScheduled)
-  }));
+  const cronogramasFiltrados =
+  tipoFiltro !== '' && tipoFiltro !== null && tipoFiltro !== undefined
+    ? cronogramas
+        .filter(c => c.tipoAtendimentoId === Number(tipoFiltro))
+        .map(c => ({
+          ...c,
+          slots:
+            filtroVagas === 'todas'
+              ? c.slots
+              : filtroVagas === 'disponiveis'
+                ? c.slots.filter(s => !s.userScheduled)
+                : c.slots.filter(s => s.userScheduled)
+        }))
+      :
+      Object.values(
+        cronogramas.reduce((acc, c) => {
+          if (!acc[c.data]) {
+            acc[c.data] = {
+              ...c,
+              slots: [],
+              tipoAtendimentoId: 0,
+              tipoAtendimentoNome: 'Todos',
+            };
+          }
+          acc[c.data].slots = acc[c.data].slots.concat(
+            filtroVagas === 'todas'
+              ? c.slots
+              : filtroVagas === 'disponiveis'
+                ? c.slots.filter(s => !s.userScheduled)
+                : c.slots.filter(s => s.userScheduled)
+          );
+          return acc;
+        }, {} as Record<string, MonthCronograma>)
+      );
 
   // Verifique se o usuário é privilegiado com base na role ativa
   const isPrivileged = activeRole;//activeRole === "administrador" || activeRole === "gestor";
+  console.log('isPrivileged', isPrivileged);
   const today = new Date();
   const month = String(today.getMonth() + 1).padStart(2, '0'); // formata o mês para 2 dígitos
   const year = today.getFullYear();
@@ -223,39 +251,66 @@ const PageLista = () => {
 
   // Callbacks de agendar/cancelar
   const handleAgendar = async (data: string, horario: string) => {
-  const cronograma = cronogramas.find(c => c.data === data);
-  const slot = cronograma?.slots.find(s => s.horario === horario);
+    const cronograma = cronogramas.find(c => c.data === data);
+    const slot = cronograma?.slots.find(s => s.horario === horario);
 
-  if (!slot) {
-    toast.error("Vaga não encontrada!");
-    return;
-  }
-
-  try {
-    const body = {
-      metodo: 'post',
-      uri: `/prae/agendamento/${slot.id}/agendar`,
-      params: {},
-      data: {}
-    };
-    const response = await generica(body);
-    if (response && response.data && !response.data.errors && !response.data.error) {
-      toast.success("Agendamento realizado com sucesso!");
-      chamarFuncao('pesquisar', null); // Atualiza os dados
-    } else if (response && response.data.errors) {
-      toast.error("Erro ao agendar.");
-    } else if (response && response.data.error) {
-      toast.error(response.data.error.message);
+    if (!slot) {
+      toast.error("Vaga não encontrada!");
+      return;
     }
-  } catch (error) {
-    toast.error("Erro ao agendar.");
-    console.error(error);
-  }
-};
 
-  const handleCancelar = (data: string, horario: string) => {
-    // Lógica para cancelar agendamento
-    console.log(`Cancelar: dia ${data}, horário ${horario}`);
+    try {
+      const body = {
+        metodo: 'post',
+        uri: `/prae/agendamento/${slot.id}/agendar`,
+        params: {},
+        data: {}
+      };
+      const response = await generica(body);
+      if (response && response.data && !response.data.errors && !response.data.error) {
+        toast.success("Agendamento realizado com sucesso!");
+        chamarFuncao('pesquisar', null); // Atualiza os dados
+      } else if (response && response.data.errors) {
+        toast.error("Erro ao agendar.");
+      } else if (response && response.data.error) {
+        toast.error(response.data.error.message);
+      }
+    } catch (error) {
+      toast.error("Erro ao agendar.");
+      console.error(error);
+    }
+  };
+
+  const handleCancelar = async (data: string, horario: string) => {
+    const cronograma = cronogramas.find(c => c.data === data);
+    const slot = cronograma?.slots.find(s => s.horario === horario);
+
+    if (!slot) {
+      toast.error("Vaga não encontrada!");
+      return;
+    }
+
+    try {
+      const body = {
+        metodo: 'post',
+        uri: `/prae/agendamento/${slot.id}/cancelar`,
+        params: {},
+        data: {}
+      };
+      console.log('slot', slot.agendamentoId);
+      const response = await generica(body);
+      if (response && response.data && !response.data.errors && !response.data.error) {
+        toast.success("Agendamento cancelado com sucesso!");
+        chamarFuncao('pesquisar', null); // Atualiza os dados
+      } else if (response && response.data.errors) {
+        toast.error("Erro ao cancelar.");
+      } else if (response && response.data.error) {
+        toast.error(response.data.error.message);
+      }
+    } catch (error) {
+      toast.error("Erro ao cancelar.");
+      console.error(error);
+    }
   };
 
   return (
@@ -266,8 +321,8 @@ const PageLista = () => {
           <div>
             <label className="mr-2 font-semibold">Tipo de atendimento:</label>
             <select
-              value={tipoFiltro ?? ''}
-              onChange={e => setTipoFiltro(e.target.value ? Number(e.target.value) : null)}
+              value={tipoFiltro}
+              onChange={e => setTipoFiltro(e.target.value ? Number(e.target.value) : '')}
               className="border rounded px-2 py-1"
             >
               <option value="">Todos</option>

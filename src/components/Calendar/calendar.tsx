@@ -9,6 +9,7 @@ interface DaySlot {
   id: number;
   horario: string;
   userScheduled: boolean;
+  agendamentoId?: number | null;
 }
 
 interface MonthCronograma {
@@ -105,11 +106,7 @@ const Calendar: React.FC<CalendarProps> = ({
 
   const handleCancelarSlot = (horario: string) => {
     onCancelar(selectedDayString, horario);
-    setSelectedDaySlots((prev) =>
-      prev.map((slot) =>
-        slot.horario === horario ? { ...slot, userScheduled: false } : slot
-      )
-    );
+
   };
 
   // Para profissionais: ações adicionais serão realizadas através de navegação
@@ -197,13 +194,23 @@ const Calendar: React.FC<CalendarProps> = ({
       </div>
 
       {/* Botão para profissionais cadastrarem um novo cronograma */}
-      {userRole === 'profissional' && (
+      {userRole === 'tecnico' && (
         <div className="mt-6 flex justify-end">
           <button
             onClick={() => router.push('/prae/cronogramas/novo')}
             className="px-4 py-2 bg-primary-500 text-white rounded-md"
           >
             Adicionar Cronograma
+          </button>
+        </div>
+      )}
+      {userRole === 'aluno' && (
+        <div className="mt-6 flex justify-end">
+          <button
+            onClick={() => router.push('/prae/agendamentos/calendario/meus-agendamentos')}
+            className="px-4 py-2 bg-primary-500 text-white rounded-md"
+          >
+            Meus Agendamentos
           </button>
         </div>
       )}
@@ -222,7 +229,7 @@ const Calendar: React.FC<CalendarProps> = ({
           {selectedDaySlots.map((slot, idx) => (
             <div key={idx} className="flex justify-between items-center border p-2 rounded">
               <span className="font-semibold">{slot.horario}</span>
-              {userRole === 'profissional' ? (
+              {userRole === 'tecnico' ? (
                 <div className="flex gap-2">
                   <button
                     onClick={() => handleEditarSlot(slot.horario)}
@@ -238,14 +245,7 @@ const Calendar: React.FC<CalendarProps> = ({
                   </button>
                 </div>
               ) : (
-                slot.userScheduled ? (
-                  <button
-                    onClick={() => handleCancelarSlot(slot.horario)}
-                    className="bg-red-500 text-white px-2 py-1 text-sm rounded"
-                  >
-                    Cancelar
-                  </button>
-                ) : (
+                !slot.userScheduled && (
                   <button
                     onClick={() => handleAgendarSlot(slot.horario)}
                     className="bg-green-500 text-white px-2 py-1 text-sm rounded"
@@ -257,7 +257,7 @@ const Calendar: React.FC<CalendarProps> = ({
             </div>
           ))}
         </div>
-        {userRole === 'profissional' && (
+        {userRole === 'tecnico' && (
           <div className="mt-4">
             <button
               onClick={() => router.push(`/prae/cronogramas/novo?data=${selectedDayString}`)}
