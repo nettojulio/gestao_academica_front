@@ -212,6 +212,12 @@ const Calendar: React.FC<CalendarProps> = ({
           >
             Meus Agendamentos
           </button>
+          <button
+            onClick={() => router.push('/prae/agendamentos/calendario/meus-cancelamentos')}
+            className="px-4 py-2 bg-primary-500 text-white rounded-md"
+          >
+            Meus Cancelamentos
+          </button>
         </div>
       )}
 
