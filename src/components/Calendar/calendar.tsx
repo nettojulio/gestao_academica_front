@@ -259,10 +259,10 @@ const Calendar: React.FC<CalendarProps> = ({
       {userRole === 'tecnico' && (
         <div className="mt-6 flex justify-end">
           <button
-            onClick={() => router.push('/prae/cronogramas/novo')}
+            onClick={() => router.push('/prae/agendamentos/calendario/agendamentos-por-aluno')}
             className="px-4 py-2 bg-primary-500 text-white rounded-md"
           >
-            Adicionar Cronograma
+            Agendamentos por Aluno
           </button>
         </div>
       )}
@@ -316,16 +316,10 @@ const Calendar: React.FC<CalendarProps> = ({
                 {userRole === 'tecnico' ? (
                   <div className="flex gap-2">
                     <button
-                      onClick={() => handleEditarSlot(slot.horario)}
+                      onClick={() => router.push('/prae/agendamentos/tipo')}
                       className="bg-yellow-500 text-white px-2 py-1 text-sm rounded"
                     >
                       Editar
-                    </button>
-                    <button
-                      onClick={() => handleCancelarSlot(slot.horario)}
-                      className="bg-red-500 text-white px-2 py-1 text-sm rounded"
-                    >
-                      Excluir
                     </button>
                   </div>
                 ) : (
@@ -349,12 +343,6 @@ const Calendar: React.FC<CalendarProps> = ({
         </div>
         {userRole === 'tecnico' && (
           <div className="mt-4">
-            <button
-              onClick={() => router.push(`/prae/cronogramas/novo?data=${selectedDayString}`)}
-              className="px-4 py-2 bg-primary-500 text-white rounded-md"
-            >
-              Adicionar Slot
-            </button>
           </div>
         )}
         <button
