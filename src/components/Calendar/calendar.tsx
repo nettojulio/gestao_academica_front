@@ -129,9 +129,17 @@ const Calendar: React.FC<CalendarProps> = ({
 
   const daysInMonth = getDaysInMonth();
 
+  const isToday = (date: Date) => {
+    const today = new Date();
+    return (
+      date.getDate() === today.getDate() &&
+      date.getMonth() === today.getMonth() &&
+      date.getFullYear() === today.getFullYear()
+    );
+  };
+
   return (
     <main className="p-4 md:p-8">
-      {/* Cabeçalho com botões de navegação entre meses */}
       <div className="flex items-center justify-between mb-4">
         <button
           onClick={() => changeMonth('prev')}
@@ -161,8 +169,15 @@ const Calendar: React.FC<CalendarProps> = ({
           if (cronogramaDay) {
             vagasDisponiveis = cronogramaDay.slots.filter(s => !s.userScheduled).length;
           }
+          const isCurrentDay = isToday(day);
           return (
-            <div key={index} className="border p-2 rounded-md flex flex-col items-center">
+            <div
+              key={index}
+              className={
+                "border p-2 rounded-md flex flex-col items-center " +
+                (isCurrentDay ? "border-blue-500 ring-2 ring-blue-300" : "")
+              }
+            >
               <div className="text-xs font-bold text-neutrals-900">
                 {day.toLocaleDateString('pt-BR', { weekday: 'short' })}
               </div>
