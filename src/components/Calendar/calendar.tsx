@@ -41,7 +41,6 @@ const convertDateFormat = (dateStr: string): string => {
   return `${day.padStart(2, '0')}/${month.padStart(2, '0')}/${year}`;
 };
 
-
 const Calendar: React.FC<CalendarProps> = ({
   userRole,
   cronogramas,
@@ -77,6 +76,7 @@ const Calendar: React.FC<CalendarProps> = ({
     let startWeekDay = firstDayOfMonth.getDay(); // 0=Dom, 1=Seg, ..., 6=Sáb
     if (startWeekDay === 0) startWeekDay = 7; // Domingo vira 7 para facilitar
 
+    // Adiciona espaços vazios até a segunda-feira
     for (let i = 1; i < startWeekDay; i++) {
       days.push(null);
     }
@@ -114,7 +114,6 @@ const Calendar: React.FC<CalendarProps> = ({
 
   const handleCancelarSlot = (horario: string) => {
     onCancelar(selectedDayString, horario);
-
   };
 
   // Para profissionais: ações adicionais serão realizadas através de navegação
@@ -129,6 +128,7 @@ const Calendar: React.FC<CalendarProps> = ({
 
   const daysInMonth = getDaysInMonth();
 
+  // Função para saber se é hoje
   const isToday = (date: Date) => {
     const today = new Date();
     return (
@@ -136,6 +136,15 @@ const Calendar: React.FC<CalendarProps> = ({
       date.getMonth() === today.getMonth() &&
       date.getFullYear() === today.getFullYear()
     );
+  };
+
+  // Função para saber se o dia já passou
+  const isPastDay = (date: Date) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const compareDate = new Date(date);
+    compareDate.setHours(0, 0, 0, 0);
+    return compareDate < today;
   };
 
   return (
@@ -170,18 +179,30 @@ const Calendar: React.FC<CalendarProps> = ({
             vagasDisponiveis = cronogramaDay.slots.filter(s => !s.userScheduled).length;
           }
           const isCurrentDay = isToday(day);
+          const pastDay = isPastDay(day);
+
           return (
             <div
               key={index}
               className={
                 "border p-2 rounded-md flex flex-col items-center " +
-                (isCurrentDay ? "border-blue-500 ring-2 ring-blue-300" : "")
+                (isCurrentDay ? "border-blue-500 ring-2 ring-blue-300 " : "")
               }
             >
-              <div className="text-xs font-bold text-neutrals-900">
+              <div
+                className={
+                  "text-xs font-bold " +
+                  (pastDay ? "text-gray-300 line-through" : "text-neutrals-900")
+                }
+              >
                 {day.toLocaleDateString('pt-BR', { weekday: 'short' })}
               </div>
-              <div className="text-lg font-semibold text-neutrals-800">
+              <div
+                className={
+                  "text-lg font-semibold " +
+                  (pastDay ? "text-gray-300 line-through" : "text-neutrals-800")
+                }
+              >
                 {day.getDate()}
               </div>
               {cronogramaDay && cronogramaDay.slots.length > 0 ? (() => {
@@ -192,7 +213,12 @@ const Calendar: React.FC<CalendarProps> = ({
                   return (
                     <button
                       onClick={() => handleDayClick(day)}
-                      className="mt-2 px-2 py-1 text-sm text-white bg-green-500 rounded-md"
+                      className={
+                        "mt-2 px-2 py-1 text-sm rounded-md " +
+                        (pastDay
+                          ? "text-gray-400 line-through bg-gray-200"
+                          : "text-white bg-green-500")
+                      }
                     >
                       {`${vagasDisponiveis} vaga${vagasDisponiveis > 1 ? 's' : ''}`}
                     </button>
@@ -208,11 +234,21 @@ const Calendar: React.FC<CalendarProps> = ({
                   );
                 } else {
                   return (
-                    <p className="mt-2 text-sm text-gray-500">Sem vagas</p>
+                    <p className={
+                      "mt-2 text-sm " +
+                      (pastDay ? "text-gray-400 line-through" : "text-gray-500")
+                    }>
+                      Sem vagas
+                    </p>
                   );
                 }
               })() : (
-                <p className="mt-2 text-sm text-gray-500">Sem vagas</p>
+                <p className={
+                  "mt-2 text-sm " +
+                  (pastDay ? "text-gray-400 line-through" : "text-gray-500")
+                }>
+                  Sem vagas
+                </p>
               )}
             </div>
           );
@@ -258,36 +294,58 @@ const Calendar: React.FC<CalendarProps> = ({
       >
         <h2 className="text-xl font-bold mb-4">Agendamentos para {selectedDayString}</h2>
         <div className="flex flex-col gap-2">
-          {selectedDaySlots.map((slot, idx) => (
-            <div key={idx} className="flex justify-between items-center border p-2 rounded">
-              <span className="font-semibold">{slot.horario}</span>
-              {userRole === 'tecnico' ? (
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => handleEditarSlot(slot.horario)}
-                    className="bg-yellow-500 text-white px-2 py-1 text-sm rounded"
-                  >
-                    Editar
-                  </button>
-                  <button
-                    onClick={() => handleCancelarSlot(slot.horario)}
-                    className="bg-red-500 text-white px-2 py-1 text-sm rounded"
-                  >
-                    Excluir
-                  </button>
-                </div>
-              ) : (
-                !slot.userScheduled && (
-                  <button
-                    onClick={() => handleAgendarSlot(slot.horario)}
-                    className="bg-green-500 text-white px-2 py-1 text-sm rounded"
-                  >
-                    Agendar
-                  </button>
-                )
-              )}
-            </div>
-          ))}
+          {selectedDaySlots.map((slot, idx) => {
+            // Verifica se o slot é de um dia passado
+            const slotDate = selectedDayString.split('/'); // dd/MM/yyyy
+            const slotDay = Number(slotDate[0]);
+            const slotMonth = Number(slotDate[1]) - 1;
+            const slotYear = Number(slotDate[2]);
+            const slotDateObj = new Date(slotYear, slotMonth, slotDay);
+
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            slotDateObj.setHours(0, 0, 0, 0);
+
+            const isSlotPast = slotDateObj < today;
+
+            return (
+              <div key={idx} className="flex justify-between items-center border p-2 rounded">
+                <span className={"font-semibold " + (isSlotPast ? "text-gray-300 line-through" : "")}>
+                  {slot.horario}
+                </span>
+                {userRole === 'tecnico' ? (
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => handleEditarSlot(slot.horario)}
+                      className="bg-yellow-500 text-white px-2 py-1 text-sm rounded"
+                    >
+                      Editar
+                    </button>
+                    <button
+                      onClick={() => handleCancelarSlot(slot.horario)}
+                      className="bg-red-500 text-white px-2 py-1 text-sm rounded"
+                    >
+                      Excluir
+                    </button>
+                  </div>
+                ) : (
+                  // Só mostra o botão Agendar se NÃO for passado e NÃO estiver agendado
+                  !slot.userScheduled && !isSlotPast && (
+                    <button
+                      onClick={() => handleAgendarSlot(slot.horario)}
+                      className="bg-green-500 text-white px-2 py-1 text-sm rounded"
+                    >
+                      Agendar
+                    </button>
+                  )
+                )}
+                {/* Se for passado e não agendado, mostra como indisponível */}
+                {userRole !== 'tecnico' && !slot.userScheduled && isSlotPast && (
+                  <span className="text-gray-300 line-through text-sm">Indisponível</span>
+                )}
+              </div>
+            );
+          })}
         </div>
         {userRole === 'tecnico' && (
           <div className="mt-4">
