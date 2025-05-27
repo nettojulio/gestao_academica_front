@@ -72,8 +72,16 @@ const Calendar: React.FC<CalendarProps> = ({
     const month = currentDate.getMonth();
     const firstDayOfMonth = new Date(year, month, 1);
     const lastDayOfMonth = new Date(year, month + 1, 0);
-    const days: Date[] = [];
-    for (let d = firstDayOfMonth.getDate(); d <= lastDayOfMonth.getDate(); d++) {
+    const days: (Date | null)[] = [];
+
+    let startWeekDay = firstDayOfMonth.getDay(); // 0=Dom, 1=Seg, ..., 6=Sáb
+    if (startWeekDay === 0) startWeekDay = 7; // Domingo vira 7 para facilitar
+
+    for (let i = 1; i < startWeekDay; i++) {
+      days.push(null);
+    }
+
+    for (let d = 1; d <= lastDayOfMonth.getDate(); d++) {
       days.push(new Date(year, month, d));
     }
     return days;
@@ -145,6 +153,9 @@ const Calendar: React.FC<CalendarProps> = ({
       {/* Grid de dias do mês */}
       <div className="grid grid-cols-2 md:grid-cols-7 gap-4">
         {daysInMonth.map((day, index) => {
+          if (!day) {
+            return <div key={index} />;
+          }
           const cronogramaDay = findDayCronograma(day);
           let vagasDisponiveis = 0;
           if (cronogramaDay) {
@@ -205,7 +216,7 @@ const Calendar: React.FC<CalendarProps> = ({
         </div>
       )}
       {userRole === 'aluno' && (
-        <div className="mt-6 flex justify-end">
+        <div className="mt-6 flex justify-end gap-x-4">
           <button
             onClick={() => router.push('/prae/agendamentos/calendario/meus-agendamentos')}
             className="px-4 py-2 bg-primary-500 text-white rounded-md"
