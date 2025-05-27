@@ -24,13 +24,17 @@ interface CronogramaOriginal {
 
 // Interfaces esperadas pelo Calendar
 interface DaySlot {
+  id: number;
   horario: string;
   userScheduled: boolean;
+  agendamentoId?: number | null;
 }
 
 interface MonthCronograma {
-  data: string; // formato "yyyy-MM-dd"
+  data: string;
   slots: DaySlot[];
+  tipoAtendimentoId: number;
+  tipoAtendimentoNome: string;
 }
 
 const convertDateFormat = (dateStr: string): string => {
@@ -40,16 +44,24 @@ const convertDateFormat = (dateStr: string): string => {
 };
 
 
-const transformCronogramas = (data: CronogramaOriginal[]): MonthCronograma[] => {
-  return data.map(item => {
-    return {
-      data: convertDateFormat(item.data), // agora retornará "dd/MM/yyyy"
-      slots: item.tipoAtendimento.horarios.map(horario => ({
-        horario,
-        userScheduled: false // ou conforme a lógica de agendamento
-      }))
-    };
-  });
+
+const transformCronogramas = (data: any[]): MonthCronograma[] => {
+  return data.map(item => ({
+    data: item.data
+      ? item.data.split('-').reverse().join('/')
+      : '',
+    slots: (item.vagas || []).map((vaga: any) => {
+      const agendamento = (item.agendamentos || []).find((a: any) => a.vaga.id === vaga.id);
+      return {
+        id: vaga.id,
+        horario: vaga.horaInicio,
+        userScheduled: !vaga.disponivel,
+        agendamentoId: agendamento ? agendamento.id : null
+      };
+    }),
+    tipoAtendimentoId: item.tipoAtendimento?.id,
+    tipoAtendimentoNome: item.tipoAtendimento?.nome
+  }));
 };
 
 
@@ -74,59 +86,57 @@ const PageLista = () => {
   // Obtenha activeRole e userRoles do contexto
   const { activeRole, userRoles } = useRole();
   const [cronogramas, setCronogramas] = useState<MonthCronograma[]>([]);
+  const [tipoFiltro, setTipoFiltro] = useState<number | ''>('');
+  const [filtroVagas, setFiltroVagas] = useState<'todas' | 'disponiveis' | 'agendadas'>('todas');
+
+  const tiposAtendimentoUnicos = Array.from(
+    new Map(cronogramas.map(c => [c.tipoAtendimentoId, c.tipoAtendimentoNome])).entries()
+  );
+
+  const cronogramasFiltrados =
+  tipoFiltro !== '' && tipoFiltro !== null && tipoFiltro !== undefined
+    ? cronogramas
+        .filter(c => c.tipoAtendimentoId === Number(tipoFiltro))
+        .map(c => ({
+          ...c,
+          slots:
+            filtroVagas === 'todas'
+              ? c.slots
+              : filtroVagas === 'disponiveis'
+                ? c.slots.filter(s => !s.userScheduled)
+                : c.slots.filter(s => s.userScheduled)
+        }))
+      :
+      Object.values(
+        cronogramas.reduce((acc, c) => {
+          if (!acc[c.data]) {
+            acc[c.data] = {
+              ...c,
+              slots: [],
+              tipoAtendimentoId: 0,
+              tipoAtendimentoNome: 'Todos',
+            };
+          }
+          acc[c.data].slots = acc[c.data].slots.concat(
+            filtroVagas === 'todas'
+              ? c.slots
+              : filtroVagas === 'disponiveis'
+                ? c.slots.filter(s => !s.userScheduled)
+                : c.slots.filter(s => s.userScheduled)
+          );
+          return acc;
+        }, {} as Record<string, MonthCronograma>)
+      );
 
   // Verifique se o usuário é privilegiado com base na role ativa
-  const isPrivileged = 'profissional';//activeRole === "administrador" || activeRole === "gestor";
+  const isPrivileged = activeRole;//activeRole === "administrador" || activeRole === "gestor";
+  console.log('isPrivileged', isPrivileged);
   const today = new Date();
   const month = String(today.getMonth() + 1).padStart(2, '0'); // formata o mês para 2 dígitos
   const year = today.getFullYear();
 
   useEffect(() => {
-    // Simulando a requisição para obter o mock no formato original
-    // Substitua isto por sua chamada à API se necessário
-    const mockData: CronogramaOriginal[] = [
-      {
-        "data": "09/04/2025",
-        "tipoAtendimentoId": 1,
-        "tipoAtendimento": {
-          "nome": "Psicologico",
-          "tempoAtendimento": "01:30",
-          "horarios": [
-            "07:00",
-            "12:00",
-            "19:00"
-          ]
-        }
-      },
-      {
-        "data": "10/04/2025",
-        "tipoAtendimentoId": 1,
-        "tipoAtendimento": {
-          "nome": "Psicologico",
-          "tempoAtendimento": "01:30",
-          "horarios": [
-            "07:00",
-            "12:00",
-            "19:00"
-          ]
-        }
-      },
-      {
-        "data": "11/04/2025",
-        "tipoAtendimentoId": 1,
-        "tipoAtendimento": {
-          "nome": "Psicologico",
-          "tempoAtendimento": "01:30",
-          "horarios": [
-            "07:00",
-            "12:00",
-            "19:00"
-          ]
-        }
-      }
-    ];
-    const transformed = transformCronogramas(mockData);
-    setCronogramas(transformed);
+    chamarFuncao('pesquisar', null);
   }, []);
 
   const chamarFuncao = (nomeFuncao = "", valor: any = null) => {
@@ -152,13 +162,11 @@ const PageLista = () => {
     try {
       let body = {
         metodo: 'get',
-        uri: '/prae/' + estrutura.uri,
-        //+ '/page',
+        uri: '/prae/cronograma',
         params: params != null ? params : { size: 25, page: 0 },
         data: {}
       }
       const response = await generica(body);
-      //tratamento dos erros
       if (response && response.data.errors != undefined) {
         toast("Erro. Tente novamente!", { position: "bottom-left" });
       } else if (response && response.data.error != undefined) {
@@ -166,6 +174,9 @@ const PageLista = () => {
       } else {
         if (response && response.data) {
           setDados(response.data);
+          // Aqui transforma e seta os cronogramas para o calendário
+          const transformed = transformCronogramas(response.data.content || response.data);
+          setCronogramas(transformed);
         }
       }
     } catch (error) {
@@ -239,38 +250,109 @@ const PageLista = () => {
   }, []);
 
   // Callbacks de agendar/cancelar
-  const handleAgendar = (data: string, horario: string) => {
-    // Lógica para chamar API e efetivar agendamento
-    console.log(`Agendar: dia ${data}, horário ${horario}`);
+  const handleAgendar = async (data: string, horario: string) => {
+    const cronograma = cronogramas.find(c => c.data === data);
+    const slot = cronograma?.slots.find(s => s.horario === horario);
+
+    if (!slot) {
+      toast.error("Vaga não encontrada!");
+      return;
+    }
+
+    try {
+      const body = {
+        metodo: 'post',
+        uri: `/prae/agendamento/${slot.id}/agendar`,
+        params: {},
+        data: {}
+      };
+      const response = await generica(body);
+      if (response && response.data && !response.data.errors && !response.data.error) {
+        toast.success("Agendamento realizado com sucesso!");
+        chamarFuncao('pesquisar', null); // Atualiza os dados
+      } else if (response && response.data.errors) {
+        toast.error("Erro ao agendar.");
+      } else if (response && response.data.error) {
+        toast.error(response.data.error.message);
+      }
+    } catch (error) {
+      toast.error("Erro ao agendar.");
+      console.error(error);
+    }
   };
 
-  const handleCancelar = (data: string, horario: string) => {
-    // Lógica para cancelar agendamento
-    console.log(`Cancelar: dia ${data}, horário ${horario}`);
+  const handleCancelar = async (data: string, horario: string) => {
+    const cronograma = cronogramas.find(c => c.data === data);
+    const slot = cronograma?.slots.find(s => s.horario === horario);
+
+    if (!slot) {
+      toast.error("Vaga não encontrada!");
+      return;
+    }
+
+    try {
+      const body = {
+        metodo: 'post',
+        uri: `/prae/agendamento/${slot.id}/cancelar`,
+        params: {},
+        data: {}
+      };
+      console.log('slot', slot.agendamentoId);
+      const response = await generica(body);
+      if (response && response.data && !response.data.errors && !response.data.error) {
+        toast.success("Agendamento cancelado com sucesso!");
+        chamarFuncao('pesquisar', null); // Atualiza os dados
+      } else if (response && response.data.errors) {
+        toast.error("Erro ao cancelar.");
+      } else if (response && response.data.error) {
+        toast.error(response.data.error.message);
+      }
+    } catch (error) {
+      toast.error("Erro ao cancelar.");
+      console.error(error);
+    }
   };
 
   return (
     <main className="flex flex-wrap justify-center mx-auto">
-      {/* 
-      Em telas muito pequenas: w-full, p-4
-      A partir de sm (>=640px): p-6
-      A partir de md (>=768px): p-8
-      A partir de lg (>=1024px): p-12
-      A partir de xl (>=1280px): p-16
-      A partir de 2xl (>=1536px): p-20 e w-10/12
-    */}
       <div className="w-full sm:w-11/12 2xl:w-10/12 p-4 sm:p-6 md:p-8 lg:p-12 :p-16 2xl:p-20 pt-7 md:pt-8 md:pb-8 ">
         <Cabecalho dados={estrutura.cabecalho} />
+        <div className="mb-4 flex gap-4">
+          <div>
+            <label className="mr-2 font-semibold">Tipo de atendimento:</label>
+            <select
+              value={tipoFiltro}
+              onChange={e => setTipoFiltro(e.target.value ? Number(e.target.value) : '')}
+              className="border rounded px-2 py-1"
+            >
+              <option value="">Todos</option>
+              {tiposAtendimentoUnicos.map(([id, nome]) => (
+                <option key={id} value={id}>{nome}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="mr-2 font-semibold">Vagas:</label>
+            <select
+              value={filtroVagas}
+              onChange={e => setFiltroVagas(e.target.value as any)}
+              className="border rounded px-2 py-1"
+            >
+              <option value="todas">Todas</option>
+              <option value="disponiveis">Disponíveis</option>
+              <option value="agendadas">Agendadas</option>
+            </select>
+          </div>
+        </div>
+
         <Calendar
           userRole={isPrivileged}
-          cronogramas={cronogramas}
+          cronogramas={cronogramasFiltrados}
           onAgendar={handleAgendar}
           onCancelar={handleCancelar}
-          tipoAtendimento="Psicologico"
         />
       </div>
     </main>
-
   );
 };
 
