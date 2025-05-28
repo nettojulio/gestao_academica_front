@@ -6,13 +6,17 @@ import { toast } from 'react-toastify';
 import Modal from 'react-modal';
 
 interface DaySlot {
-  horario: string;       // ex: "07:00", "12:00"
-  userScheduled: boolean;// indica se o usuário atual já agendou esse horário
+  id: number;
+  horario: string;
+  userScheduled: boolean;
+  agendamentoId?: number | null;
 }
 
 interface MonthCronograma {
-  data: string;          // formato "dd/MM/yyyy"
-  slots: DaySlot[];      // lista de horários e se estão ou não agendados
+  data: string;
+  slots: DaySlot[];
+  tipoAtendimentoId: number;
+  tipoAtendimentoNome: string;
 }
 
 interface CalendarProps {
@@ -25,9 +29,9 @@ interface CalendarProps {
 
 // Função para formatar data para "dd/MM/yyyy"
 const formatDate = (date: Date): string => {
-  const day   = String(date.getDate()).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
   const month = String(date.getMonth() + 1).padStart(2, '0');
-  const year  = date.getFullYear();
+  const year = date.getFullYear();
   return `${day}/${month}/${year}`;
 };
 
@@ -67,8 +71,17 @@ const Calendar: React.FC<CalendarProps> = ({
     const month = currentDate.getMonth();
     const firstDayOfMonth = new Date(year, month, 1);
     const lastDayOfMonth = new Date(year, month + 1, 0);
-    const days: Date[] = [];
-    for (let d = firstDayOfMonth.getDate(); d <= lastDayOfMonth.getDate(); d++) {
+    const days: (Date | null)[] = [];
+
+    let startWeekDay = firstDayOfMonth.getDay(); // 0=Dom, 1=Seg, ..., 6=Sáb
+    if (startWeekDay === 0) startWeekDay = 7; // Domingo vira 7 para facilitar
+
+    // Adiciona espaços vazios até a segunda-feira
+    for (let i = 1; i < startWeekDay; i++) {
+      days.push(null);
+    }
+
+    for (let d = 1; d <= lastDayOfMonth.getDate(); d++) {
       days.push(new Date(year, month, d));
     }
     return days;
@@ -101,11 +114,6 @@ const Calendar: React.FC<CalendarProps> = ({
 
   const handleCancelarSlot = (horario: string) => {
     onCancelar(selectedDayString, horario);
-    setSelectedDaySlots((prev) =>
-      prev.map((slot) =>
-        slot.horario === horario ? { ...slot, userScheduled: false } : slot
-      )
-    );
   };
 
   // Para profissionais: ações adicionais serão realizadas através de navegação
@@ -120,9 +128,27 @@ const Calendar: React.FC<CalendarProps> = ({
 
   const daysInMonth = getDaysInMonth();
 
+  // Função para saber se é hoje
+  const isToday = (date: Date) => {
+    const today = new Date();
+    return (
+      date.getDate() === today.getDate() &&
+      date.getMonth() === today.getMonth() &&
+      date.getFullYear() === today.getFullYear()
+    );
+  };
+
+  // Função para saber se o dia já passou
+  const isPastDay = (date: Date) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const compareDate = new Date(date);
+    compareDate.setHours(0, 0, 0, 0);
+    return compareDate < today;
+  };
+
   return (
     <main className="p-4 md:p-8">
-      {/* Cabeçalho com botões de navegação entre meses */}
       <div className="flex items-center justify-between mb-4">
         <button
           onClick={() => changeMonth('prev')}
@@ -144,31 +170,85 @@ const Calendar: React.FC<CalendarProps> = ({
       {/* Grid de dias do mês */}
       <div className="grid grid-cols-2 md:grid-cols-7 gap-4">
         {daysInMonth.map((day, index) => {
+          if (!day) {
+            return <div key={index} />;
+          }
           const cronogramaDay = findDayCronograma(day);
           let vagasDisponiveis = 0;
           if (cronogramaDay) {
             vagasDisponiveis = cronogramaDay.slots.filter(s => !s.userScheduled).length;
           }
+          const isCurrentDay = isToday(day);
+          const pastDay = isPastDay(day);
+
           return (
-            <div key={index} className="border p-2 rounded-md flex flex-col items-center">
-              <div className="text-xs font-bold text-neutrals-900">
+            <div
+              key={index}
+              className={
+                "border p-2 rounded-md flex flex-col items-center " +
+                (isCurrentDay ? "border-blue-500 ring-2 ring-blue-300 " : "")
+              }
+            >
+              <div
+                className={
+                  "text-xs font-bold " +
+                  (pastDay ? "text-gray-300 line-through" : "text-neutrals-900")
+                }
+              >
                 {day.toLocaleDateString('pt-BR', { weekday: 'short' })}
               </div>
-              <div className="text-lg font-semibold text-neutrals-800">
+              <div
+                className={
+                  "text-lg font-semibold " +
+                  (pastDay ? "text-gray-300 line-through" : "text-neutrals-800")
+                }
+              >
                 {day.getDate()}
               </div>
-              {cronogramaDay && cronogramaDay.slots.length > 0 ? (
-                <button
-                  onClick={() => handleDayClick(day)}
-                  className="mt-2 px-2 py-1 text-sm text-white bg-green-500 rounded-md"
-                >
-                  {vagasDisponiveis > 0 
-                    ? `${vagasDisponiveis} vaga${vagasDisponiveis > 1 ? 's' : ''}` 
-                    : 'Sem vagas'
-                  }
-                </button>
-              ) : (
-                <p className="mt-2 text-sm text-gray-500">Sem vagas</p>
+              {cronogramaDay && cronogramaDay.slots.length > 0 ? (() => {
+                const vagasDisponiveis = cronogramaDay.slots.filter(s => !s.userScheduled).length;
+                const vagasAgendadas = cronogramaDay.slots.filter(s => s.userScheduled).length;
+
+                if (vagasDisponiveis > 0) {
+                  return (
+                    <button
+                      onClick={() => handleDayClick(day)}
+                      className={
+                        "mt-2 px-2 py-1 text-sm rounded-md " +
+                        (pastDay
+                          ? "text-gray-400 line-through bg-gray-200"
+                          : "text-white bg-green-500")
+                      }
+                    >
+                      {`${vagasDisponiveis} vaga${vagasDisponiveis > 1 ? 's' : ''}`}
+                    </button>
+                  );
+                } else if (vagasAgendadas > 0) {
+                  return (
+                    <button
+                      onClick={() => handleDayClick(day)}
+                      className="mt-2 px-2 py-1 text-sm text-white bg-red-500 rounded-md"
+                    >
+                      {`${vagasAgendadas} agendamento${vagasAgendadas > 1 ? 's' : ''}`}
+                    </button>
+                  );
+                } else {
+                  return (
+                    <p className={
+                      "mt-2 text-sm " +
+                      (pastDay ? "text-gray-400 line-through" : "text-gray-500")
+                    }>
+                      Sem vagas
+                    </p>
+                  );
+                }
+              })() : (
+                <p className={
+                  "mt-2 text-sm " +
+                  (pastDay ? "text-gray-400 line-through" : "text-gray-500")
+                }>
+                  Sem vagas
+                </p>
               )}
             </div>
           );
@@ -176,13 +256,29 @@ const Calendar: React.FC<CalendarProps> = ({
       </div>
 
       {/* Botão para profissionais cadastrarem um novo cronograma */}
-      {userRole === 'profissional' && (
+      {userRole === 'tecnico' && (
         <div className="mt-6 flex justify-end">
           <button
-            onClick={() => router.push('/prae/cronogramas/novo')}
+            onClick={() => router.push('/prae/agendamentos/calendario/agendamentos-por-aluno')}
             className="px-4 py-2 bg-primary-500 text-white rounded-md"
           >
-            Adicionar Cronograma
+            Agendamentos por Aluno
+          </button>
+        </div>
+      )}
+      {userRole === 'aluno' && (
+        <div className="mt-6 flex justify-end gap-x-4">
+          <button
+            onClick={() => router.push('/prae/agendamentos/calendario/meus-agendamentos')}
+            className="px-4 py-2 bg-primary-500 text-white rounded-md"
+          >
+            Meus Agendamentos
+          </button>
+          <button
+            onClick={() => router.push('/prae/agendamentos/calendario/meus-cancelamentos')}
+            className="px-4 py-2 bg-primary-500 text-white rounded-md"
+          >
+            Meus Cancelamentos
           </button>
         </div>
       )}
@@ -198,52 +294,55 @@ const Calendar: React.FC<CalendarProps> = ({
       >
         <h2 className="text-xl font-bold mb-4">Agendamentos para {selectedDayString}</h2>
         <div className="flex flex-col gap-2">
-          {selectedDaySlots.map((slot, idx) => (
-            <div key={idx} className="flex justify-between items-center border p-2 rounded">
-              <span className="font-semibold">{slot.horario}</span>
-              {userRole === 'profissional' ? (
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => handleEditarSlot(slot.horario)}
-                    className="bg-yellow-500 text-white px-2 py-1 text-sm rounded"
-                  >
-                    Editar
-                  </button>
-                  <button
-                    onClick={() => handleCancelarSlot(slot.horario)}
-                    className="bg-red-500 text-white px-2 py-1 text-sm rounded"
-                  >
-                    Excluir
-                  </button>
-                </div>
-              ) : (
-                slot.userScheduled ? (
-                  <button
-                    onClick={() => handleCancelarSlot(slot.horario)}
-                    className="bg-red-500 text-white px-2 py-1 text-sm rounded"
-                  >
-                    Cancelar
-                  </button>
+          {selectedDaySlots.map((slot, idx) => {
+            // Verifica se o slot é de um dia passado
+            const slotDate = selectedDayString.split('/'); // dd/MM/yyyy
+            const slotDay = Number(slotDate[0]);
+            const slotMonth = Number(slotDate[1]) - 1;
+            const slotYear = Number(slotDate[2]);
+            const slotDateObj = new Date(slotYear, slotMonth, slotDay);
+
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            slotDateObj.setHours(0, 0, 0, 0);
+
+            const isSlotPast = slotDateObj < today;
+
+            return (
+              <div key={idx} className="flex justify-between items-center border p-2 rounded">
+                <span className={"font-semibold " + (isSlotPast ? "text-gray-300 line-through" : "")}>
+                  {slot.horario}
+                </span>
+                {userRole === 'tecnico' ? (
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => router.push('/prae/agendamentos/tipo')}
+                      className="bg-yellow-500 text-white px-2 py-1 text-sm rounded"
+                    >
+                      Editar
+                    </button>
+                  </div>
                 ) : (
-                  <button
-                    onClick={() => handleAgendarSlot(slot.horario)}
-                    className="bg-green-500 text-white px-2 py-1 text-sm rounded"
-                  >
-                    Agendar
-                  </button>
-                )
-              )}
-            </div>
-          ))}
+                  // Só mostra o botão Agendar se NÃO for passado e NÃO estiver agendado
+                  !slot.userScheduled && !isSlotPast && (
+                    <button
+                      onClick={() => handleAgendarSlot(slot.horario)}
+                      className="bg-green-500 text-white px-2 py-1 text-sm rounded"
+                    >
+                      Agendar
+                    </button>
+                  )
+                )}
+                {/* Se for passado e não agendado, mostra como indisponível */}
+                {userRole !== 'tecnico' && !slot.userScheduled && isSlotPast && (
+                  <span className="text-gray-300 line-through text-sm">Indisponível</span>
+                )}
+              </div>
+            );
+          })}
         </div>
-        {userRole === 'profissional' && (
+        {userRole === 'tecnico' && (
           <div className="mt-4">
-            <button
-              onClick={() => router.push(`/prae/cronogramas/novo?data=${selectedDayString}`)}
-              className="px-4 py-2 bg-primary-500 text-white rounded-md"
-            >
-              Adicionar Slot
-            </button>
           </div>
         )}
         <button
