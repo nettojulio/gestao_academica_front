@@ -259,6 +259,12 @@ const Calendar: React.FC<CalendarProps> = ({
       {userRole === 'tecnico' && (
         <div className="mt-6 flex justify-end">
           <button
+            onClick={() => router.push('/prae/agendamentos/calendario/todos-agendamentos')}
+            className="px-4 py-2 bg-primary-500 text-white rounded-md"
+          >
+            Todos os Agendamentos
+          </button>
+          <button
             onClick={() => router.push('/prae/agendamentos/calendario/agendamentos-por-aluno')}
             className="px-4 py-2 bg-primary-500 text-white rounded-md"
           >

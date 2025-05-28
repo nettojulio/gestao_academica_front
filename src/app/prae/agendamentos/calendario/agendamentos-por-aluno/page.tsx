@@ -25,7 +25,7 @@ const estrutura: any = {
       rodape: true,
     },
     botoes: [
-      { nome: 'Agendar', chave: 'adicionar', bloqueado: false },
+      { nome: 'Todos os Agendamentos', chave: 'adicionar', bloqueado: false },
     ],
     colunas: [
       { nome: "Tipo de Atendimento", chave: "tipoAtendimento", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
@@ -145,7 +145,7 @@ const PageLista = () => {
     }
   }
   const adicionarRegistro = () => {
-    router.push('/prae/agendamentos/calendario');
+    router.push('/prae/agendamentos/calendario/todos-agendamentos');
   };
   const editarRegistro = (item: any) => {
     router.push('/prae/agendamentos/cronograma/' + item.id);
