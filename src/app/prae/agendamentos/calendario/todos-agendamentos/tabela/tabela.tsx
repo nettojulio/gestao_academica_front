@@ -8,6 +8,9 @@ const Tabela = ({ dados = null, estrutura = null, chamarFuncao = null }: any) =>
   const [showFilters, setShowFilters] = useState(false);
   const [isDesktop, setIsDesktop] = useState(false);
 
+  const [filtroData, setFiltroData] = useState<string>("");
+  const [filtroTipoAtendimento, setFiltroTipoAtendimento] = useState<string>("");
+
   useEffect(() => {
     const handleResize = () => {
       setIsDesktop(window.innerWidth >= 768);
@@ -18,7 +21,11 @@ const Tabela = ({ dados = null, estrutura = null, chamarFuncao = null }: any) =>
   }, []);
 
   const paramsColuna = (chave: any = null, valor: any = null) => {
-    if (chave != null && valor != null) {
+    if (chave === 'data') {
+      setFiltroData(valor);
+    } else if (chave === 'tipoAtendimento') {
+      setFiltroTipoAtendimento(valor);
+    } else if (chave != null && valor != null) {
       const updatedBodyParams = { ...bodyParams, [chave]: valor };
       setBodyParams(updatedBodyParams);
       chamarFuncao('pesquisar', updatedBodyParams);
@@ -65,10 +72,23 @@ const Tabela = ({ dados = null, estrutura = null, chamarFuncao = null }: any) =>
 
   // Renderiza os filtros em um grid responsivo:
   const renderFiltros = () => {
-    const filters = estrutura.tabela.colunas.filter((col: any) => col.pesquisar);
+    const filters = estrutura.tabela.colunas
+      .filter((col: any) => col.pesquisar && col.chave !== 'tipoAtendimento');
 
     return (
       <div className="flex flex-wrap gap-4 w-full">
+        <div className="w-full sm:w-auto flex-1 min-w-[200px] flex flex-col">
+          <label className="mb-1 text-sm font-bold text-neutrals-900">
+            Tipo de Atendimento
+          </label>
+          <input
+            type="text"
+            className="pl-2 py-1 border rounded-md text-sm"
+            placeholder="Digite para filtrar"
+            value={filtroTipoAtendimento}
+            onChange={e => setFiltroTipoAtendimento(e.target.value)}
+          />
+        </div>
         {filters?.map((item: any, index: any) => (
           <div
             key={`filtro_${index}`}
@@ -80,7 +100,16 @@ const Tabela = ({ dados = null, estrutura = null, chamarFuncao = null }: any) =>
             >
               {item.nome}
             </label>
-            {(item.tipo === 'texto' || item.tipo === 'json') &&
+            {item.chave === 'data' ? (
+              <input
+                type="date"
+                id={`filtro_${index}`}
+                className="pl-2 py-1 border rounded-md text-sm"
+                value={filtroData}
+                onChange={(e) => paramsColuna(item.chave, e.target.value)}
+              />
+            ) : (
+              (item.tipo === 'texto' || item.tipo === 'json') &&
               !(item.selectOptions && item.selectOptions.length > 0) && (
                 <input
                   type="text"
@@ -89,7 +118,8 @@ const Tabela = ({ dados = null, estrutura = null, chamarFuncao = null }: any) =>
                   placeholder="Pesquisar"
                   onChange={(e) => paramsColuna(item.chave, e.target.value)}
                 />
-              )}
+              )
+            )}
             {(item.tipo === 'booleano' ||
               (item.tipo === 'texto' && item.selectOptions && item.selectOptions.length > 0)) && (
                 <select
@@ -112,6 +142,26 @@ const Tabela = ({ dados = null, estrutura = null, chamarFuncao = null }: any) =>
       </div>
     );
   };
+
+  // Filtra os dados no frontend conforme a data e tipo de atendimento selecionados
+  let dadosFiltrados = dados;
+  if (filtroData) {
+    dadosFiltrados = dadosFiltrados.filter((item: any) => item.data === filtroData);
+  }
+  if (filtroTipoAtendimento) {
+    const filtroNormalizado = filtroTipoAtendimento
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase();
+
+    dadosFiltrados = dadosFiltrados.filter((item: any) => {
+      const tipoAtendimentoNormalizado = (item.tipoAtendimento || '')
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase();
+      return tipoAtendimentoNormalizado.includes(filtroNormalizado);
+    });
+  }
 
   return (
     <div>
@@ -226,8 +276,8 @@ const Tabela = ({ dados = null, estrutura = null, chamarFuncao = null }: any) =>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-neutrals-200">
-                  {dados && dados && dados.length > 0 ? (
-                    dados.map((item: any) => (
+                  {dadosFiltrados && dadosFiltrados.length > 0 ? (
+                    dadosFiltrados.map((item: any) => (
                       <tr key={item.id} className="hover:bg-neutrals-100">
                         {estrutura.tabela.colunas.map(({ chave, tipo, selectOptions }: any) => {
                           if (chave === 'acoes') {
@@ -420,8 +470,8 @@ const Tabela = ({ dados = null, estrutura = null, chamarFuncao = null }: any) =>
 
         {/* Layout Stacked (Mobile) */}
         <div className="block md:hidden">
-          {dados && dados && dados.length > 0 ? (
-            dados.map((item: any) => (
+          {dadosFiltrados && dadosFiltrados.length > 0 ? (
+            dadosFiltrados.map((item: any) => (
               <div
                 key={item.id}
                 className="bg-white border border-neutrals-200 rounded-md p-4 mb-4 shadow"
@@ -537,7 +587,7 @@ const Tabela = ({ dados = null, estrutura = null, chamarFuncao = null }: any) =>
         </div>
       </div>
       {estrutura.tabela.configuracoes.rodape && (
-        <Pagination dados={dados} paramsColuna={paramsColuna} />
+        <Pagination dados={dadosFiltrados} paramsColuna={paramsColuna} />
       )}
     </div>
   );
