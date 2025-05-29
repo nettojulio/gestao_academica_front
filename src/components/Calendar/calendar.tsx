@@ -257,7 +257,7 @@ const Calendar: React.FC<CalendarProps> = ({
 
       {/* Botão para profissionais cadastrarem um novo cronograma */}
       {userRole === 'tecnico' && (
-        <div className="mt-6 flex justify-end gap-x-4">
+        <div className="mt-6 flex flex-wrap justify-end gap-2">
           <button
             onClick={() => router.push('/prae/agendamentos/calendario/todos-agendamentos')}
             className="px-4 py-2 bg-primary-500 text-white rounded-md"
