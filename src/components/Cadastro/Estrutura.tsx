@@ -13,6 +13,7 @@ import {
 import { useParams } from "next/navigation";
 import React, { useState, useEffect, useRef } from "react";
 import { toast } from "react-toastify";
+import DatePicker from "react-multi-date-picker";
 
 /**
  * Tipo (opcional) para cada campo de configuração do formulário
@@ -212,7 +213,7 @@ const Cadastro = ({
     const native = event.nativeEvent as SubmitEvent;
     const submitter = native.submitter as HTMLButtonElement | null;
     const action = submitter?.name || "salvar"; // fallback
-  
+
     const formData = new FormData(event.currentTarget);
     const data: any = {};
 
@@ -221,10 +222,14 @@ const Cadastro = ({
       const campo: Campo | undefined = Array.isArray(estrutura.cadastro.campos[0])
         ? estrutura.cadastro.campos.flat().find((c: Campo) => c.chave === key)
         : estrutura.cadastro.campos.find((c: Campo) => c.chave === key);
+
       if (campo && campo.tipo === "ratio") {
         data[key] = value !== "" ? parseFloat(value.toString()) / 100 : null;
       } else if (campo && campo.tipo === "multi-select") {
         data[key] = value ? value.split(",") : [];
+      } else if (campo && campo.tipo === "date-multiple") {
+        // Pega o array diretamente do estado
+        data[key] = getNestedValue(dadosPreenchidos, key) || [];
       } else {
         data[key] = value;
       }
@@ -233,11 +238,11 @@ const Cadastro = ({
     if (dadosPreenchidos.unidadesGestorasRoles) {
       data.unidadesGestorasRoles = dadosPreenchidos.unidadesGestorasRoles;
     }
-    if (dadosPreenchidos.documentos){
-      data.documentos= dadosPreenchidos.documentos;
+    if (dadosPreenchidos.documentos) {
+      data.documentos = dadosPreenchidos.documentos;
     }
-    if(dadosPreenchidos.parecer){
-      data.parecer= dadosPreenchidos.parecer;
+    if (dadosPreenchidos.parecer) {
+      data.parecer = dadosPreenchidos.parecer;
     }
     chamarFuncao(action, data);
   };
@@ -830,6 +835,57 @@ const Cadastro = ({
                     </>
                   )}
 
+                  {campo.tipo === "date-multiple" && (
+                    <>
+                      <label className="block mb-1 text-label-medium text-primary-500">
+                        {campo.nome}
+                        {campo.obrigatorio && <span className="text-danger-500 ml-1">*</span>}
+                      </label>
+                      {(getNestedValue(dadosPreenchidos, campo.chave) || [""]).map((data: string, idx: number) => (
+                        <div key={idx} className="flex items-center gap-2 mb-1">
+                          <input
+                            type="date"
+                            name={campo.chave}
+                            value={data}
+                            onChange={e => {
+                              const novasDatas = [...(getNestedValue(dadosPreenchidos, campo.chave) || [])];
+                              novasDatas[idx] = e.target.value;
+                              setDadosPreenchidos((prev: any) => updateNestedField(prev, campo.chave, novasDatas));
+                            }}
+                            className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-primary-300 text-body-medium text-neutrals-900"
+                            required={campo.obrigatorio}
+                            disabled={campo.bloqueado}
+                          />
+                          {/* Botão para remover data, só mostra se houver mais de uma */}
+                          {(getNestedValue(dadosPreenchidos, campo.chave)?.length > 1) && (
+                            <button
+                              type="button"
+                              className="text-danger-500"
+                              onClick={() => {
+                                const novasDatas = [...(getNestedValue(dadosPreenchidos, campo.chave) || [])];
+                                novasDatas.splice(idx, 1);
+                                setDadosPreenchidos((prev: any) => updateNestedField(prev, campo.chave, novasDatas));
+                              }}
+                            >
+                              Remover
+                            </button>
+                          )}
+                        </div>
+                      ))}
+                      <button
+                        type="button"
+                        className="bg-primary-500 hover:bg-primary-700 text-white px-2 py-1 rounded text-sm mt-1"
+                        onClick={() => {
+                          const novasDatas = [...(getNestedValue(dadosPreenchidos, campo.chave) || [])];
+                          novasDatas.push("");
+                          setDadosPreenchidos((prev: any) => updateNestedField(prev, campo.chave, novasDatas));
+                        }}
+                      >
+                        Adicionar data
+                      </button>
+                    </>
+                  )}
+
                   {campo.tipo === "year" && (
                     <>
                       <label className="block mb-1 text-label-medium text-primary-500">
@@ -1057,8 +1113,8 @@ const Cadastro = ({
                         : []);
                     // O valor selecionado também é adaptado
                     const selectedValues: string[] = campo.chave === "perfil.cursos"
-                    ? (dadosPreenchidos?.perfil?.cursos?.map((curso:any) => curso.id.toString()) ?? [])
-                    : (dadosPreenchidos[campo.chave] ?? []);
+                      ? (dadosPreenchidos?.perfil?.cursos?.map((curso: any) => curso.id.toString()) ?? [])
+                      : (dadosPreenchidos[campo.chave] ?? []);
 
                     return (
                       <div

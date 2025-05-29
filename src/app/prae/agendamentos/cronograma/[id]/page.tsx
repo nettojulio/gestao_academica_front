@@ -94,10 +94,10 @@ const cadastro = () => {
         {
           line: 1,
           colSpan: "md:col-span-1",
-          nome: "Dia do Atendimento",
-          chave: "data",
-          tipo: "date",
-          mensagem: "Digite",
+          nome: "Dias do Atendimento",
+          chave: "datas",
+          tipo: "date-multiple",
+          mensagem: "Selecione as datas",
           obrigatorio: true,
         },
       ],
@@ -137,10 +137,20 @@ const cadastro = () => {
    * fiquem agrupados em um objeto 'endereco'.
    */
   const salvarRegistro = async (item: any) => {
-    const [ano, mes, dia] = item.data.split('-');
-    const dataFormatada = `${dia}/${mes}/${ano}`;
+    // Suporte para múltiplas datas
+    let datasFormatadas: string[] = [];
+    if (Array.isArray(item.datas)) {
+      datasFormatadas = item.datas.map((data: string) => {
+        const [ano, mes, dia] = data.split('-');
+        return `${dia}/${mes}/${ano}`;
+      });
+    } else if (typeof item.datas === "string") {
+      const [ano, mes, dia] = item.datas.split('-');
+      datasFormatadas = [`${dia}/${mes}/${ano}`];
+    }
+
     const dadosFormatados = {
-      data: dataFormatada,
+      datas: datasFormatadas,
       tipoAtendimentoId: Number(item.tipoAtendimentoId),
     };
 
