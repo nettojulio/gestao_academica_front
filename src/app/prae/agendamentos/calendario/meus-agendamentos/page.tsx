@@ -1,7 +1,7 @@
 "use client"
 import withAuthorization from '@/components/AuthProvider/withAuthorization';
 import Cabecalho from '@/components/Layout/Interno/Cabecalho';
-import Tabela from '@/app/prae/agendamentos/cronograma/tabela/tabela';
+import Tabela from './tabela/tabela';
 import { generica } from '@/utils/api';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -10,14 +10,14 @@ import Swal from 'sweetalert2';
 
 const estrutura: any = {
 
-  uri: "cronograma", //caminho base
+  uri: "agendamento", //caminho base
 
   cabecalho: { //cabecalho da pagina
-    titulo: "Cronogramas",
+    titulo: "Meus Agendamentos",
     migalha: [
       { nome: 'Home', link: '/home' },
       { nome: 'Prae', link: '/prae' },
-      { nome: 'Cronogramas', link: '/prae/agendamentos/cronograma' },
+      { nome: 'Meus Agendamentos', link: '/prae/agendamentos/calendario/meus-agendamentos' },
     ]
   },
 
@@ -28,17 +28,15 @@ const estrutura: any = {
       rodape: true,//rodape da tabela (booleano)
     },
     botoes: [ //links
-      { nome: 'Adicionar', chave: 'adicionar', bloqueado: false }, //nome(string),chave(string),bloqueado(booleano)
+      { nome: 'Agendar', chave: 'adicionar', bloqueado: false }, //nome(string),chave(string),bloqueado(booleano)
     ],
     colunas: [ //colunas da tabela
-      { nome: "Tipo de Atendimento", chave: "tipoAtendimento.nome", tipo: "texto", selectOptions: null, sort: false, pesquisar: true }, //nome(string),chave(string),tipo(text,select),selectOpcoes([{chave:string, valor:string}]),pesquisar(booleano)
+      { nome: "Tipo de Atendimento", chave: "tipoAtendimento", tipo: "texto", selectOptions: null, sort: false, pesquisar: true }, //nome(string),chave(string),tipo(text,select),selectOpcoes([{chave:string, valor:string}]),pesquisar(booleano)
       { nome: "Dia de Atendimento", chave: "data", tipo: "texto", selectOptions: null, sort: false, pesquisar: true }, //nome(string),chave(string),tipo(text,select),selectOpcoes([{chave:string, valor:string}]),pesquisar(booleano)
-      { nome: "Quantidade de Vagas", chave: "vagas", tipo: "quantidade", selectOptions: null, sort: false, pesquisar: false },
-       { nome: "Horários", chave: "vagas", tipo: "array", selectOptions: null, sort: false, pesquisar: false },
+      { nome: "Horário", chave: "vaga.horaInicio", tipo: "array", selectOptions: null, sort: false, pesquisar: false },
       { nome: "ações", chave: "acoes", tipo: "button", selectOptions: null, sort: false, pesquisar: false },
     ],
     acoes_dropdown: [ //botão de acoes de cada registro
-      { nome: 'Editar', chave: 'editar' }, //nome(string),chave(string),bloqueado(booleano)
       { nome: 'Deletar', chave: 'deletar' },
     ]
   }
@@ -73,7 +71,7 @@ const PageLista = () => {
     try {
       let body = {
         metodo: 'get',
-        uri: '/prae/' + estrutura.uri,
+        uri: '/prae/' + estrutura.uri + '/estudante',
         //+ '/page',
         params: params != null ? params : { size: 25, page: 0 },
         data: {}
@@ -95,7 +93,7 @@ const PageLista = () => {
   };
   // Função que redireciona para a tela adicionar
   const adicionarRegistro = () => {
-    router.push('/prae/agendamentos/cronograma/criar');
+    router.push('/prae/agendamentos/calendario');
   };
   // Função que redireciona para a tela editar
   const editarRegistro = (item: any) => {
@@ -110,13 +108,13 @@ const formatarDataBR = (data: string) => {
 
 const deletarRegistro = async (item: any) => {
   const confirmacao = await Swal.fire({
-    title: `Você deseja deletar o cronograma do dia ${formatarDataBR(item.data)}?`,
+    title: `Você deseja cancelar o atendimento ${item.tipoAtendimento}, agendado para o dia ${formatarDataBR(item.data)}, às ${item.vaga.horaInicio}?`,
     text: "Essa ação não poderá ser desfeita",
     icon: "warning",
     showCancelButton: true,
     confirmButtonColor: "#1A759F",
     cancelButtonColor: "#9F2A1A",
-    confirmButtonText: "Sim, quero deletar!",
+    confirmButtonText: "Sim, eu quero!",
     cancelButtonText: "Cancelar",
     customClass: {
       popup: "my-swal-popup",
@@ -128,8 +126,8 @@ const deletarRegistro = async (item: any) => {
   if (confirmacao.isConfirmed) {
     try {
       const body = {
-        metodo: 'delete',
-        uri: '/prae/' + estrutura.uri + '/' + item.id,
+        metodo: 'post',
+        uri: '/prae/' + estrutura.uri + '/' + item.id + '/cancelar',
         params: {},
         data: {}
       };
@@ -143,7 +141,7 @@ const deletarRegistro = async (item: any) => {
       } else {
         pesquisarRegistro();
         Swal.fire({
-          title: "Cronograma deletado com sucesso!",
+          title: "Agendamento cancelado com sucesso!",
           icon: "success"
         });
       }
