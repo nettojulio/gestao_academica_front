@@ -24,7 +24,6 @@ export default function PageEFrotas() {
 
   return (
     <>
-      Hello teste
     </>
   ); // ou um spinner de "Verificando..."
 }

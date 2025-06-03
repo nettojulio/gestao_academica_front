@@ -42,7 +42,7 @@ const cadastro = () => {
       migalha: [
         { nome: 'Home', link: '/home' },
         { nome: 'Prae', link: '/prae' },
-        { nome: 'Pagamentos', link: '/prae/pagamentos' },
+        { nome: 'Estudantes', link: '/prae/estudantes' },
         {
           nome: isEditMode ? "Editar" : "Criar",
           link: `/prae/pagamentos/${isEditMode ? id : "criar"}`,
@@ -316,7 +316,7 @@ const cadastro = () => {
   }, [dadosPreenchidos.deficiente]);
 
   // Filtra os campos 'tipoDeficiencia' e 'laudo' com base em isDeficiente
-  const camposFiltrados = estrutura.cadastro.campos.filter((campo:any) => {
+  const camposFiltrados = estrutura.cadastro.campos.filter((campo: any) => {
     if (campo.chave === "tipoDeficiencia" || campo.chave === "laudo") {
       return isDeficiente;
     }
@@ -393,23 +393,23 @@ const cadastro = () => {
   const endereco = useEnderecoByCep(dadosForm?.cep || "");
 
   useEffect(() => {
-  if (endereco) {
-    setDadosPreenchidos((prev: any) => ({
-      ...prev,
-      endereco: {
-        ...prev.endereco,
-        cep: endereco.cep || prev.endereco?.cep || '',
-        rua:  prev.endereco?.rua || '',
-        bairro: endereco.bairro || prev.endereco?.bairro || '',
-        cidade:  prev.endereco?.cidade || '',
-        estado: endereco.estado || prev.endereco?.estado || '',
-        complemento: prev.endereco?.complemento || '',
-        numero: prev.endereco?.numero || '',
-      }
-    }));
-    console.log("Dados retornados pelo hook useEnderecoByCep:", endereco);
-  }
-}, [endereco]);
+    if (endereco) {
+      setDadosPreenchidos((prev: any) => ({
+        ...prev,
+        endereco: {
+          ...prev.endereco,
+          cep: endereco.cep || prev.endereco?.cep || '',
+          rua: prev.endereco?.rua || '',
+          bairro: endereco.bairro || prev.endereco?.bairro || '',
+          cidade: prev.endereco?.cidade || '',
+          estado: endereco.estado || prev.endereco?.estado || '',
+          complemento: prev.endereco?.complemento || '',
+          numero: prev.endereco?.numero || '',
+        }
+      }));
+      console.log("Dados retornados pelo hook useEnderecoByCep:", endereco);
+    }
+  }, [endereco]);
 
 
   /**

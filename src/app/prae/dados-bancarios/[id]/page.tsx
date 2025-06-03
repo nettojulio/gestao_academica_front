@@ -13,7 +13,7 @@ const cadastro = () => {
   const router = useRouter();
   const { id } = useParams();
   // Inicializamos com um objeto contendo 'endereco' para evitar problemas
-   const [dadosPreenchidos, setDadosPreenchidos] = useState<any>({});
+  const [dadosPreenchidos, setDadosPreenchidos] = useState<any>({});
   const [unidadesGestoras, setUnidadesGestoras] = useState<any[]>([]);
   const [lastMunicipioQuery, setLastMunicipioQuery] = useState("");
   const [titular, setTitular] = useState<any[]>([]);
@@ -53,15 +53,43 @@ const cadastro = () => {
         {
           line: 1,
           colSpan: "md:col-span-1",
-          nome: "Titular",
-          chave: "titular", //consultar estudantes
+          nome: "Aluno",
+          chave: "id", //consultar estudantes
           tipo: "select",
           selectOptions: isEditMode ? null : getOptions(titular, dadosPreenchidos[0]?.titular),
+          mensagem: "Digite",
+          obrigatorio: true,
+          bloqueado: isEditMode ? true : null,
+        },
+        {
+          line: 1,
+          colSpan: "md:col-span-1",
+          nome: "Titular",
+          chave: "nomeTitular",
+          tipo: "text",
           mensagem: "Digite",
           obrigatorio: true,
         },
         {
           line: 1,
+          colSpan: "md:col-span-1",
+          nome: "Banco",
+          chave: "banco",
+          tipo: "text",
+          mensagem: "Digite",
+          obrigatorio: true,
+        },
+        {
+          line: 1,
+          colSpan: "md:col-span-1",
+          nome: "Tipo de Conta",
+          chave: "tipoConta",
+          tipo: "text",
+          mensagem: "Digite",
+          obrigatorio: true,
+        },
+        {
+          line: 2,
           colSpan: "md:col-span-1",
           nome: "Conta Bancaria",
           chave: "conta",
@@ -70,7 +98,7 @@ const cadastro = () => {
           obrigatorio: true,
         },
         {
-          line: 1,
+          line: 2,
           colSpan: "md:col-span-1",
           nome: "Agencia Bancaria",
           chave: "agencia",
@@ -122,7 +150,7 @@ const cadastro = () => {
       } else if (response && response.data.error != undefined) {
         toast(response.data.error.message, { position: "bottom-left" });
       } else {
-          setTitular(response?.data);
+        setTitular(response?.data);
       }
     } catch (error) {
       console.error('Erro ao carregar registros:', error);
@@ -136,7 +164,7 @@ const cadastro = () => {
 
   console.log(dadosPreenchidos)
 
-  
+
   /**
    * Salva o registro via POST, transformando os dados para que os itens de endereço
    * fiquem agrupados em um objeto 'endereco'.
@@ -144,13 +172,13 @@ const cadastro = () => {
   const salvarRegistro = async (item: any) => {
     try {
       const modifiedItem = {
-                ...item,
-                titularId: item.titular,
-                }
+        ...item,
+        titularId: item.titular,
+      }
       console.log("aqui", item)
       const body = {
         metodo: `${isEditMode ? "patch" : "post"}`,
-        uri: "/prae/" + `${isEditMode ? estrutura.uri + "/" + item.id : estrutura.uri + "/" + item.titular}`,
+        uri: "/prae/" + `${isEditMode ? estrutura.uri + "/" + item.id : estrutura.uri + "/" + item.id}`,
         params: {},
         data: modifiedItem,
       };
@@ -174,7 +202,7 @@ const cadastro = () => {
         Swal.fire({
           title: "Dados bancarios salvo com sucesso!",
           icon: "success",
-        }).then((result) => { 
+        }).then((result) => {
           if (result.isConfirmed) {
             chamarFuncao("voltar");
           }

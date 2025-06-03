@@ -13,11 +13,11 @@ const estrutura: any = {
   uri: "auxilio", //caminho base
 
   cabecalho: { //cabecalho da pagina
-    titulo: "Auxilios",
+    titulo: "Auxílios",
     migalha: [
       { nome: 'Home', link: '/home' },
       { nome: 'Prae', link: '/prae' },
-      { nome: 'Auxilios', link: '/prae/auxilio/auxilios' },
+      { nome: 'Auxílios', link: '/prae/auxilio/auxilios' },
     ]
   },
 
@@ -31,10 +31,15 @@ const estrutura: any = {
       { nome: 'Adicionar', chave: 'adicionar', bloqueado: false }, //nome(string),chave(string),bloqueado(booleano)
     ],
     colunas: [ //colunas da tabela
-      { nome: "Tipo Auxilio", chave: "tipoAuxilio.tipo", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
-      { nome: "valor Auxilio", chave: "tipoAuxilio.valorAuxilio", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
+      { nome: "Tipo Auxílio", chave: "tipoAuxilio.tipo", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
+      { nome: "valor Auxílio", chave: "tipoAuxilio.valorAuxilio", tipo: "texto", selectOptions: null, sort: false, pesquisar: true, mascara: "cpf" },
       { nome: "Tipo Bolsa", chave: "tipoBolsa.descricao", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
+      { nome: "Tipo de Conta", chave: "estudantes[0].dadosBancarios.tipoConta", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
+      { nome: "Banco", chave: "", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
+      { nome: "Agência", chave: "tipodeconta", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
       { nome: "valor Bolsa", chave: "valorBolsa", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
+      { nome: "Inicio do Auxilio", chave: "tipodeconta", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
+      { nome: "Final do Auxilio", chave: "tipodeconta", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
       {
         nome: "Status", chave: "status", tipo: "texto",
         selectOptions: [

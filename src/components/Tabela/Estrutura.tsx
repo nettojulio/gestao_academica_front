@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import Pagination from './Itens/Paginacao';
+import { Delete, Edit, Visibility } from '@mui/icons-material';
 
 const Tabela = ({ dados = null, estrutura = null, chamarFuncao = null }: any) => {
   const [dropdownAberto, setDropdownAberto] = useState<any>({});
@@ -7,7 +8,10 @@ const Tabela = ({ dados = null, estrutura = null, chamarFuncao = null }: any) =>
   const [bodyParams, setBodyParams] = useState<any>({ size: 25 });
   const [showFilters, setShowFilters] = useState(false);
   const [isDesktop, setIsDesktop] = useState(false);
-  // Hook para detectar a largura da tela
+
+  // NORMALIZA os dados recebidos:
+  const linhas = Array.isArray(dados) ? dados : (dados?.content ?? []);
+
   useEffect(() => {
     const handleResize = () => {
       setIsDesktop(window.innerWidth >= 768);
@@ -58,28 +62,22 @@ const Tabela = ({ dados = null, estrutura = null, chamarFuncao = null }: any) =>
   }, []);
 
   // Renderiza os filtros em um grid responsivo:
-  // Em mobile: 1 coluna; em desktop: quantidade de colunas igual aos filtros.
   const renderFiltros = () => {
-    // Filtra apenas as colunas que possuem 'pesquisar' habilitado
     const filters = estrutura.tabela.colunas.filter((col: any) => col.pesquisar);
-
     return (
       <div className="flex flex-wrap gap-4 w-full">
         {filters?.map((item: any, index: any) => (
           <div
             key={`filtro_${index}`}
-            // Ocupa 100% da largura no mobile; em telas maiores,
-            // cada filtro tenta ocupar o mínimo de 200px e depois “cresce” para dividir espaço
             className="w-full sm:w-auto flex-1 min-w-[200px] flex flex-col"
           >
             <label
               htmlFor={`filtro_${index}`}
-              className="mb-1 text-sm font-bold text-neutrals-900"  // Alterado para font-bold
+              className="mb-1 text-sm font-bold text-neutrals-900"
             >
               {item.nome}
             </label>
 
-            {/* Se for texto/json sem selectOptions, exibe input */}
             {(item.tipo === 'texto' || item.tipo === 'json') &&
               !(item.selectOptions && item.selectOptions.length > 0) && (
                 <input
@@ -91,7 +89,6 @@ const Tabela = ({ dados = null, estrutura = null, chamarFuncao = null }: any) =>
                 />
               )}
 
-            {/* Se for booleano ou texto com selectOptions, exibe select */}
             {(item.tipo === 'booleano' ||
               (item.tipo === 'texto' && item.selectOptions && item.selectOptions.length > 0)) && (
                 <select
@@ -156,6 +153,7 @@ const Tabela = ({ dados = null, estrutura = null, chamarFuncao = null }: any) =>
             {renderFiltros()}
           </div>
         )}
+
         {/* Tabela (Desktop) */}
         <div className="overflow-x-auto rounded-md border-2 border-neutrals-200 hidden md:block">
           <div className="min-w-full inline-block align-middle">
@@ -170,7 +168,6 @@ const Tabela = ({ dados = null, estrutura = null, chamarFuncao = null }: any) =>
                       <td
                         key={"menu_" + index}
                         className={
-                          // Para cabeçalho e coluna de ações, mantém o font-bold
                           item.nome.toUpperCase() === "AÇÕES"
                             ? "px-6 py-3 whitespace-nowrap text-sm font-bold uppercase text-neutrals-900 text-center"
                             : "px-6 py-3 whitespace-nowrap text-sm font-bold uppercase text-neutrals-900"
@@ -229,8 +226,8 @@ const Tabela = ({ dados = null, estrutura = null, chamarFuncao = null }: any) =>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-neutrals-200">
-                  {dados && dados && dados.length > 0 ? (
-                    dados.map((item: any) => (
+                  {linhas.length > 0 ? (
+                    linhas.map((item: any) => (
                       <tr key={item.id} className="hover:bg-neutrals-100">
                         {estrutura.tabela.colunas.map(({ chave, tipo, selectOptions }: any) => {
                           if (chave === 'acoes') {
@@ -239,33 +236,24 @@ const Tabela = ({ dados = null, estrutura = null, chamarFuncao = null }: any) =>
                                 key="acoes"
                                 className="px-6 py-2 whitespace-nowrap relative border-l border-neutrals-200 flex items-center justify-center"
                               >
-                                <button
-                                  onClick={() => dropdownAbrirFechar(item.id)}
-                                  className="flex justify-center items-center text-neutrals-500 hover:text-neutrals-700 focus:outline-none"
-                                >
-                                  <p className="text-lg font-bold text-neutrals-900">...</p>
-                                </button>
-                                {dropdownAberto[item.id] && (
-                                  <div
-                                    ref={dropdownRef}
-                                    className="absolute z-10 mt-2 w-30 rounded-md shadow-lg bg-neutrals-50 border-2 border-neutrals-200 ring-1 ring-black ring-opacity-5 left-0"
-                                    style={{ marginLeft: '-55px', marginTop: '-60px' }}
-                                    role="menu"
-                                    aria-orientation="vertical"
-                                    aria-labelledby="options-menu"
+                                {estrutura.tabela.acoes_dropdown.map((acao: any, index_acao: any) => (
+                                  <button
+                                    key={index_acao}
+                                    className="block px-4 py-2 text-sm text-neutrals-700 hover:bg-neutrals-100 w-full text-center"
+                                    role="menuitem"
+                                    onClick={() => chamarFuncao(acao.chave, item)}
                                   >
-                                    {estrutura.tabela.acoes_dropdown.map((acao: any, index_acao: any) => (
-                                      <button
-                                        key={index_acao}
-                                        className="block px-4 py-2 text-sm text-neutrals-700 hover:bg-neutrals-100 w-full text-center"
-                                        role="menuitem"
-                                        onClick={() => chamarFuncao(acao.chave, item)}
-                                      >
-                                        {acao.nome}
-                                      </button>
-                                    ))}
-                                  </div>
-                                )}
+                                    {acao.nome === 'Editar' && (
+                                      <Edit className='text-primary-700' />
+                                    )}
+                                    {acao.nome === 'Visualizar' && (
+                                      <Visibility className='text-primary-700' />
+                                    )}
+                                    {acao.nome === 'Deletar' && (
+                                      <Delete className='text-danger-500' />
+                                    )}
+                                  </button>
+                                ))}
                               </td>
                             );
                           } else if (item[chave] !== undefined && tipo === "status") {
@@ -349,6 +337,13 @@ const Tabela = ({ dados = null, estrutura = null, chamarFuncao = null }: any) =>
                                   {verificaTexto(item[chave])}
                                 </td>
                               );
+                            } else if (chave === 'auxilios') { // gambiarra especificamente para auxilios retornando do back como array, (detalhe se for corrigido no back remover)
+                              const auxilio = item.auxilios?.[0];
+                              return (
+                                <td key={auxilio?.tipoAuxilio?.id || 'sem-id'} className="px-6 py-2 whitespace-nowrap font-normal">
+                                  {verificaTexto(auxilio?.tipoAuxilio?.tipo)}
+                                </td>
+                              );
                             } else {
                               return <td key={chave} className="px-6 py-2 whitespace-nowrap font-normal"></td>;
                             }
@@ -390,15 +385,14 @@ const Tabela = ({ dados = null, estrutura = null, chamarFuncao = null }: any) =>
 
         {/* Layout Stacked (Mobile) */}
         <div className="block md:hidden">
-          {dados && dados && dados.length > 0 ? (
-            dados.map((item: any) => (
+          {linhas.length > 0 ? (
+            linhas.map((item: any) => (
               <div
                 key={item.id}
                 className="bg-white border border-neutrals-200 rounded-md p-4 mb-4 shadow"
               >
                 {estrutura.tabela.colunas.map((col: any, index: number) => {
                   if (col.chave === 'acoes') {
-                    // No mobile, exibe os botões de ação diretamente
                     return (
                       <div key={col.chave} className="mt-2 flex justify-end gap-2">
                         {estrutura.tabela.acoes_dropdown.map((acao: any, index_acao: any) => (
