@@ -32,7 +32,7 @@ const estrutura: any = {
     ],
     colunas: [ //colunas da tabela
       { nome: "Tipo Auxílio", chave: "tipoAuxilio.tipo", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
-      { nome: "valor Auxílio", chave: "tipoAuxilio.valorAuxilio", tipo: "texto", selectOptions: null, sort: false, pesquisar: true, mascara: "cpf" },
+      { nome: "valor Auxílio", chave: "tipoAuxilio.valorAuxilio", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
       { nome: "Tipo Bolsa", chave: "tipoBolsa.descricao", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
       { nome: "Tipo de Conta", chave: "estudantes[0].dadosBancarios.tipoConta", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
       { nome: "Banco", chave: "", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },

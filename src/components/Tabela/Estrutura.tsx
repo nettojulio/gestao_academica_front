@@ -169,10 +169,10 @@ const Tabela = ({ dados = null, estrutura = null, chamarFuncao = null }: any) =>
                         key={"menu_" + index}
                         className={
                           item.nome.toUpperCase() === "AÇÕES"
-                            ? "px-6 py-3 whitespace-nowrap text-sm font-bold uppercase text-neutrals-900 text-center"
-                            : "px-6 py-3 whitespace-nowrap text-sm font-bold uppercase text-neutrals-900"
+                          ? "w-24 px-2 py-3 whitespace-nowrap text-sm font-bold uppercase text-neutrals-900 text-right"
+                          : "px-6 py-3 whitespace-nowrap text-sm font-bold uppercase text-neutrals-900"
                         }
-                        title={item.hint || ""}
+
                       >
                         <div
                           className={
@@ -234,12 +234,13 @@ const Tabela = ({ dados = null, estrutura = null, chamarFuncao = null }: any) =>
                             return (
                               <td
                                 key="acoes"
-                                className="px-6 py-2 whitespace-nowrap relative border-l border-neutrals-200 flex items-center justify-center"
+                                className="px-2 py-2 whitespace-nowrap relative border-l border-neutrals-200 flex items-center justify-center"
                               >
                                 {estrutura.tabela.acoes_dropdown.map((acao: any, index_acao: any) => (
                                   <button
                                     key={index_acao}
-                                    className="block px-4 py-2 text-sm text-neutrals-700 hover:bg-neutrals-100 w-full text-center"
+                                    className="block px-3 py-2 text-sm text-neutrals-700 hover:bg-neutrals-100 w-full text-center
+                                    justify-center"
                                     role="menuitem"
                                     onClick={() => chamarFuncao(acao.chave, item)}
                                   >

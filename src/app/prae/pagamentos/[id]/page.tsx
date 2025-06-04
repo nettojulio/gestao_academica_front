@@ -69,7 +69,15 @@ const cadastro = () => {
           tipo: "text",
           mensagem: "Digite",
           obrigatorio: true,
-          mascara: "valor"
+        },
+        {
+          line: 1,
+          colSpan: "md:col-span-1",
+          nome: "A",
+          chave: "valor",
+          tipo: "text",
+          mensagem: "Digite",
+          obrigatorio: true,
         },
         {
           line: 1,
@@ -121,18 +129,18 @@ const cadastro = () => {
       const valorNumerico = parseFloat(
         String(item.valor).replace(/\./g, '').replace(',', '.')
       );
-  
+
       // Cria uma cópia com o valor convertido
       const itemCorrigido = {
         ...item,
         valor: valorNumerico,
         auxilioId: Number(item.auxilioId),
-      };  
-      
+      };
+
 
       const body = {
         metodo: `${isEditMode ? "patch" : "post"}`,
-        uri: "/prae/" + `${isEditMode ? estrutura.uri+"/"+ item.id : estrutura.uri }`,
+        uri: "/prae/" + `${isEditMode ? estrutura.uri + "/" + item.id : estrutura.uri}`,
         params: {},
         data: itemCorrigido,
       };
@@ -189,7 +197,7 @@ const cadastro = () => {
         });
       } else if (response.data?.error) {
         toast.error(response.data.error.message, { position: "top-left" });
-      } else {       
+      } else {
         setDadosPreenchidos(response.data);
       }
     } catch (error) {
