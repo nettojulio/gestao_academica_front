@@ -80,7 +80,7 @@ export default function PraeLayout({ children }: { children: React.ReactNode }) 
           roles: ["administrador", "gestor"],
           subItems: [
             {
-              label: "Tipo de Auxílio",
+              label: "Todos",
               route: "/prae/auxilio/tipo",
               icon: <VolunteerActivism fontSize="small" className="text-white" />,
             },
@@ -126,12 +126,7 @@ export default function PraeLayout({ children }: { children: React.ReactNode }) 
           icon: <CalendarMonth fontSize="small" className="text-white" />,
           roles: ["administrador", "aluno", "estudante"],
         },
-        {
-          label: "Tipos de Bolsa",
-          route: "/prae/tipos-de-bolsa",
-          icon: <BusinessCenter fontSize="small" className="text-white" />,
-          roles: ["administrador", "gestor", "tecnico"],
-        },
+
 
       ],
     },

@@ -38,8 +38,8 @@ const cadastro = () => {
             migalha: [
                 { nome: 'Inicio', link: '/home' },
                 { nome: 'Prae', link: '/prae' },
-                { nome: "Tipos de Bolsas", link: "/prae/tipo-bolsa" },
-                { nome: isEditMode ? "Editar" : "Criar", link: `/prae/tipo-bolsa/${isEditMode ? id : "criar"}` },
+                { nome: "Tipos de Bolsas", link: "/prae/auxilio/tipo-bolsa" },
+                { nome: isEditMode ? "Editar" : "Criar", link: `/prae/auxilio/tipo-bolsa/${isEditMode ? id : "criar"}` },
             ],
         },
         cadastro: {
@@ -78,7 +78,7 @@ const cadastro = () => {
     };
 
     const voltarRegistro = () => {
-        router.push("/prae/tipos-de-bolsa");
+        router.push("/prae/auxilio/tipos-de-bolsa");
     };
 
     const salvarRegistro = async (item: any) => {

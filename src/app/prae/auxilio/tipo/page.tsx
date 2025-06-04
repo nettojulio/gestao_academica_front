@@ -6,6 +6,7 @@ import { generica } from '@/utils/api';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
+import ModalTipo from '@/components/Cadastro/modal';
 import Swal from 'sweetalert2';
 
 const estrutura: any = {
@@ -32,11 +33,11 @@ const estrutura: any = {
     ],
     colunas: [ //colunas da tabela
       { nome: "Tipo do Auxilio", chave: "tipo", tipo: "texto", selectOptions: null, sort: false, pesquisar: true }, //nome(string),chave(string),tipo(text,select),selectOpcoes([{chave:string, valor:string}]),pesquisar(booleano)
-      { nome: "Valor", chave: "valorAuxilio", tipo: "texto", selectOptions: null, sort: false, pesquisar: true }, //nome(string),chave(string),tipo(text,select),selectOpcoes([{chave:string, valor:string}]),pesquisar(booleano)
+      { nome: "Valor", chave: "valorAuxilio", tipo: "texto", selectOptions: null, sort: false, pesquisar: true, mascara: "valor", }, //nome(string),chave(string),tipo(text,select),selectOpcoes([{chave:string, valor:string}]),pesquisar(booleano)
       { nome: "ações", chave: "acoes", tipo: "button", selectOptions: null, sort: false, pesquisar: false },
     ],
     acoes_dropdown: [ //botão de acoes de cada registro
-      { nome: 'Editar', chave: 'editar' }, //nome(string),chave(string),bloqueado(booleano)
+      { nome: 'Editar', chave: 'editar' }, //nome(string),chave(string),bloq=ueado(booleano)
       { nome: 'Deletar', chave: 'deletar' },
     ]
   }
@@ -65,6 +66,7 @@ const PageLista = () => {
         break;
     }
   }
+
   // Função para carregar os dados
   const pesquisarRegistro = async (params = null) => {
     try {
@@ -172,6 +174,7 @@ const PageLista = () => {
           estrutura={estrutura}
           chamarFuncao={chamarFuncao}
         />
+        <ModalTipo />
       </div>
     </main>
 

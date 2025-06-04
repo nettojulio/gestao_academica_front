@@ -18,7 +18,7 @@ const estrutura: any = {
         migalha: [
             { nome: 'Inicio', link: '/home' },
             { nome: 'Prae', link: '/prae' },
-            { nome: 'Tipos de Bolsas', link: '/prae/tipos-de-bolsa' },
+            { nome: 'Tipos de Bolsas', link: '/prae/auxilio/tipos-de-bolsa' },
         ]
     },
 
@@ -91,7 +91,7 @@ const PageLista = () => {
     };
 
     const adicionarRegistro = () => {
-        router.push('/prae/tipos-de-bolsa/criar');
+        router.push('/prae/auxilio/tipos-de-bolsa/criar');
     };
     const editarRegistro = (item: any) => {
         router.push('/prae/tipos-de-bolsa/' + item.id);

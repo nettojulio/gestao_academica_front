@@ -35,12 +35,12 @@ const estrutura: any = {
       { nome: "CPF", chave: "aluno.cpf", tipo: "texto", selectOptions: null, sort: false, pesquisar: true }, //nome(string),chave(string),tipo(text,select),selectOpcoes([{chave:string, valor:string}]),pesquisar(booleano)
       { nome: "Email", chave: "aluno.email", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
       { nome: "Curso", chave: "aluno.curso.nome", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
-      { nome: "Auxílio", chave: "auxilios", tipo: "texto", selectOptions: null, sort: false, pesquisar: true }, 
+      { nome: "Auxílio", chave: "auxilios", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
       { nome: "Contato", chave: "aluno.telefone", tipo: "texto", selectOptions: null, sort: false, pesquisar: true }, //nome(string),chave(string),tipo(text,select),selectOpcoes([{chave:string, valor:string}]),pesquisar(booleano)
       { nome: "ações", chave: "acoes", tipo: "button", selectOptions: null, sort: false, pesquisar: false },
     ],
     acoes_dropdown: [ //botão de acoes de cada registro
-      { nome: 'Editar', chave: 'editar' }, //nome(string),chave(string),bloqueado(booleano)
+      { nome: 'Visualizar', chave: 'editar' }, //nome(string),chave(string),bloqueado(booleano)
       { nome: 'Deletar', chave: 'deletar' },
     ]
   }

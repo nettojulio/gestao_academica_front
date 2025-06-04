@@ -68,6 +68,7 @@ const cadastro = () => {
           chave: "valorAuxilio",
           tipo: "text",
           mensagem: "Digite",
+          mascara: "valor",
           obrigatorio: true,
         },
       ],
