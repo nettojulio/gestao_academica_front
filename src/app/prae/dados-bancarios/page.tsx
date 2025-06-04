@@ -32,8 +32,10 @@ const estrutura: any = {
     ],
     colunas: [ //colunas da tabela
       { nome: "Titular", chave: "nomeTitular", tipo: "texto", selectOptions: null, sort: false, pesquisar: true }, //nome(string),chave(string),tipo(text,select),selectOpcoes([{chave:string, valor:string}]),pesquisar(booleano)
-      { nome: "Conta Bancaria", chave: "conta", tipo: "texto", selectOptions: null, sort: false, pesquisar: true }, //nome(string),chave(string),tipo(text,select),selectOpcoes([{chave:string, valor:string}]),pesquisar(booleano)
-      { nome: "Agencia Bancaria", chave: "agencia", tipo: "texto", selectOptions: null, sort: false, pesquisar: true }, //nome(string),chave(string),tipo(text,select),selectOpcoes([{chave:string, valor:string}]),pesquisar(booleano)
+      { nome: "Banco", chave: "banco", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
+      { nome: "Tipo de Conta", chave: "tipoConta", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
+      { nome: "Conta Bancária", chave: "conta", tipo: "texto", selectOptions: null, sort: false, pesquisar: true }, //nome(string),chave(string),tipo(text,select),selectOpcoes([{chave:string, valor:string}]),pesquisar(booleano)
+      { nome: "Agencia Bancária", chave: "agencia", tipo: "texto", selectOptions: null, sort: false, pesquisar: true }, //nome(string),chave(string),tipo(text,select),selectOpcoes([{chave:string, valor:string}]),pesquisar(booleano)
       { nome: "ações", chave: "acoes", tipo: "button", selectOptions: null, sort: false, pesquisar: false },
     ],
     acoes_dropdown: [ //botão de acoes de cada registro
@@ -77,6 +79,7 @@ const PageLista = () => {
         data: {}
       }
       const response = await generica(body);
+      console.log(response?.data)
       //tratamento dos erros
       if (response && response.data.errors != undefined) {
         toast("Erro. Tente novamente!", { position: "bottom-left" });

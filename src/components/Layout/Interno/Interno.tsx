@@ -237,14 +237,12 @@ export default function Layout({ children, layoutConfig }: LayoutProps) {
             <div className="hidden sm:flex items-center">
               {isMenuOpen ? (
                 <div className="flex items-center">
-                  <MenuOpen fontSize="medium" className="text-primary-500" />
                   <span className="ml-2 text-body-small text-neutrals-900">
                     {config.header.title}
                   </span>
                 </div>
               ) : (
                 <div className="flex items-center">
-                  <MenuIcon fontSize="medium" className="text-primary-500" />
                   <span className="ml-2 text-body-small text-neutrals-900">
                     {config.header.title}
                   </span>

@@ -31,8 +31,8 @@ const estrutura: any = {
       { nome: 'Adicionar', chave: 'adicionar', bloqueado: false }, //nome(string),chave(string),bloqueado(booleano)
     ],
     colunas: [ //colunas da tabela
-      { nome: "Tipo Atendimento", chave: "nome", tipo: "texto", selectOptions: null, sort: false, pesquisar: true }, //nome(string),chave(string),tipo(text,select),selectOpcoes([{chave:string, valor:string}]),pesquisar(booleano)
-      { nome: "Tempo Atendimento", chave: "tempoAtendimento", tipo: "texto", selectOptions: null, sort: false, pesquisar: true }, //nome(string),chave(string),tipo(text,select),selectOpcoes([{chave:string, valor:string}]),pesquisar(booleano)
+      { nome: "Tipo de Atendimento", chave: "nome", tipo: "texto", selectOptions: null, sort: false, pesquisar: true }, //nome(string),chave(string),tipo(text,select),selectOpcoes([{chave:string, valor:string}]),pesquisar(booleano)
+      { nome: "Tempo de Atendimento", chave: "tempoAtendimento", tipo: "texto", selectOptions: null, sort: false, pesquisar: true }, //nome(string),chave(string),tipo(text,select),selectOpcoes([{chave:string, valor:string}]),pesquisar(booleano)
       { nome: "ações", chave: "acoes", tipo: "button", selectOptions: null, sort: false, pesquisar: false },
     ],
     acoes_dropdown: [ //botão de acoes de cada registro
@@ -91,12 +91,12 @@ const PageLista = () => {
     }
   };
   // Função que redireciona para a tela adicionar
- const adicionarRegistro = () => {
+  const adicionarRegistro = () => {
     router.push('/prae/agendamentos/tipo/criar');
   };
 
   // Função que redireciona para a tela editar
- const editarRegistro = (item: any) => {
+  const editarRegistro = (item: any) => {
     router.push('/prae/agendamentos/tipo/' + item.id);
   };
 

@@ -56,7 +56,7 @@ export default function PraeLayout({ children }: { children: React.ReactNode }) 
           roles: ["administrador", "gestor", "tecnico"],
         },
         {
-          label: "Tipo Etnia",
+          label: "Tipo de Etnia",
           route: "/prae/etnia",
           icon: <Diversity3 fontSize="small" className="text-white" />,
           roles: ["administrador", "gestor", "tecnico"],
@@ -80,7 +80,7 @@ export default function PraeLayout({ children }: { children: React.ReactNode }) 
           roles: ["administrador", "gestor"],
           subItems: [
             {
-              label: "Tipo Auxílio",
+              label: "Tipo de Auxílio",
               route: "/prae/auxilio/tipo",
               icon: <VolunteerActivism fontSize="small" className="text-white" />,
             },
@@ -104,7 +104,7 @@ export default function PraeLayout({ children }: { children: React.ReactNode }) 
           roles: ["administrador", "gestor", "tecnico"],
           subItems: [
             {
-              label: "Tipo Atendimento",
+              label: "Tipo de Atendimento",
               route: "/prae/agendamentos/tipo",
               icon: <Schedule fontSize="small" className="text-white" />,
             },
@@ -126,7 +126,7 @@ export default function PraeLayout({ children }: { children: React.ReactNode }) 
           icon: <CalendarMonth fontSize="small" className="text-white" />,
           roles: ["administrador", "aluno", "estudante"],
         },
-                {
+        {
           label: "Tipos de Bolsa",
           route: "/prae/tipos-de-bolsa",
           icon: <BusinessCenter fontSize="small" className="text-white" />,

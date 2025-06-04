@@ -13,51 +13,23 @@ const cadastro = () => {
   const router = useRouter();
   const { id } = useParams();
   // Inicializamos com um objeto contendo 'endereco' para evitar problemas
-   const [dadosPreenchidos, setDadosPreenchidos] = useState<any>({
-    solicitante: {
-      nome: '',
-      nomeSocial: '',
-      email: '',
-      cpf: '',
-      telefone: '',
-    },
-    perfil: {
-      fotoPerfil: null,
-      tipo: '',
-      matricula: '',
-      curso: { id: '', nome: '' },
-      cursos: [],      // para multi-select de professor
-      siape: '',
-
-    },
-    perfilSolicitado: '',    // ← adiciona aqui
-    // campos “soltos” que você usa quando não está em modo edit:
-    tipoUsuario: '',
-    matricula: '',
-    cursoId: '',
-    cursoIds: [],
-    siape: '',
-    documentos: [],
-  });
+  const [dadosPreenchidos, setDadosPreenchidos] = useState<any>({});
   const [unidadesGestoras, setUnidadesGestoras] = useState<any[]>([]);
   const [lastMunicipioQuery, setLastMunicipioQuery] = useState("");
-  const [nome, setNome] = useState<any[]>([]);
+  const [titular, setTitular] = useState<any[]>([]);
   const isEditMode = id && id !== "criar";
 
   const getOptions = (lista: any[], selecionado: any) => {
-    if (!Array.isArray(lista) || lista.length === 0) return [];
+    if (!Array.isArray(lista)) return [];
+
+    // Mapeia para { chave: id, valor: nome } → Select mostrará "valor" (nome)
     const options = lista.map((item) => ({
-      chave: item.id, // ID do item (numérico, por exemplo)
-      valor: item.nome || item.aluno.nome, // Texto exibido no <option>, // Texto exibido no <option>
+      chave: item.id,       // ID (valor salvo no formulário)
+      valor: item.nome || item.aluno.nome    // Nome (exibido no select)
     }));
-    if (isEditMode && selecionado) {
-      const selectedId = Number(selecionado); // Converte para número, se necessário
-      const selectedOption = options.find((opt) => opt.chave === selectedId);
-      if (selectedOption) {
-        // Coloca a opção selecionada na frente do array
-        return [selectedOption, ...options.filter((opt) => opt.chave !== selectedId)];
-      }
-    }
+
+    // Debug: Verifique as opções geradas
+    console.log("Opções do select (nome exibido):", options);
     return options;
   };
 
@@ -81,18 +53,19 @@ const cadastro = () => {
         {
           line: 1,
           colSpan: "md:col-span-1",
-          nome: "Titular",
-          chave: "idAluno", //consultar estudantes
+          nome: "Aluno",
+          chave: "id", //consultar estudantes
           tipo: "select",
-          selectOptions: isEditMode ? null : getOptions(nome, dadosPreenchidos[0]?.nome),
+          selectOptions: isEditMode ? null : getOptions(titular, dadosPreenchidos[0]?.titular),
           mensagem: "Digite",
           obrigatorio: true,
+          bloqueado: isEditMode ? true : null,
         },
         {
           line: 1,
           colSpan: "md:col-span-1",
-          nome: "Conta Bancaria",
-          chave: "contaBancaria",
+          nome: "Titular",
+          chave: "nomeTitular",
           tipo: "text",
           mensagem: "Digite",
           obrigatorio: true,
@@ -100,8 +73,35 @@ const cadastro = () => {
         {
           line: 1,
           colSpan: "md:col-span-1",
+          nome: "Banco",
+          chave: "banco",
+          tipo: "text",
+          mensagem: "Digite",
+          obrigatorio: true,
+        },
+        {
+          line: 1,
+          colSpan: "md:col-span-1",
+          nome: "Tipo de Conta",
+          chave: "tipoConta",
+          tipo: "text",
+          mensagem: "Digite",
+          obrigatorio: true,
+        },
+        {
+          line: 2,
+          colSpan: "md:col-span-1",
+          nome: "Conta Bancaria",
+          chave: "conta",
+          tipo: "text",
+          mensagem: "Digite",
+          obrigatorio: true,
+        },
+        {
+          line: 2,
+          colSpan: "md:col-span-1",
           nome: "Agencia Bancaria",
-          chave: "agenciaBancaria",
+          chave: "agencia",
           tipo: "text",
           mensagem: "Digite",
           obrigatorio: true,
@@ -144,16 +144,13 @@ const cadastro = () => {
         data: {}
       }
       const response = await generica(body);
-      console.log('Full response:', dadosPreenchidos); 
       //tratamento dos erros
       if (response && response.data.errors != undefined) {
         toast("Erro. Tente novamente!", { position: "bottom-left" });
       } else if (response && response.data.error != undefined) {
         toast(response.data.error.message, { position: "bottom-left" });
       } else {
-        if (response && response.data) {
-          setNome(response.data);
-        }
+        setTitular(response?.data);
       }
     } catch (error) {
       console.error('Erro ao carregar registros:', error);
@@ -165,17 +162,25 @@ const cadastro = () => {
     router.push("/prae/dados-bancarios");
   };
 
+  console.log(dadosPreenchidos)
+
+
   /**
    * Salva o registro via POST, transformando os dados para que os itens de endereço
    * fiquem agrupados em um objeto 'endereco'.
    */
   const salvarRegistro = async (item: any) => {
     try {
+      const modifiedItem = {
+        ...item,
+        titularId: item.titular,
+      }
+      console.log("aqui", item)
       const body = {
         metodo: `${isEditMode ? "patch" : "post"}`,
-        uri: "/prae/" + `${isEditMode ? estrutura.uri + "/" + item.id : estrutura.uri + "/registrar"}`,
+        uri: "/prae/" + `${isEditMode ? estrutura.uri + "/" + item.id : estrutura.uri + "/" + item.id}`,
         params: {},
-        data: item,
+        data: modifiedItem,
       };
       const response = await generica(body);
       if (!response || response.status < 200 || response.status >= 300) {
