@@ -5,6 +5,7 @@ import Tabela from '@/components/Tabela/Estrutura';
 import { generica } from '@/utils/api';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import aplicarMascara from '@/utils/mascaras';
 import { toast } from 'react-toastify';
 import Swal from 'sweetalert2';
 

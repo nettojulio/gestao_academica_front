@@ -8,6 +8,7 @@ import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import ModalTipo from '@/components/Cadastro/modal';
 import Swal from 'sweetalert2';
+import aplicarMascara from '@/utils/mascaras';
 
 const estrutura: any = {
 
@@ -32,8 +33,10 @@ const estrutura: any = {
       { nome: 'Adicionar', chave: 'adicionar', bloqueado: false }, //nome(string),chave(string),bloqueado(booleano)
     ],
     colunas: [ //colunas da tabela
-      { nome: "Tipo do Auxilio", chave: "tipo", tipo: "texto", selectOptions: null, sort: false, pesquisar: true }, //nome(string),chave(string),tipo(text,select),selectOpcoes([{chave:string, valor:string}]),pesquisar(booleano)
-      { nome: "Valor", chave: "valorAuxilio", tipo: "texto", selectOptions: null, sort: false, pesquisar: true, mascara: "valor", }, //nome(string),chave(string),tipo(text,select),selectOpcoes([{chave:string, valor:string}]),pesquisar(booleano)
+      { nome: "Tipo do Auxilio", chave: "tipo", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
+      //nome(string),chave(string),tipo(text,select),selectOpcoes([{chave:string, valor:string}]),pesquisar(booleano)
+      { nome: "Valor", chave: "valorAuxilio", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
+      //nome(string),chave(string),tipo(text,select),selectOpcoes([{chave:string, valor:string}]),pesquisar(booleano)
       { nome: "ações", chave: "acoes", tipo: "button", selectOptions: null, sort: false, pesquisar: false },
     ],
     acoes_dropdown: [ //botão de acoes de cada registro
@@ -68,30 +71,41 @@ const PageLista = () => {
   }
 
   // Função para carregar os dados
-  const pesquisarRegistro = async (params = null) => {
-    try {
-      let body = {
-        metodo: 'get',
-        uri: '/prae/' + estrutura.uri,
-        //+ '/page',
-        params: params != null ? params : { size: 25, page: 0 },
-        data: {}
-      }
-      const response = await generica(body);
-      //tratamento dos erros
-      if (response && response.data.errors != undefined) {
-        toast("Erro. Tente novamente!", { position: "bottom-left" });
-      } else if (response && response.data.error != undefined) {
-        toast(response.data.error.message, { position: "bottom-left" });
-      } else {
-        if (response && response.data) {
-          setDados(response.data);
+    const pesquisarRegistro = async (params = null) => {
+      try {
+        let body = {
+          metodo: 'get',
+          uri: '/prae/' + estrutura.uri,
+          params: params != null ? params : { size: 25, page: 0 },
+          data: {}
+        };
+        const response = await generica(body);
+
+        if (response?.data?.errors) {
+          toast("Erro. Tente novamente!", { position: "bottom-left" });
+        } else if (response?.data?.error) {
+          toast(response.data.error.message, { position: "bottom-left" });
+        } else {
+          if (response?.data) {
+            const content = response.data;
+
+            const dadosComMascara = Array.isArray(content)
+              ? content.map((item: any) => ({
+                ...item,
+                valorAuxilio: aplicarMascara(item.valorAuxilio?.toString() || '0', 'valor')
+              }))
+              : [];
+
+            setDados({ content: dadosComMascara, totalElements: dadosComMascara.length });
+          }
         }
+      } catch (error) {
+        console.error('Erro ao carregar registros:', error);
+        toast("Erro ao carregar registros!", { position: "bottom-left" });
       }
-    } catch (error) {
-      console.error('Erro ao carregar registros:', error);
-    }
-  };
+    };
+
+
   // Função que redireciona para a tela adicionar
   const adicionarRegistro = () => {
     router.push('/prae/auxilio/tipo/criar');
