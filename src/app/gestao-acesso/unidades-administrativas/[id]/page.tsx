@@ -89,7 +89,7 @@ const cadastro = () => {
         {
           line: 1,
           colSpan: "md:col-span-1",
-          nome: "Codigo",
+          nome: "Código",
           chave: "codigo",
           tipo: "text",
           mensagem: "Digite",

@@ -34,7 +34,7 @@ const estrutura: any = {
     colunas: [ //colunas da tabela
       //{nome:"Código",chave:"id",tipo:"texto",selectOptions:null,sort:true,pesquisar:true}, //nome(string),chave(string),tipo(text,select),selectOpcoes([{chave:string, valor:string}]),pesquisar(booleano)
       { nome: "Nome", chave: "nome", tipo: "texto", selectOptions: null, sort: false, pesquisar: true }, //nome(string),chave(string),tipo(text,select),selectOpcoes([{chave:string, valor:string}]),pesquisar(booleano)
-      { nome: "Codigo", chave: "codigo", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
+      { nome: "Código", chave: "codigo", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
       // {
       //   nome: "Status", chave: "ativo", tipo: "boolean", selectOptions: [
       //     { chave: true, valor: "Ativa" },
