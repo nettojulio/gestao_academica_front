@@ -103,7 +103,7 @@ const cadastro = () => {
         {
           line: 2,
           colSpan: "md:col-span-1",
-          nome: "Inicio da Bolsa",
+          nome: "Início da Bolsa",
           chave: "inicioBolsa",
           tipo: "date",
           mensagem: "Digite",

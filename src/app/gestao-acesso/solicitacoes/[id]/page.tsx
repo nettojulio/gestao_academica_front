@@ -74,7 +74,7 @@ const cadastro = () => {
     cabecalho: {
       titulo: isEditMode ? "Visualizar Solicitação" : "Solicitar Perfil",
       migalha: [
-        { nome: 'Inicio', link: '/home' },
+        { nome: 'Início', link: '/home' },
         { nome: 'Gestão Acesso', link: '/gestao-acesso' },
         { nome: "Solicitações", link: "/gestao-acesso/solicitacoes" },
         {

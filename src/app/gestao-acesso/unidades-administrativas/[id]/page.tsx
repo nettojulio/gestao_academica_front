@@ -43,7 +43,7 @@ const cadastro = () => {
     cabecalho: {
       titulo: isEditMode ? "Editar Unidade Administrativa" : "Cadastrar Unidade Administrativa",
       migalha: [
-        { nome: 'Inicio', link: '/home' },
+        { nome: 'Início', link: '/home' },
         { nome: 'Gestão de Acesso', link: '/gestao-acesso' },
         { nome: "Unidades Administrativas", link: "/gestao-acesso/unidades-administrativas" },
         {

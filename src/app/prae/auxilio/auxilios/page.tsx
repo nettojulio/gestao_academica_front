@@ -38,7 +38,7 @@ const estrutura: any = {
       { nome: "Banco", chave: "", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
       { nome: "Agência", chave: "tipodeconta", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
       { nome: "valor Bolsa", chave: "valorBolsa", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
-      { nome: "Inicio do Auxilio", chave: "tipodeconta", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
+      { nome: "Início do Auxilio", chave: "tipodeconta", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
       { nome: "Final do Auxilio", chave: "tipodeconta", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
       {
         nome: "Status", chave: "status", tipo: "texto",

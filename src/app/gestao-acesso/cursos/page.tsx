@@ -15,7 +15,7 @@ const estrutura: any = {
   cabecalho: { //cabecalho da pagina
     titulo: "Cursos",
     migalha: [
-      { nome: 'Inicio', link: '/home' },
+      { nome: 'Início', link: '/home' },
       { nome: 'Gestão Acesso', link: '/gestao-acesso' },
       { nome: 'Cursos', link: '/gestao-acesso/cursos' },
     ]

@@ -40,7 +40,7 @@ const cadastro = () => {
     cabecalho: {
       titulo: isEditMode ? "Editar Curso" : "Cadastrar Curso",
       migalha: [
-        { nome: 'Inicio', link: '/home' },
+        { nome: 'Início', link: '/home' },
         { nome: 'Gestão Acesso', link: '/gestao-acesso' },
         { nome: "Curso", link: "/gestao-acesso/cursos" },
         {
@@ -64,7 +64,7 @@ const cadastro = () => {
         {
           line: 1,
           colSpan: "md:col-span-1",
-          nome: "Número de Periodos",
+          nome: "Quantidade de Períodos",
           chave: "numeroPeriodos",
           tipo: "number",
           mensagem: "Digite",
