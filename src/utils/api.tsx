@@ -55,7 +55,7 @@ export const genericaApiAuth = async ({ metodo = '', uri = '', params = {}, data
 };
 
 
-export const generica = async ({ metodo = '', uri = '', params = {}, data = {} }: any) => {
+export const generica = async ({ metodo = '', uri = '', params = {}, data = {}}: any, contentType = "application/json") => {
     try {
         const url = `${BASE_URL}${uri}`;
         const accessToken = AuthTokenService.getAccessToken();
@@ -70,7 +70,7 @@ export const generica = async ({ metodo = '', uri = '', params = {}, data = {} }
             params: params,
             data: data,
             headers: {
-                "Content-Type": "application/json",
+                "Content-Type": contentType,
                 "Authorization": `Bearer ${accessToken}`,
             }
         });

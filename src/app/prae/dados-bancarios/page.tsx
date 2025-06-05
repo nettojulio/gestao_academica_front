@@ -6,6 +6,7 @@ import { generica } from '@/utils/api';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
+import aplicarMascara from '@/utils/mascaras';
 import Swal from 'sweetalert2';
 
 const estrutura: any = {
@@ -74,24 +75,32 @@ const PageLista = () => {
       let body = {
         metodo: 'get',
         uri: '/prae/' + estrutura.uri,
-        //+ '/page',
         params: params != null ? params : { size: 25, page: 0 },
         data: {}
-      }
+      };
       const response = await generica(body);
-      console.log(response?.data)
-      //tratamento dos erros
-      if (response && response.data.errors != undefined) {
+
+      if (response?.data?.errors) {
         toast("Erro. Tente novamente!", { position: "bottom-left" });
-      } else if (response && response.data.error != undefined) {
+      } else if (response?.data?.error) {
         toast(response.data.error.message, { position: "bottom-left" });
       } else {
-        if (response && response.data) {
-          setDados(response.data);
+        if (response?.data) {
+          const content = response.data;
+
+          const dadosComMascara = Array.isArray(content)
+            ? content.map((item: any) => ({
+              ...item,
+              conta: aplicarMascara(item.conta?.toString() || '0', 'valor')
+            }))
+            : [];
+
+          setDados({ content: dadosComMascara, totalElements: dadosComMascara.length });
         }
       }
     } catch (error) {
       console.error('Erro ao carregar registros:', error);
+      toast("Erro ao carregar registros!", { position: "bottom-left" });
     }
   };
   // Função que redireciona para a tela adicionar
