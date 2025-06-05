@@ -14,11 +14,11 @@ const estrutura: any = {
   uri: "tipo-auxilio", //caminho base
 
   cabecalho: { //cabecalho da pagina
-    titulo: "Tipo Auxilio",
+    titulo: "Tipo Auxílio",
     migalha: [
       { nome: 'Home', link: '/home' },
       { nome: 'PRAE', link: '/prae' },
-      { nome: 'Tipo Auxilio', link: '/prae/auxilios/tipo' },
+      { nome: 'Tipo Auxílio', link: '/prae/auxilios/tipo' },
     ]
   },
 
@@ -32,7 +32,7 @@ const estrutura: any = {
       { nome: 'Adicionar', chave: 'adicionar', bloqueado: false }, //nome(string),chave(string),bloqueado(booleano)
     ],
     colunas: [ //colunas da tabela
-      { nome: "Tipo do Auxilio", chave: "tipo", tipo: "texto", selectOptions: null, sort: false, pesquisar: true }, //nome(string),chave(string),tipo(text,select),selectOpcoes([{chave:string, valor:string}]),pesquisar(booleano)
+      { nome: "Tipo do Auxílio", chave: "tipo", tipo: "texto", selectOptions: null, sort: false, pesquisar: true }, //nome(string),chave(string),tipo(text,select),selectOpcoes([{chave:string, valor:string}]),pesquisar(booleano)
       { nome: "Valor", chave: "valorAuxilio", tipo: "texto", selectOptions: null, sort: false, pesquisar: true, mascara: "valor", }, //nome(string),chave(string),tipo(text,select),selectOpcoes([{chave:string, valor:string}]),pesquisar(booleano)
       { nome: "ações", chave: "acoes", tipo: "button", selectOptions: null, sort: false, pesquisar: false },
     ],
@@ -103,7 +103,7 @@ const PageLista = () => {
   // Função que deleta um registro
   const deletarRegistro = async (item: any) => {
     const confirmacao = await Swal.fire({
-      title: `Você deseja deletar o tipo do auxilio ${item.tipo}?`,
+      title: `Você deseja deletar o tipo do auxílio ${item.tipo}?`,
       text: "Essa ação não poderá ser desfeita",
       icon: "warning",
       showCancelButton: true,
@@ -142,7 +142,7 @@ const PageLista = () => {
         } else {
           pesquisarRegistro();
           Swal.fire({
-            title: "Tipo de auxilio deletado com sucesso!",
+            title: "Tipo de auxílio deletado com sucesso!",
             icon: "success"
           });
         }

@@ -65,7 +65,7 @@ const cadastro = () => {
       colunas: [
         { nome: "CPF", chave: "cpf", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
         { nome: "Nome", chave: "nome", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
-        { nome: "Email", chave: "email", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
+        { nome: "E-mail", chave: "email", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
         { nome: "Siape", chave: "siape", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
         { nome: "Telefone", chave: "telefone", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
       ],

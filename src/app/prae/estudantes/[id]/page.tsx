@@ -84,7 +84,7 @@ const cadastro = () => {
         {
           line: 2,
           colSpan: "md:col-span-1",
-          nome: "Email",
+          nome: "E-mail",
           chave: "email",
           tipo: "text",
           mensagem: "Digite",
@@ -176,7 +176,7 @@ const cadastro = () => {
         {
           line: 4,
           colSpan: "md:col-span-1",
-          nome: "Renda Percapta",
+          nome: "Renda Per Capta",
           chave: isEditMode ? "rendaPercapta" : "rendaPercapta",
           tipo: "text",
           mensagem: "Digite a renda percápita",

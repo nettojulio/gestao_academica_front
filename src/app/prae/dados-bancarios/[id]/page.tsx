@@ -91,7 +91,7 @@ const cadastro = () => {
         {
           line: 2,
           colSpan: "md:col-span-1",
-          nome: "Conta Bancaria",
+          nome: "Conta Bancária",
           chave: "conta",
           tipo: "text",
           mensagem: "Digite",
@@ -100,7 +100,7 @@ const cadastro = () => {
         {
           line: 2,
           colSpan: "md:col-span-1",
-          nome: "Agencia Bancaria",
+          nome: "Agencia Bancária",
           chave: "agencia",
           tipo: "text",
           mensagem: "Digite",

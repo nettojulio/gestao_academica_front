@@ -166,7 +166,7 @@ export default function Login() {
             </>
           ) : (
             <>
-              <h2 className="text-2xl font-bold text-center text-primary-500 mb-4">Selecione um email para login</h2>
+              <h2 className="text-2xl font-bold text-center text-primary-500 mb-4">Selecione um e-mail para login</h2>
               {savedEmails.length > 0 ? (
                 <ul className="bg-white border border-gray-300 rounded-lg mt-2">
                   {savedEmails.map((email) => (
@@ -181,7 +181,7 @@ export default function Login() {
                   ))}
                 </ul>
               ) : (
-                <p className="text-gray-500">Nenhum email salvo encontrado.</p>
+                <p className="text-gray-500">Nenhum e-mail salvo encontrado.</p>
               )}
               <button
                 onClick={handleOtherLogin}

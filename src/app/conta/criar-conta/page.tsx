@@ -127,7 +127,7 @@ export default function PageRegister() {
             return;
         }
         if (formData.email !== formData.repetirEmail) {
-            setErrorMessageEmail("O email e a confirmação não correspondem");
+            setErrorMessageEmail("O e-mail e a confirmação não correspondem");
             return;
         }
         if (!mostrarSenha && formData.senha !== formData.repetirSenha) {

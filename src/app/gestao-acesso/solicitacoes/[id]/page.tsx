@@ -140,7 +140,7 @@ const cadastro = () => {
         {
           line: 3,
           colSpan: "md:col-span-1",
-          nome: "Email",
+          nome: "E-mail",
           chave: "solicitante.email",
           tipo: "text",
           mensagem: "Digite",

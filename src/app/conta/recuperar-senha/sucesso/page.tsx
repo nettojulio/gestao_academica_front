@@ -12,7 +12,7 @@ export default function PageRegister() {
                 </h1>
                 <div className="container">
                     <p>Um token de recuperação foi gerado e enviado para o email informado.</p><br/>
-                    <p>Por favor, verifique a caixa de entrada do email e utilize o link fornecido para cadastrar uma nova senha.</p>
+                    <p>Por favor, verifique a caixa de entrada do e-mail e utilize o link fornecido para cadastrar uma nova senha.</p>
                 </div>
                 <div className="container">
                     <Link href="/home" className="custom-text-color text-sm">Ir para Entrar</Link><br/>
