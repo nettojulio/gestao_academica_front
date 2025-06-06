@@ -223,13 +223,10 @@ export default function PageRegister() {
                             {errorMessageEmail && <p className="text-red-500 text-sm mt-2">{errorMessageEmail}</p>}
 
                         </div>
-
-                        {formData.email && (
                             <div>
                                 <label htmlFor="repetirEmail" className="block mb-2 text-sm font-medium text-gray-900">Repetir E-mail <span className="text-red-500">*</span></label>
                                 <input type="email" name="repetirEmail" id="repetirEmail" value={formData.repetirEmail} onChange={handleChange} className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5" required />
                             </div>
-                        )}
                         <div className="relative">
                             <label htmlFor="senha" className="block mb-2 text-sm font-medium text-gray-900">Senha <span className="text-red-500">*</span></label>
                             <input type={mostrarSenha ? "text" : "password"} name="senha" id="senha" value={formData.senha} onChange={handleChange} className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5" required />
