@@ -84,6 +84,11 @@ export default function PageRegister() {
         }
     };
 
+    function validarTelefone(telefone: string) {
+        const apenasNumeros = telefone.replace(/\D/g, '');
+        return apenasNumeros.length === 11;
+    }
+
     const validarCPF = (cpf: string) => {
         cpf = cpf.replace(/\D/g, ''); // Remove caracteres não numéricos
         if (cpf.length !== 11 || /^(\d)\1+$/.test(cpf)) return false;
@@ -114,6 +119,11 @@ export default function PageRegister() {
 
         if (!validarCPF(formData.cpf)) {
             toast.error("CPF inválido!", { position: "top-right" });
+            return;
+        }
+
+        if (!validarTelefone(formData.telefone)) {
+            toast.error("Telefone inválido!", { position: "top-right" });
             return;
         }
 
@@ -223,10 +233,10 @@ export default function PageRegister() {
                             {errorMessageEmail && <p className="text-red-500 text-sm mt-2">{errorMessageEmail}</p>}
 
                         </div>
-                            <div>
-                                <label htmlFor="repetirEmail" className="block mb-2 text-sm font-medium text-gray-900">Repetir E-mail <span className="text-red-500">*</span></label>
-                                <input type="email" name="repetirEmail" id="repetirEmail" value={formData.repetirEmail} onChange={handleChange} className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5" required />
-                            </div>
+                        <div>
+                            <label htmlFor="repetirEmail" className="block mb-2 text-sm font-medium text-gray-900">Repetir E-mail <span className="text-red-500">*</span></label>
+                            <input type="email" name="repetirEmail" id="repetirEmail" value={formData.repetirEmail} onChange={handleChange} className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5" required />
+                        </div>
                         <div className="relative">
                             <label htmlFor="senha" className="block mb-2 text-sm font-medium text-gray-900">Senha <span className="text-red-500">*</span></label>
                             <input type={mostrarSenha ? "text" : "password"} name="senha" id="senha" value={formData.senha} onChange={handleChange} className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5" required />
@@ -245,19 +255,19 @@ export default function PageRegister() {
                     <div className="mt-4">
                         <h3 className="text-lg font-bold mb-2 custom-text-color">Termos de Uso e Privacidade</h3>
                         <div className="h-[40em] overflow-y-scroll border bg-gray-50 rounded-lg">
-                        <TermosDeUso />
+                            <TermosDeUso />
                         </div>
                         <div className="flex items-center mt-2">
-                        <div className="flex items-center mt-1">
-                            <input type="checkbox" name="termosUso" id="termosUso" checked={formData.termosUso} onChange={handleChange} className="mr-2" />
-                            <label htmlFor="termosUso" className="text-sm font-medium text-gray-900">Declaro que li e aceito os Termos de Uso</label>
-                        </div>
+                            <div className="flex items-center mt-1">
+                                <input type="checkbox" name="termosUso" id="termosUso" checked={formData.termosUso} onChange={handleChange} className="mr-2" />
+                                <label htmlFor="termosUso" className="text-sm font-medium text-gray-900">Declaro que li e aceito os Termos de Uso</label>
+                            </div>
                         </div>
                     </div>
                     <div className="mx-auto  pt:mt-0">
                         {/* <Link href="/conta/criar-conta/termos-de-uso" className="custom-text-color underline text-sm">Termos de Uso</Link> */}
-                        <Link href="/conta/criar-conta/termos-de-uso" target="_blank"  rel="noopener noreferrer" className="custom-text-color underline text-sm">
-                        Os termos estão disponíveis acima, mas você pode acessá-los também clicando aqui.
+                        <Link href="/conta/criar-conta/termos-de-uso" target="_blank" rel="noopener noreferrer" className="custom-text-color underline text-sm">
+                            Os termos estão disponíveis acima, mas você pode acessá-los também clicando aqui.
                         </Link>
 
                     </div>
