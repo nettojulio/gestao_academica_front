@@ -40,7 +40,7 @@ const cadastro = () => {
     cabecalho: {
       titulo: isEditMode ? "Editar Curso" : "Cadastrar Curso",
       migalha: [
-        { nome: 'Inicio', link: '/home' },
+        { nome: 'Início', link: '/home' },
         { nome: 'Gestão Acesso', link: '/gestao-acesso' },
         { nome: "Curso", link: "/gestao-acesso/cursos" },
         {
@@ -64,11 +64,12 @@ const cadastro = () => {
         {
           line: 1,
           colSpan: "md:col-span-1",
-          nome: "Número de Periodos",
+          nome: "Quantidade de Períodos",
           chave: "numeroPeriodos",
           tipo: "number",
           mensagem: "Digite",
           obrigatorio: true,
+          min: 0,
         },
       ],
       acoes: [
@@ -107,6 +108,10 @@ const cadastro = () => {
    * fiquem agrupados em um objeto 'endereco'.
    */
   const salvarRegistro = async (item: any) => {
+    if (typeof item.numeroPeriodos !== "number" || item.numeroPeriodos <= 0) {
+      toast.error("A quantidade de períodos deve ser um número positivo!", { position: "top-left" });
+      return;
+    }
     try {
       const body = {
         metodo: `${isEditMode ? "patch" : "post"}`,

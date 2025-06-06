@@ -38,11 +38,11 @@ const cadastro = () => {
   const estrutura: any = {
     uri: "tipo-auxilio",
     cabecalho: {
-      titulo: isEditMode ? "Editar Tipo de Auxilio" : "Cadastrar Tipo de Auxilio",
+      titulo: isEditMode ? "Editar Tipo de Auxílio" : "Cadastrar Tipo de Auxílio",
       migalha: [
         { nome: 'Home', link: '/home' },
         { nome: 'PRAE', link: '/prae' },
-        { nome: 'Tipo Auxilio', link: '/prae/auxilios/tipo' },
+        { nome: 'Tipo Auxílio', link: '/prae/auxilios/tipo' },
         {
           nome: isEditMode ? "Editar" : "Criar",
           link: `/prae/auxilios/tipo/${isEditMode ? id : "criar"}`,
@@ -55,7 +55,7 @@ const cadastro = () => {
         {
           line: 1,
           colSpan: "md:col-span-1",
-          nome: "Tipo do Auxilio",
+          nome: "Tipo do Auxílio",
           chave: "tipo",
           tipo: "text",
           mensagem: "Digite",
@@ -64,7 +64,7 @@ const cadastro = () => {
         {
           line: 1,
           colSpan: "md:col-span-1",
-          nome: "Valor do Auxilio",
+          nome: "Valor do Auxílio",
           chave: "valorAuxilio",
           tipo: "text",
           mensagem: "Digite",
@@ -133,7 +133,7 @@ const cadastro = () => {
         toast(response.data.error.message, { position: "top-left" });
       } else {
         Swal.fire({
-          title: "Tipo de auxilio registrado com sucesso!",
+          title: "Tipo de auxílio registrado com sucesso!",
           icon: "success",
         }).then((result) => {
           if (result.isConfirmed) {

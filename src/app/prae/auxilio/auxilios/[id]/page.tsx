@@ -38,11 +38,11 @@ const cadastro = () => {
   const estrutura: any = {
     uri: "auxilio",
     cabecalho: {
-      titulo: isEditMode ? "Editar Auxilio" : "Registrar Auxilio",
+      titulo: isEditMode ? "Editar Auxílio" : "Registrar Auxílio",
       migalha: [
         { nome: 'Home', link: '/home' },
         { nome: 'Prae', link: '/prae' },
-        { nome: 'Auxilios', link: '/prae/auxilio/auxilios' },
+        { nome: 'Auxílios', link: '/prae/auxilio/auxilios' },
         {
           nome: isEditMode ? "Editar" : "Criar",
           link: `/prae/auxilio/auxilios/${isEditMode ? id : "criar"}`,
@@ -65,7 +65,7 @@ const cadastro = () => {
         {
           line: 1,
           colSpan: "md:col-span-1",
-          nome: "Tipo do Auxilio",
+          nome: "Tipo do Auxílio",
           chave: "tipoAuxilioId",
           tipo: "select",
           selectOptions: getOptions(tipoAuxilio, dadosPreenchidos?.tipo),
@@ -103,7 +103,7 @@ const cadastro = () => {
         {
           line: 2,
           colSpan: "md:col-span-1",
-          nome: "Inicio da Bolsa",
+          nome: "Início da Bolsa",
           chave: "inicioBolsa",
           tipo: "date",
           mensagem: "Digite",
@@ -121,7 +121,7 @@ const cadastro = () => {
         {
           line: 3,
           colSpan: "md:col-span-1",
-          nome: "Parecer de termino",
+          nome: "Parecer de término",
           chave: "parecerTermino",
           tipo: "text",
           mensagem: "Digite",

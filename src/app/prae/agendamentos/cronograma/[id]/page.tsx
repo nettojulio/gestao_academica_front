@@ -2,39 +2,20 @@
 import withAuthorization from "@/components/AuthProvider/withAuthorization";
 import Cadastro from "@/components/Cadastro/Estrutura";
 import Cabecalho from "@/components/Layout/Interno/Cabecalho";
+import Calendar from "@/components/CalendarioCronograma/calendar";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import Swal from "sweetalert2";
-import { useEnderecoByCep } from "@/utils/brasilianStates";
 import { generica } from "@/utils/api";
 
 const cadastro = () => {
   const router = useRouter();
   const { id } = useParams();
-  // Inicializamos com um objeto contendo 'endereco' para evitar problemas
   const [dadosPreenchidos, setDadosPreenchidos] = useState<any>({ endereco: {} });
-  const [unidadesGestoras, setUnidadesGestoras] = useState<any[]>([]);
-  const [lastMunicipioQuery, setLastMunicipioQuery] = useState("");
   const [tiposAtendimento, setTiposAtendimento] = useState<any[]>([]);
+  const [selectedDates, setSelectedDates] = useState<string[]>([]);
   const isEditMode = id && id !== "criar";
-
-  const getOptions = (lista: any[], selecionado: any) => {
-    if (!Array.isArray(lista) || lista.length === 0) return [];
-    const options = lista.map((item) => ({
-      chave: item.id, // ID do item (numérico, por exemplo)
-      valor: item.nome, // Texto exibido no <option>
-    }));
-    if (isEditMode && selecionado) {
-      const selectedId = Number(selecionado); // Converte para número, se necessário
-      const selectedOption = options.find((opt) => opt.chave === selectedId);
-      if (selectedOption) {
-        // Coloca a opção selecionada na frente do array
-        return [selectedOption, ...options.filter((opt) => opt.chave !== selectedId)];
-      }
-    }
-    return options;
-  };
 
   const fetchTiposAtendimento = async () => {
     try {
@@ -80,26 +61,7 @@ const cadastro = () => {
     },
     cadastro: {
       campos: [
-        // Linha 1
-        {
-          line: 1,
-          colSpan: "md:col-span-1",
-          nome: "Tipo de Atendimento",
-          chave: "tipoAtendimentoId",
-          tipo: "select",
-          mensagem: "Selecione o tipo de atendimento",
-          obrigatorio: true,
-          selectOptions: tiposAtendimento,
-        },
-        {
-          line: 1,
-          colSpan: "md:col-span-1",
-          nome: "Dias do Atendimento",
-          chave: "datas",
-          tipo: "date-multiple",
-          mensagem: "Selecione as datas",
-          obrigatorio: true,
-        },
+        // Removido o campo "Tipo de Atendimento" daqui!
       ],
       acoes: [
         { nome: "Cancelar", chave: "voltar", tipo: "botao" },
@@ -108,10 +70,6 @@ const cadastro = () => {
     },
   };
 
-
-  /**
-   * Chama funções de acordo com o botão clicado
-   */
   const chamarFuncao = async (nomeFuncao = "", valor: any = null) => {
     switch (nomeFuncao) {
       case "salvar":
@@ -132,29 +90,17 @@ const cadastro = () => {
     router.push("/prae/agendamentos/cronograma");
   };
 
-  /**
-   * Salva o registro via POST, transformando os dados para que os itens de endereço
-   * fiquem agrupados em um objeto 'endereco'.
-   */
   const salvarRegistro = async (item: any) => {
-    // Suporte para múltiplas datas
+    // Usa as datas selecionadas do calendário
     let datasFormatadas: string[] = [];
-    if (Array.isArray(item.datas)) {
-      datasFormatadas = item.datas.map((data: string) => {
-        const [ano, mes, dia] = data.split('-');
-        return `${dia}/${mes}/${ano}`;
-      });
-    } else if (typeof item.datas === "string") {
-      const [ano, mes, dia] = item.datas.split('-');
-      datasFormatadas = [`${dia}/${mes}/${ano}`];
+    if (Array.isArray(selectedDates)) {
+      datasFormatadas = selectedDates;
     }
 
     const dadosFormatados = {
       datas: datasFormatadas,
-      tipoAtendimentoId: Number(item.tipoAtendimentoId),
+      tipoAtendimentoId: Number(dadosPreenchidos.tipoAtendimentoId),
     };
-
-    console.log("DEBUG: Dados enviados formatados:", dadosFormatados);
 
     try {
       const body = {
@@ -204,9 +150,6 @@ const cadastro = () => {
     }
   };
 
-  /**
-   * Localiza o registro para edição e preenche os dados
-   */
   const editarRegistro = async (item: any) => {
     try {
       const body = {
@@ -232,6 +175,9 @@ const cadastro = () => {
           dados.tipoAtendimentoId = dados.tipoAtendimento.id;
         }
         setDadosPreenchidos(dados);
+        if (Array.isArray(dados.datas)) {
+          setSelectedDates(dados.datas);
+        }
       }
     } catch (error) {
       console.error("DEBUG: Erro ao localizar registro:", error);
@@ -239,7 +185,6 @@ const cadastro = () => {
     }
   };
 
-  // Efeito exclusivo para o modo de edição
   useEffect(() => {
     if (id && id !== "criar") {
       chamarFuncao("editar", id);
@@ -250,6 +195,41 @@ const cadastro = () => {
     <main className="flex flex-wrap justify-center mx-auto">
       <div className="w-full md:w-11/12 lg:w-10/12 2xl:w-3/4 max-w-6xl p-4 pt-10 md:pt-12 md:pb-12">
         <Cabecalho dados={estrutura.cabecalho} />
+
+        {/* Tipo de Atendimento acima do calendário */}
+        <div className="mb-6">
+          <label className="block font-bold mb-2 text-primary-500">Tipo de Atendimento</label>
+          <select
+            className="w-full border rounded p-2"
+            value={dadosPreenchidos.tipoAtendimentoId || ""}
+            onChange={e =>
+              setDadosPreenchidos((prev: any) => ({
+                ...prev,
+                tipoAtendimentoId: e.target.value,
+              }))
+            }
+          >
+            <option value="">Selecione...</option>
+            {tiposAtendimento.map((tipo: any) => (
+              <option key={tipo.chave} value={tipo.chave}>
+                {tipo.valor}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="mb-6">
+          <label className="block font-bold mb-2 text-primary-500">Dias do Atendimento</label>
+          <Calendar
+            onChange={dias => {
+              setSelectedDates(dias);
+              setDadosPreenchidos((prev: any) => ({
+                ...prev,
+                datas: dias,
+              }));
+            }}
+          />
+        </div>
         <Cadastro
           estrutura={estrutura}
           dadosPreenchidos={dadosPreenchidos}
@@ -261,4 +241,4 @@ const cadastro = () => {
   );
 };
 
-export default withAuthorization(cadastro);
+export default withAuthorization(cadastro); 

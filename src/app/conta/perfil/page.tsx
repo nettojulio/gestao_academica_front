@@ -88,7 +88,7 @@ const PagePerfil = () => {
         {
           line: 3,
           colSpan: "md:col-span-1",
-          nome: "Email",
+          nome: "E-mail",
           chave: "email",
           tipo: "text",
           bloqueado: true

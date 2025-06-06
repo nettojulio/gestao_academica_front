@@ -84,6 +84,11 @@ export default function PageRegister() {
         }
     };
 
+    function validarTelefone(telefone: string) {
+        const apenasNumeros = telefone.replace(/\D/g, '');
+        return apenasNumeros.length === 11;
+    }
+
     const validarCPF = (cpf: string) => {
         cpf = cpf.replace(/\D/g, ''); // Remove caracteres não numéricos
         if (cpf.length !== 11 || /^(\d)\1+$/.test(cpf)) return false;
@@ -117,6 +122,11 @@ export default function PageRegister() {
             return;
         }
 
+        if (!validarTelefone(formData.telefone)) {
+            toast.error("Telefone inválido!", { position: "top-right" });
+            return;
+        }
+
         if (formData.senha.length < 8) {
             toast.error("A senha deve ter pelo menos 8 caracteres!", { position: "top-right" });
             return;
@@ -127,7 +137,7 @@ export default function PageRegister() {
             return;
         }
         if (formData.email !== formData.repetirEmail) {
-            setErrorMessageEmail("O email e a confirmação não correspondem");
+            setErrorMessageEmail("O e-mail e a confirmação não correspondem");
             return;
         }
         if (!mostrarSenha && formData.senha !== formData.repetirSenha) {
@@ -202,36 +212,33 @@ export default function PageRegister() {
                 <form onSubmit={handleSubmit} className=" mt-2 space-y-2" style={{ marginTop: '9px' }}>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         <div>
-                            <label htmlFor="nome" className="block mb-2 text-sm font-medium text-gray-900">Nome</label>
+                            <label htmlFor="nome" className="block mb-2 text-sm font-medium text-gray-900">Nome <span className="text-red-500">*</span></label>
                             <input type="text" name="nome" id="nome" value={formData.nome} onChange={handleChange} className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5" required />
                         </div>
                         <div>
                             <label htmlFor="nomeSocial" className="block mb-2 text-sm font-medium text-gray-900">Nome Social</label>
-                            <input type="text" name="nomeSocial" id="nomeSocial" value={formData.nomeSocial} onChange={handleChange} className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5" required />
+                            <input type="text" name="nomeSocial" id="nomeSocial" value={formData.nomeSocial} onChange={handleChange} className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5" />
                         </div>
                         <div>
-                            <label htmlFor="cpf" className="block mb-2 text-sm font-medium text-gray-900">CPF</label>
+                            <label htmlFor="cpf" className="block mb-2 text-sm font-medium text-gray-900">CPF <span className="text-red-500">*</span></label>
                             <input type="text" name="cpf" id="cpf" value={formData.cpf} onChange={handleMask} maxLength={14} className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5" required />
                         </div>
                         <div>
-                            <label htmlFor="telefone" className="block mb-2 text-sm font-medium text-gray-900">Telefone</label>
+                            <label htmlFor="telefone" className="block mb-2 text-sm font-medium text-gray-900">Telefone <span className="text-red-500">*</span></label>
                             <input type="text" name="telefone" id="telefone" value={formData.telefone} onChange={handleMask} className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5" placeholder="(00) 00000-0000" maxLength={15} required />
                         </div>
                         <div className="relative">
-                            <label htmlFor="email" className="block mb-2 text-sm font-medium text-gray-900">E-mail</label>
+                            <label htmlFor="email" className="block mb-2 text-sm font-medium text-gray-900">E-mail <span className="text-red-500">*</span></label>
                             <input type="email" name="email" id="email" placeholder="email@ufape.edu.br" value={formData.email} onChange={handleChange} className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5" required />
                             {errorMessageEmail && <p className="text-red-500 text-sm mt-2">{errorMessageEmail}</p>}
 
                         </div>
-
-                        {formData.email && (
-                            <div>
-                                <label htmlFor="repetirEmail" className="block mb-2 text-sm font-medium text-gray-900">Repetir E-mail</label>
-                                <input type="email" name="repetirEmail" id="repetirEmail" value={formData.repetirEmail} onChange={handleChange} className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5" required />
-                            </div>
-                        )}
+                        <div>
+                            <label htmlFor="repetirEmail" className="block mb-2 text-sm font-medium text-gray-900">Repetir E-mail <span className="text-red-500">*</span></label>
+                            <input type="email" name="repetirEmail" id="repetirEmail" value={formData.repetirEmail} onChange={handleChange} className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5" required />
+                        </div>
                         <div className="relative">
-                            <label htmlFor="senha" className="block mb-2 text-sm font-medium text-gray-900">Senha</label>
+                            <label htmlFor="senha" className="block mb-2 text-sm font-medium text-gray-900">Senha <span className="text-red-500">*</span></label>
                             <input type={mostrarSenha ? "text" : "password"} name="senha" id="senha" value={formData.senha} onChange={handleChange} className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5" required />
                             <button type="button" className="absolute right-2 top-9 text-sm text-gray-700" onClick={() => setMostrarSenha(!mostrarSenha)}>
                                 {mostrarSenha ? 'ocultar' : 'Exibir'}
@@ -240,7 +247,7 @@ export default function PageRegister() {
                         </div>
                         {!mostrarSenha && (
                             <div>
-                                <label htmlFor="repetirSenha" className="block mb-2 text-sm font-medium text-gray-900">Repetir senha</label>
+                                <label htmlFor="repetirSenha" className="block mb-2 text-sm font-medium text-gray-900">Repetir senha <span className="text-red-500">*</span></label>
                                 <input type="password" name="repetirSenha" id="repetirSenha" value={formData.repetirSenha} onChange={handleChange} className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5" required />
                             </div>
                         )}
@@ -248,19 +255,19 @@ export default function PageRegister() {
                     <div className="mt-4">
                         <h3 className="text-lg font-bold mb-2 custom-text-color">Termos de Uso e Privacidade</h3>
                         <div className="h-[40em] overflow-y-scroll border bg-gray-50 rounded-lg">
-                        <TermosDeUso />
+                            <TermosDeUso />
                         </div>
                         <div className="flex items-center mt-2">
-                        <div className="flex items-center mt-1">
-                            <input type="checkbox" name="termosUso" id="termosUso" checked={formData.termosUso} onChange={handleChange} className="mr-2" />
-                            <label htmlFor="termosUso" className="text-sm font-medium text-gray-900">Declaro que li e aceito os Termos de Uso</label>
-                        </div>
+                            <div className="flex items-center mt-1">
+                                <input type="checkbox" name="termosUso" id="termosUso" checked={formData.termosUso} onChange={handleChange} className="mr-2" />
+                                <label htmlFor="termosUso" className="text-sm font-medium text-gray-900">Declaro que li e aceito os Termos de Uso</label>
+                            </div>
                         </div>
                     </div>
                     <div className="mx-auto  pt:mt-0">
                         {/* <Link href="/conta/criar-conta/termos-de-uso" className="custom-text-color underline text-sm">Termos de Uso</Link> */}
-                        <Link href="/conta/criar-conta/termos-de-uso" target="_blank"  rel="noopener noreferrer" className="custom-text-color underline text-sm">
-                        Os termos estão disponíveis acima, mas você pode acessá-los também clicando aqui.
+                        <Link href="/conta/criar-conta/termos-de-uso" target="_blank" rel="noopener noreferrer" className="custom-text-color underline text-sm">
+                            Os termos estão disponíveis acima, mas você pode acessá-los também clicando aqui.
                         </Link>
 
                     </div>

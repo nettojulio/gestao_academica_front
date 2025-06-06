@@ -32,14 +32,14 @@ const estrutura: any = {
     ],
     colunas: [ //colunas da tabela
       { nome: "Tipo Auxílio", chave: "tipoAuxilio.tipo", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
-      { nome: "valor Auxílio", chave: "tipoAuxilio.valorAuxilio", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
+      { nome: "Valor Auxílio", chave: "tipoAuxilio.valorAuxilio", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
       { nome: "Tipo Bolsa", chave: "tipoBolsa.descricao", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
       { nome: "Tipo de Conta", chave: "estudantes[0].dadosBancarios.tipoConta", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
       { nome: "Banco", chave: "", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
       { nome: "Agência", chave: "tipodeconta", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
       { nome: "valor Bolsa", chave: "valorBolsa", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
-      { nome: "Inicio do Auxilio", chave: "tipodeconta", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
-      { nome: "Final do Auxilio", chave: "tipodeconta", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
+      { nome: "Início do Auxílio", chave: "tipodeconta", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
+      { nome: "Final do Auxílio", chave: "tipodeconta", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
       {
         nome: "Status", chave: "status", tipo: "texto",
         selectOptions: [
@@ -154,7 +154,7 @@ const PageLista = () => {
         } else {
           pesquisarRegistro();
           Swal.fire({
-            title: "Auxilio registrado com sucesso!",
+            title: "Auxílio registrado com sucesso!",
             icon: "success"
           });
         }
