@@ -13,7 +13,7 @@ const cadastro = () => {
   const router = useRouter();
   const { id } = useParams();
 
-  
+
   // Inicializamos com um objeto contendo 'endereco' para evitar problemas
   const [dadosPreenchidos, setDadosPreenchidos] = useState<any>();
   const [dadosTabela, setDadosTabela] = useState<any>({});
@@ -59,8 +59,8 @@ const cadastro = () => {
         rodape: true,
       },
       botoes: [ //links
-      { nome: 'Adicionar', chave: 'adicionar', bloqueado: false }, //nome(string),chave(string),bloqueado(booleano)
-    ],
+        { nome: 'Adicionar', chave: 'adicionar', bloqueado: false }, //nome(string),chave(string),bloqueado(booleano)
+      ],
       //Ajustar coluna com as colunas de gestores
       colunas: [
         { nome: "CPF", chave: "cpf", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
@@ -99,7 +99,11 @@ const cadastro = () => {
         {
           line: 2,
           colSpan: "md:col-span-1",
-          nome: "Tipo Unidade",
+          nome: (
+            <>
+              Tipo Unidade <span className="text-red-500">*</span>
+            </>
+          ),
           chave: "tipoUnidadeAdministrativaId",
           tipo: "select",
           mensagem: "Selecione a unidade responsavel",
@@ -151,8 +155,8 @@ const cadastro = () => {
     }
   };
 
-    const adicionarGestor = () => {
-      //Precisa ajustar essa rota para levar para o adicionar gestor
+  const adicionarGestor = () => {
+    //Precisa ajustar essa rota para levar para o adicionar gestor
     router.push('/gestao-acesso/unidades-administrativas/gestor/criar');
   };
   const voltarRegistro = () => {
