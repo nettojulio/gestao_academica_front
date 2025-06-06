@@ -2,7 +2,7 @@
 import withAuthorization from "@/components/AuthProvider/withAuthorization";
 import Cadastro from "@/components/Cadastro/Estrutura";
 import Cabecalho from "@/components/Layout/Interno/Cabecalho";
-import Calendar from "@/components/Calendario Cronograma/calendar";
+import Calendar from "@/components/CalendarioCronograma/calendar";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
