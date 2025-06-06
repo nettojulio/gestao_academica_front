@@ -216,8 +216,8 @@ export default function PageRegister() {
                             <input type="text" name="nome" id="nome" value={formData.nome} onChange={handleChange} className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5" required />
                         </div>
                         <div>
-                            <label htmlFor="nomeSocial" className="block mb-2 text-sm font-medium text-gray-900">Nome Social <span className="text-red-500">*</span></label>
-                            <input type="text" name="nomeSocial" id="nomeSocial" value={formData.nomeSocial} onChange={handleChange} className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5" required />
+                            <label htmlFor="nomeSocial" className="block mb-2 text-sm font-medium text-gray-900">Nome Social</label>
+                            <input type="text" name="nomeSocial" id="nomeSocial" value={formData.nomeSocial} onChange={handleChange} className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5" />
                         </div>
                         <div>
                             <label htmlFor="cpf" className="block mb-2 text-sm font-medium text-gray-900">CPF <span className="text-red-500">*</span></label>
