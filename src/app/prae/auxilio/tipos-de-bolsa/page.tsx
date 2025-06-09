@@ -16,7 +16,7 @@ const estrutura: any = {
     cabecalho: {
         titulo: "Tipos de Bolsas",
         migalha: [
-            { nome: 'Inicio', link: '/home' },
+            { nome: 'Início', link: '/home' },
             { nome: 'Prae', link: '/prae' },
             { nome: 'Tipos de Bolsas', link: '/prae/auxilio/tipos-de-bolsa' },
         ]

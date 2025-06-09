@@ -10,6 +10,7 @@ import Image from "next/image";
 import Link from "next/link";
 import AuthTokenService from "@/app/authentication/auth.token";
 import authService from "@/app/authentication/auth.service";
+import { toast } from "react-toastify"; // Importação do Toastify
 
 const loginSchema = z.object({
   email: z.string().email("Informe um e-mail válido"),
@@ -26,6 +27,7 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [savedEmails, setSavedEmails] = useState<string[]>([]);
   const [showLoginForm, setShowLoginForm] = useState(false);
+  const [mostrarSenha, setMostrarSenha] = useState(false);
 
   useEffect(() => {
     const isAuthenticated = AuthTokenService.isAuthenticated(false);
@@ -68,7 +70,7 @@ export default function Login() {
     try {
       const authData = await authService.authenticate({ email: userEmail, password: userPassword });
       if (!authData || !authData.token) {
-        throw new Error(authData?.message || "Erro na autenticação.");
+        throw new Error(authData?.message || "E-mail e/ou senha incorretos. Tente novamente ou redefina a sua senha.");
       }
       if (remember) {
         const updatedEmails = savedEmails.filter(email => email !== userEmail);
@@ -79,7 +81,13 @@ export default function Login() {
       router.push('/home');
     } catch (error: any) {
       console.error('Erro ao fazer o login:', error);
-      setErrorMessage(error.message);
+
+      // Exibe toast para erro 401 (e-mail ou senha incorretos)
+      if (error?.response?.status === 401) {
+        toast.error("E-mail ou senha incorretos", { position: "top-right" });
+      } else {
+        toast.error(error.message || "Erro ao fazer o login.", { position: "top-right" });
+      }
     }
   };
 
@@ -100,11 +108,6 @@ export default function Login() {
           {showLoginForm ? (
             <>
               <h2 className="text-2xl font-bold text-center text-primary-500 mb-6">Entrar</h2>
-              {errorMessage && (
-                <div className="text-red-500 bg-red-50 border border-red-300 p-3 rounded-md mb-4 text-sm">
-                  {errorMessage}
-                </div>
-              )}
               <form onSubmit={handleSubmit} className="space-y-5">
                 <div>
                   <label htmlFor="email" className="block mb-2 text-sm font-medium text-gray-900">E-mail</label>
@@ -121,16 +124,30 @@ export default function Login() {
                 </div>
                 <div>
                   <label htmlFor="password" className="block mb-2 text-sm font-medium text-gray-900">Senha</label>
-                  <input
-                    type="password"
-                    name="password"
-                    id="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="••••••••"
-                    className="w-full border border-neutrals-300 rounded-md p-3 focus:ring-2 focus:ring-primary-500 outline-none"
-                    required
-                  />
+                  <div className="relative">
+                    <input
+                      type={mostrarSenha ? "text" : "password"}
+                      name="password"
+                      id="password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="••••••••"
+                      className="w-full border border-neutrals-300 rounded-md p-3 focus:ring-2 focus:ring-primary-500 outline-none"
+                      required
+                    />
+                    <div className="flex items-center mt-2">
+                      <input
+                        type="checkbox"
+                        id="mostrarSenha"
+                        checked={mostrarSenha}
+                        onChange={() => setMostrarSenha(!mostrarSenha)}
+                        className="w-4 h-4 rounded bg-gray-50 focus:ring-3 focus:ring-primary-300 border-gray-300 mr-2"
+                      />
+                      <label htmlFor="mostrarSenha" className="text-sm text-gray-700 select-none">
+                        Mostrar senha
+                      </label>
+                    </div>
+                  </div>
                 </div>
                 <div className="flex items-center justify-between">
                   <div className="flex items-start">
@@ -163,7 +180,7 @@ export default function Login() {
             </>
           ) : (
             <>
-              <h2 className="text-2xl font-bold text-center text-primary-500 mb-4">Selecione um email para login</h2>
+              <h2 className="text-2xl font-bold text-center text-primary-500 mb-4">Selecione um e-mail para login</h2>
               {savedEmails.length > 0 ? (
                 <ul className="bg-white border border-gray-300 rounded-lg mt-2">
                   {savedEmails.map((email) => (
@@ -178,7 +195,7 @@ export default function Login() {
                   ))}
                 </ul>
               ) : (
-                <p className="text-gray-500">Nenhum email salvo encontrado.</p>
+                <p className="text-gray-500">Nenhum e-mail salvo encontrado.</p>
               )}
               <button
                 onClick={handleOtherLogin}

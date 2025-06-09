@@ -39,7 +39,7 @@ const cadastro = () => {
     cabecalho: {
       titulo: isEditMode ? "Alocar Colaborador" : "Alocar Colaborador",
       migalha: [
-        { nome: 'Inicio', link: '/home' },
+        { nome: 'Início', link: '/home' },
         { nome: 'Gestão Acesso', link: '/gestao-acesso' },
         { nome: "Unidades Administrativas", link: "/gestao-acesso/unidades-administrativas" },
         {

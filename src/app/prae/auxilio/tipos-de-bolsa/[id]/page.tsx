@@ -36,7 +36,7 @@ const cadastro = () => {
         cabecalho: {
             titulo: isEditMode ? "Editar o Tipo de Bolsa" : "Cadastrar um Tipo de Bolsa",
             migalha: [
-                { nome: 'Inicio', link: '/home' },
+                { nome: 'Início', link: '/home' },
                 { nome: 'Prae', link: '/prae' },
                 { nome: "Tipos de Bolsas", link: "/prae/auxilio/tipo-bolsa" },
                 { nome: isEditMode ? "Editar" : "Criar", link: `/prae/auxilio/tipo-bolsa/${isEditMode ? id : "criar"}` },

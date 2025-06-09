@@ -49,7 +49,7 @@ export default function EfrotasLayout({ children }: { children: React.ReactNode 
       },
       menuItems: [
         {
-          label: "Inicio",
+          label: "Início",
           route: "/home",
           icon: <House fontSize="small" className="text-white" />,
           roles: ["administrador", "gestor", "tecnico", "professor", "aluno", "visitante"],
