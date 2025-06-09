@@ -64,11 +64,10 @@ const cadastro = () => {
         {
           line: 1,
           colSpan: "md:col-span-1",
-          nome: "Valor do Auxílio",
+          nome: "Valor do Auxilio (Utilize ponto ao invés de vírgula)",
           chave: "valorAuxilio",
           tipo: "text",
           mensagem: "Digite",
-          mascara: "valor",
           obrigatorio: true,
         },
       ],

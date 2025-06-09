@@ -15,8 +15,10 @@ const cadastro = () => {
   // Inicializamos com um objeto contendo 'endereco' para evitar problemas
   const [dadosPreenchidos, setDadosPreenchidos] = useState<any>([]);
   const [lastMunicipioQuery, setLastMunicipioQuery] = useState("");
+  const [categoriaSelecionada, setCategoriaSelecionada] = useState<string | null>(null);
+  const [tipoBeneficioSelecionado, setTipoBeneficioSelecionado] = useState<string | null>(null);
   const [tipoBolsa, setTipoBolsa] = useState<any[]>([]);
-  const [nomeEstudante, setNomeEstudante] = useState<any[]>([]);
+  const [estudantes, setEstudantes] = useState<any[]>([]);
   const [tipoAuxilio, setTipoAuxilio] = useState<any[]>([]);
   const isEditMode = id && id !== "criar";
 
@@ -26,7 +28,7 @@ const cadastro = () => {
     // Mapeia para { chave: id, valor: nome } → Select mostrará "valor" (nome)
     const options = lista.map((item) => ({
       chave: item.id,       // ID (valor salvo no formulário)
-      valor: item.nome  || item.descricao || item.tipo    // Nome (exibido no select)
+      valor: item.nome || item.descricao || item.tipo || item.aluno.nome    // Nome (exibido no select)
     }));
 
     // Debug: Verifique as opções geradas
@@ -58,9 +60,24 @@ const cadastro = () => {
           nome: "Aluno",
           chave: "estudanteId",
           tipo: "select",
-          selectOptions: getOptions(nomeEstudante, dadosPreenchidos[0]?.aluno.nome),
+          selectOptions: getOptions(estudantes, dadosPreenchidos[0]?.aluno.nome),
           mensagem: "Digite",
           obrigatorio: true,
+        },
+        {
+          line: 1,
+          colSpan: "md:col-span-1",
+          nome: "Tipo de Benefício",
+          chave: "tipoBeneficio",
+          tipo: "select",
+          selectOptions: [
+            { chave: "auxilio", valor: "Auxílio" },
+            { chave: "bolsa", valor: "Bolsa" },
+          ],
+          mensagem: "Selecione",
+          obrigatorio: true,
+          bloqueado: isEditMode,
+          onChange: (value: string) => setTipoBeneficioSelecionado(value)
         },
         {
           line: 1,
@@ -69,8 +86,21 @@ const cadastro = () => {
           chave: "tipoAuxilioId",
           tipo: "select",
           selectOptions: getOptions(tipoAuxilio, dadosPreenchidos?.tipo),
-          mensagem: "Digite",
-          obrigatorio: true,
+          mensagem: "Selecione",
+          obrigatorio: false, // Alterado para não obrigatório inicialmente
+          bloqueado: isEditMode,
+          visivel: tipoBeneficioSelecionado === "auxilio" // Mostrar apenas quando for auxílio
+        },
+        {
+          line: 1,
+          colSpan: "md:col-span-1",
+          nome: "Valor Auxílio",
+          chave: "valorAuxilio",
+          tipo: "text",
+          mensagem: tipoAuxilio?.filter(tipo => tipo.id == dadosPreenchidos?.tipoAuxilioId)[0]?.valorAuxilio,
+          obrigatorio: false, // Alterado para não obrigatório inicialmente
+          bloqueado: true,
+          visivel: tipoBeneficioSelecionado === "auxilio" && (dadosPreenchidos?.tipoAuxilioId != undefined)
         },
         {
           line: 1,
@@ -78,9 +108,11 @@ const cadastro = () => {
           nome: "Tipo da Bolsa",
           chave: "tipoBolsaId",
           tipo: "select",
-          selectOptions: getOptions(tipoBolsa, dadosPreenchidos[0]?.tipo),
+          selectOptions: getOptions(tipoBolsa, dadosPreenchidos?.tipo),
           mensagem: "Selecione",
-          obrigatorio: true,
+          obrigatorio: false, // Alterado para não obrigatório inicialmente
+          bloqueado: isEditMode,
+          visivel: tipoBeneficioSelecionado === "bolsa" // Mostrar apenas quando for bolsa
         },
         {
           line: 1,
@@ -90,6 +122,7 @@ const cadastro = () => {
           tipo: "text",
           mensagem: "Digite",
           obrigatorio: true,
+          visivel: tipoBeneficioSelecionado === "bolsa"
         },
         {
           line: 2,
@@ -166,12 +199,23 @@ const cadastro = () => {
 
   const transformarDados = (item: any) => {
     const { valorBolsa, horasBolsa, tipoBolsaId, tipoAuxilioId, ...rest } = item;
-    return { ...rest, valorBolsa: Number(valorBolsa), horasBolsa: Number(horasBolsa), tipoBolsaId: Number(tipoBolsaId), tipoAuxilioId: Number(tipoAuxilioId) };
+    console.log(item)
+    return {
+      ...rest,
+      valorBolsa: isNaN(valorBolsa)? 1: Number(valorBolsa),
+      horasBolsa: Number(horasBolsa),
+      tipoBolsaId: (tipoBeneficioSelecionado == "auxilio") ? null : Number(tipoBolsaId),
+      tipoAuxilioId: (tipoBeneficioSelecionado == "bolsa") ? null : Number(tipoAuxilioId),
+    };
   };
-  
+
+
+
   const voltarRegistro = () => {
     router.push("/prae/auxilio/auxilios");
   };
+
+
 
   const pesquisarEstudante = async (params = null) => {
     try {
@@ -189,14 +233,17 @@ const cadastro = () => {
       } else if (response && response.data.error != undefined) {
         toast(response.data.error.message, { position: "bottom-left" });
       } else {
-          setNomeEstudante(response?.data);
+        setEstudantes(response?.data.content);
+        console.log("------------------Merda________________________");
+        console.log(response?.data.content)
       }
+
     } catch (error) {
       console.error('Erro ao carregar registros:', error);
     }
   };
 
-  
+
   const pesquisarTipoAuxilio = async (params = null) => {
     try {
       let body = {
@@ -207,7 +254,7 @@ const cadastro = () => {
         data: {}
       }
       const response = await generica(body);
-      console.log('Full response:', dadosPreenchidos); 
+      console.log('Full response:', dadosPreenchidos);
       //tratamento dos erros
       if (response && response.data.errors != undefined) {
         toast("Erro. Tente novamente!", { position: "bottom-left" });
@@ -222,7 +269,7 @@ const cadastro = () => {
       console.error('Erro ao carregar registros:', error);
     }
   };
-  
+
   const pesquisarTipoBolsa = async (params = null) => {
     try {
       let body = {
@@ -233,7 +280,7 @@ const cadastro = () => {
         data: {}
       }
       const response = await generica(body);
-      console.log('Full response:', dadosPreenchidos); 
+      console.log('Full response:', dadosPreenchidos);
       //tratamento dos erros
       if (response && response.data.errors != undefined) {
         toast("Erro. Tente novamente!", { position: "bottom-left" });
@@ -262,7 +309,7 @@ const cadastro = () => {
         params: {},
         data: dataToSend,
       };
-      const response = await generica(body);
+      const response = await generica(body, "multipart/form-data");
       if (!response || response.status < 200 || response.status >= 300) {
         if (response) {
           console.error("DEBUG: Status de erro:", response.status, 'statusText' in response ? response.statusText : "Sem texto de status");
@@ -324,6 +371,18 @@ const cadastro = () => {
     }
   };
 
+
+  useEffect(() => {
+    if (dadosPreenchidos.tipoBeneficio) {
+      setTipoBeneficioSelecionado(dadosPreenchidos.tipoBeneficio);
+    }
+  }, [dadosPreenchidos.tipoBeneficio]);
+
+  // Filtra os campos com base na visibilidade
+  const camposFiltrados = estrutura.cadastro.campos.filter((campo: any) => {
+    return campo.visivel === undefined || campo.visivel;
+  });
+
   // Efeito exclusivo para o modo de edição
   useEffect(() => {
     pesquisarTipoBolsa();
@@ -339,7 +398,13 @@ const cadastro = () => {
       <div className="w-full md:w-11/12 lg:w-10/12 2xl:w-3/4 max-w-6xl p-4 pt-10 md:pt-12 md:pb-12">
         <Cabecalho dados={estrutura.cabecalho} />
         <Cadastro
-          estrutura={estrutura}
+          estrutura={{
+            ...estrutura,
+            cadastro: {
+              ...estrutura.cadastro,
+              campos: camposFiltrados
+            }
+          }}
           dadosPreenchidos={dadosPreenchidos}
           setDadosPreenchidos={setDadosPreenchidos}
           chamarFuncao={chamarFuncao}

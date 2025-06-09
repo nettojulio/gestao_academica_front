@@ -101,21 +101,18 @@ function maskHora(value: string) {
 /**
  * Função principal que decide qual máscara usar com base em `tipoMascara`.
  */
-function maskValorMonetario(valor: number | string) {
+function maskValorMonetario(valor: number | string): string {
   // Garante que o valor é número
-  const numero = typeof valor === "string" ? parseFloat(valor) : valor;
+  const numero = typeof valor === "string" ? parseFloat(valor.replace(',', '.')) : valor;
 
   // Se não for um número válido, retorna zero formatado
-  if (isNaN(numero)) return "R$ 0.00";
+  if (isNaN(numero)) return "R$ 0,00";
 
-  // Formata no padrão brasileiro
-  const formatado = numero.toLocaleString("pt-BR", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
+  // Formata no padrão brasileiro (com vírgula para decimais)
+  return numero.toLocaleString("pt-BR", {
+    style: "currency",
+    currency: "BRL"
   });
-
-  // Retorna com ponto decimal e R$
-  return `R$ ${formatado.replace(",", ".")}`;
 }
 
 

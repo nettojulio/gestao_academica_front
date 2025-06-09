@@ -80,7 +80,7 @@ export default function PraeLayout({ children }: { children: React.ReactNode }) 
           roles: ["administrador", "gestor"],
           subItems: [
             {
-              label: "Todos",
+              label: "Tipos",
               route: "/prae/auxilio/tipo",
               icon: <VolunteerActivism fontSize="small" className="text-white" />,
             },
