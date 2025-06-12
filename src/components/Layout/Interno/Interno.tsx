@@ -86,7 +86,7 @@ export default function Layout({ children, layoutConfig }: LayoutProps) {
 
   useEffect(() => {
     setIsLogin(
-      pathname === "/home" || 
+      pathname === "/home" ||
       pathname === "/conta/perfil"
     );
   }, [pathname]);
@@ -222,7 +222,7 @@ export default function Layout({ children, layoutConfig }: LayoutProps) {
     <>
       {/* Cabeçalho */}
       <div
-        className={`fixed top-0 z-10 bg-white shadow-sm transition-all duration-200 left-0 right-0 ${isLogin ? "sm:left: 0" : isMenuOpen ? "sm:left-60" : "sm:left-12"
+        className={`fixed top-0 z-10 bg-white shadow-sm transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] left-0 right-0 ${isLogin ? "sm:left: 0" : isMenuOpen ? "sm:left-60" : "sm:left-12"
           }`}
       >
         <div className="flex items-center justify-between p-3 pl-5 pr-5 shadow-lg">
@@ -308,16 +308,26 @@ export default function Layout({ children, layoutConfig }: LayoutProps) {
         <>
 
           <div
-            className={`fixed top-0 left-0 h-screen bg-secondary-500 shadow-lg transition-all duration-200 z-20 ${isMenuOpen ? "w-60" : "w-12"
-              } ${!isMenuOpen ? "max-sm:hidden" : ""}`}
+            className={`fixed top-0 left-0 h-screen bg-secondary-500 shadow-lg 
+            transition-[width,opacity] duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] 
+            z-20 ${isMenuOpen ? "w-60" : "w-12"} 
+            ${!isMenuOpen ? "max-sm:hidden" : ""}
+            will-change-transform`}
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
+            style={{
+              transitionProperty: 'width, transform, opacity',
+              transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)',
+              transitionDuration: '300ms',
+            }}
           >
             <div
-              className={`border-b border-gray-500 overflow-hidden transition-all duration-300 flex items-center justify-center ${isMenuOpen ? "w-60" : "w-12"
-                } h-12`}
+              className={`border-b border-gray-500 overflow-hidden 
+              transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]
+              flex items-center justify-start pl-4 ${isMenuOpen ? "w-60" : "w-12"} h-12
+              will-change-transform`}
             >
-              <a href="/" title="WS Consultoria Pública" className="flex items-center">
+              <a href="/home" title="Sistema de Gestão Universitária" className="flex items-center">
                 <GpsFixed fontSize="medium" className="text-white" />
               </a>
               {isMenuOpen && <span className="ml-3 text-white">{config.sidebar.logo.text}</span>}
@@ -336,16 +346,6 @@ export default function Layout({ children, layoutConfig }: LayoutProps) {
                     />
                   ))}
                 </ul>
-              </div>
-              <div className="p-2">
-                <Link
-                  href="/home"
-                  className={`flex items-center rounded-md p-2 transition-colors duration-200 ${isMenuOpen ? "hover:bg-primary-900 justify-start" : "justify-center"
-                    }`}
-                >
-                  <HelpOutline fontSize="medium" className="text-white" />
-                  {isMenuOpen && <span className="ml-3 text-white">Ajuda</span>}
-                </Link>
               </div>
             </div>
           </div>

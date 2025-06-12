@@ -88,7 +88,7 @@ export default function EfrotasLayout({ children }: { children: React.ReactNode 
           label: "Unidades Administrativas",
           route: "/gestao-acesso/unidades-administrativas",
           icon: <School fontSize="small" className="text-white" />,
-          roles: ["administrador"],
+          roles: ["administrador", "gestor"],
         },
         {
           label: "Alocar Colaborador",
