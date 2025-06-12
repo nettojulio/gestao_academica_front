@@ -11,19 +11,28 @@ const Footer = ({ dados }: any) => {
                     <Image src="/assets/LogoBranca.svg" alt="Logo Ufape" width={120} height={50} />
                 </div>
                 <div className="flex flex-wrap justify-center md:justify-start gap-4 md:gap-6">
-                    <Image src="/assets/LogoUfape.svg" alt="Logo Ufape" width={40} height={40} />
-                    <Image src="/assets/LogoLmts.svg" alt="Logo LMTS" width={80} height={40} />
+                    <a href="https://ufape.edu.br/" target="_blank" rel="noopener noreferrer">
+                        <Image src="/assets/LogoUfape.svg" alt="Logo Ufape" width={40} height={40} />
+                    </a>
+                    <a href="http://lmts.uag.ufrpe.br/br" target="_blank" rel="noopener noreferrer">
+                        <Image src="/assets/LogoLmts.svg" alt="Logo LMTS" width={80} height={40} />
+                    </a>
                 </div>
                 <div className="flex flex-wrap justify-center md:justify-end gap-4">
-                    <Link href="#" className="hover:opacity-80 transition">
+                    <Link href="https://www.facebook.com/LMTSUFAPE/" className="hover:opacity-80 transition">
                         <Image src="/assets/icons/facebook.svg" alt="Facebook Icon" width={24} height={24} />
                     </Link>
-                    <Link href="#" className="hover:opacity-80 transition">
+                    <Link href="https://www.instagram.com/lmts_ufape/" className="hover:opacity-80 transition">
                         <Image src="/assets/icons/instagram.svg" alt="Instagram Icon" width={24} height={24} />
                     </Link>
-                    <Link href="#" className="hover:opacity-80 transition">
+                    <a
+                        href="https://mail.google.com/mail/?view=cm&fs=1&to=lmts@ufape.edu.br"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="hover:opacity-80 transition"
+                    >
                         <Image src="/assets/icons/Email.svg" alt="Email Icon" width={27} height={26} />
-                    </Link>
+                    </a>
                 </div>
             </div>
         </footer>

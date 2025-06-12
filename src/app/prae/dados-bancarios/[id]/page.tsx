@@ -14,9 +14,8 @@ const cadastro = () => {
   const { id } = useParams();
   // Inicializamos com um objeto contendo 'endereco' para evitar problemas
   const [dadosPreenchidos, setDadosPreenchidos] = useState<any>({});
-  const [unidadesGestoras, setUnidadesGestoras] = useState<any[]>([]);
   const [lastMunicipioQuery, setLastMunicipioQuery] = useState("");
-  const [titular, setTitular] = useState<any[]>([]);
+  const [estudantes, setEstudantes] = useState<any[]>([]);
   const isEditMode = id && id !== "criar";
 
   const getOptions = (lista: any[], selecionado: any) => {
@@ -25,11 +24,12 @@ const cadastro = () => {
     // Mapeia para { chave: id, valor: nome } → Select mostrará "valor" (nome)
     const options = lista.map((item) => ({
       chave: item.id,       // ID (valor salvo no formulário)
-      valor: item.nome || item.aluno.nome    // Nome (exibido no select)
+      valor: item.nome || item.descricao || item.tipo || item.aluno.nome    // Nome (exibido no select)
     }));
 
     // Debug: Verifique as opções geradas
     console.log("Opções do select (nome exibido):", options);
+    console.log("aqui caralho", dadosPreenchidos[0]?.aluno.nome);
     return options;
   };
 
@@ -56,7 +56,7 @@ const cadastro = () => {
           nome: "Aluno",
           chave: "id", //consultar estudantes
           tipo: "select",
-          selectOptions: isEditMode ? null : getOptions(titular, dadosPreenchidos[0]?.titular),
+          selectOptions: isEditMode ? null : getOptions(estudantes, dadosPreenchidos[0]?.aluno.nome),
           mensagem: "Digite",
           obrigatorio: true,
           bloqueado: isEditMode ? true : null,
@@ -150,8 +150,10 @@ const cadastro = () => {
       } else if (response && response.data.error != undefined) {
         toast(response.data.error.message, { position: "bottom-left" });
       } else {
-        setTitular(response?.data);
+        setEstudantes(response?.data.content);
+        console.log(response?.data.content)
       }
+
     } catch (error) {
       console.error('Erro ao carregar registros:', error);
     }

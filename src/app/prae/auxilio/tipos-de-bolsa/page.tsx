@@ -94,7 +94,7 @@ const PageLista = () => {
         router.push('/prae/auxilio/tipos-de-bolsa/criar');
     };
     const editarRegistro = (item: any) => {
-        router.push('/prae/tipos-de-bolsa/' + item.id);
+        router.push('/prae/auxilio/tipos-de-bolsa/' + item.id);
     };
     const deletarRegistro = async (item: any) => {
         const confirmacao = await Swal.fire({

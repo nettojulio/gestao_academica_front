@@ -348,7 +348,7 @@ const cadastro = () => {
     try {
       const body = {
         metodo: "get",
-        uri: "/auth/" + estrutura.uri + "/" + item,
+        uri: "/prae/" + estrutura.uri + "/" + item,
         params: {},
         data: item,
       };

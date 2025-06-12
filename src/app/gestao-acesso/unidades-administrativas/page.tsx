@@ -26,7 +26,7 @@ const estrutura: any = {
     configuracoes: {
       pesquisar: true,//campo pesquisar nas colunas (booleano)
       cabecalho: true,//cabecalho da tabela (booleano)
-      rodape: true,//rodape da tabela (booleano)
+      rodape: false,//rodape da tabela (booleano)
     },
     botoes: [ //links
       { nome: 'Adicionar', chave: 'adicionar', bloqueado: false }, //nome(string),chave(string),bloqueado(booleano)
@@ -155,7 +155,7 @@ const PageLista = () => {
               popup: "my-swal-popup",
               title: "my-swal-title",
               htmlContainer: "my-swal-html",
-          },
+            },
           });
         }
       } catch (error) {
