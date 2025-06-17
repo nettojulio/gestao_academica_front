@@ -92,7 +92,7 @@ export default function Login() {
   };
 
   return (
-    <div className="flex flex-1 bg-white">
+    <div className="flex flex-1 bg-white min-h-screen">
       {/* Seção Esquerda - Descrição */}
       <section className="hidden md:flex flex-col justify-center px-16 bg-white w-1/2">
         <h1 className="text-primary-700 text-display-small font-bold mb-4">Sistema de Gestão</h1>
@@ -103,8 +103,8 @@ export default function Login() {
       </section>
 
       {/* Seção Direita - Formulário */}
-      <section className="flex flex-1 justify-center items-center">
-        <div className="bg-white shadow-xl rounded-lg p-10 w-full max-w-md border border-neutrals-200">
+      <section className="flex flex-1 items-center justify-center px-6 py-10">
+        <div className="bg-white shadow-xl rounded-lg px-8 py-10 w-full max-w-sm sm:max-w-md border border-neutrals-200">
           {showLoginForm ? (
             <>
               <h2 className="text-2xl font-bold text-center text-primary-500 mb-6">Entrar</h2>
@@ -122,6 +122,7 @@ export default function Login() {
                     required
                   />
                 </div>
+
                 <div>
                   <label htmlFor="password" className="block mb-2 text-sm font-medium text-gray-900">Senha</label>
                   <div className="relative">
@@ -132,24 +133,26 @@ export default function Login() {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="••••••••"
-                      className="w-full border border-neutrals-300 rounded-md p-3 focus:ring-2 focus:ring-primary-500 outline-none"
+                      className="w-full border border-neutrals-300 rounded-md p-3 focus:ring-2 focus:ring-primary-500 outline-none pr-10"
                       required
                     />
-                    <div className="flex items-center mt-2">
-                      <input
-                        type="checkbox"
-                        id="mostrarSenha"
-                        checked={mostrarSenha}
-                        onChange={() => setMostrarSenha(!mostrarSenha)}
-                        className="w-4 h-4 rounded bg-gray-50 focus:ring-3 focus:ring-primary-300 border-gray-300 mr-2"
-                      />
-                      <label htmlFor="mostrarSenha" className="text-sm text-gray-700 select-none">
-                        Mostrar senha
-                      </label>
-                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setMostrarSenha(!mostrarSenha)}
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-600 hover:text-primary-500"
+                    >
+                      {mostrarSenha ? (
+                        // Olho aberto
+                        <Image src="/assets/icons/eyeOff.svg" alt="Facebook Icon" width={24} height={24} />
+                      ) : (
+                        // Olho fechado
+                        <Image src="/assets/icons/eyeOn.svg" className="text-purple-900" alt="Facebook Icon" width={25} height={25} />
+                      )}
+                    </button>
                   </div>
                 </div>
-                <div className="flex items-center justify-between">
+
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
                   <div className="flex items-start">
                     <div className="flex items-center h-5">
                       <input
@@ -166,16 +169,22 @@ export default function Login() {
                     </div>
                   </div>
                   <div>
-                    <Link href="/conta/recuperar-senha" className="text-primary-500 hover:underline text-sm">Esqueci a senha</Link>
-                    <Link href="/conta/criar-conta" className="text-primary-500 font-semibold hover:underline text-sm ml-3">Criar conta</Link>
+                    <Link href="/conta/recuperar-senha" className="text-primary-500 hover:underline text-sm">Esqueceu a senha?</Link>
                   </div>
                 </div>
+
                 <button
                   type="submit"
                   className="w-full bg-primary-500 text-white py-3 rounded-md font-semibold hover:bg-primary-700 transition"
                 >
                   Entrar
                 </button>
+
+                <div className="text-center mt-4">
+                  <Link href="/conta/criar-conta" className="text-primary-500 font-semibold hover:underline text-sm">
+                    Não possui conta? Faça o cadastro
+                  </Link>
+                </div>
               </form>
             </>
           ) : (
