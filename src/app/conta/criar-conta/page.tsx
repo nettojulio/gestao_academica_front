@@ -127,6 +127,11 @@ export default function PageRegister() {
             return;
         }
 
+        if (formData.nomeSocial.trim().length === 0 || formData.nomeSocial.trim().length > 100) {
+            toast.error("O nome social deve ter entre 1 e 100 caracteres");
+            return;
+        }
+
         if (formData.senha.length < 8) {
             toast.error("A senha deve ter pelo menos 8 caracteres!", { position: "top-right" });
             return;
@@ -137,6 +142,7 @@ export default function PageRegister() {
             return;
         }
         if (formData.email !== formData.repetirEmail) {
+            toast.error("O e-mail e a confirmação não correspondem");
             setErrorMessageEmail("O e-mail e a confirmação não correspondem");
             return;
         }
@@ -216,7 +222,7 @@ export default function PageRegister() {
                             <input type="text" name="nome" id="nome" value={formData.nome} onChange={handleChange} className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5" required />
                         </div>
                         <div>
-                            <label htmlFor="nomeSocial" className="block mb-2 text-sm font-medium text-gray-900">Nome Social</label>
+                            <label htmlFor="nomeSocial" className="block mb-2 text-sm font-medium text-gray-900">Nome Social <span className="text-red-500">*</span></label>
                             <input type="text" name="nomeSocial" id="nomeSocial" value={formData.nomeSocial} onChange={handleChange} className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5" />
                         </div>
                         <div>
