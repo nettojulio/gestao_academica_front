@@ -131,7 +131,6 @@ const cadastro = () => {
         if (response) {
           console.error("DEBUG: Status de erro:", response.status, 'statusText' in response ? response.statusText : "Sem texto de status");
         }
-        toast.error(`Erro na requisição (HTTP ${response?.status || "desconhecido"})`, { position: "top-left" });
         return;
       }
       if (response.data?.errors) {

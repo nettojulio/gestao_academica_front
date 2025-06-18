@@ -5,7 +5,7 @@ import { Delete, Edit, Visibility } from '@mui/icons-material';
 const Tabela = ({ dados = null, estrutura = null, chamarFuncao = null }: any) => {
   const [dropdownAberto, setDropdownAberto] = useState<any>({});
   const dropdownRef = useRef<any>(null);
-  const [bodyParams, setBodyParams] = useState<any>({ size: 25 });
+  const [bodyParams, setBodyParams] = useState<any>({ size: 10 });
   const [showFilters, setShowFilters] = useState(false);
   const [isDesktop, setIsDesktop] = useState(false);
 
