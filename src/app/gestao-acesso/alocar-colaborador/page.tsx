@@ -74,13 +74,13 @@ const PageLista = () => {
     }
   }
   // Função para carregar os dados
-  const pesquisarRegistro = async (params = null, id=null) => {
+  const pesquisarRegistro = async (params = null, id = null) => {
     try {
       let body = {
         metodo: 'get',
         uri: '/auth/' + estrutura.uri,
         //+ '/page',
-        params: params != null ? params : { size: 25, page: 0 },
+        params: params != null ? params : { size: 10, page: 0 },
         data: {}
       }
       const response = await generica(body);
@@ -88,9 +88,9 @@ const PageLista = () => {
       if (response && response.data.errors != undefined) {
         toast.error("Erro. Tente novamente!", { position: "top-left" });
       } else if (response && response.data && response.data.error != undefined) {
-          if (response && response.data && response.data.error) {
-            toast(response.data.error.message, { position: "top-left" });
-          }
+        if (response && response.data && response.data.error) {
+          toast(response.data.error.message, { position: "top-left" });
+        }
       } else {
         if (response && response.data) {
           setDados(response.data);
@@ -136,7 +136,7 @@ const PageLista = () => {
       try {
         const body = {
           metodo: 'delete',
-          uri: '/auth/' + estrutura.uri + '/' + item +"funcionarios" + '/' + id,
+          uri: '/auth/' + estrutura.uri + '/' + item + "funcionarios" + '/' + id,
           params: {},
         };
 

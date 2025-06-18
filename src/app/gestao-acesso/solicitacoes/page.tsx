@@ -91,6 +91,7 @@ const PageLista = () => {
       const respUser = await generica({
         metodo: 'get',
         uri: '/auth/usuario/current',
+        params: params != null ? params : { size: 10, page: 0 },
         data: {},
       });
 
