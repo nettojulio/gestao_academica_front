@@ -86,16 +86,11 @@ const PageLista = () => {
         toast(response.data.error.message, { position: "bottom-left" });
       } else {
         if (response?.data) {
-          const content = response.data;
+          const content = response.data?.content || [];
+          setDados({
+            ...response.data,
+          });
 
-          const dadosComMascara = Array.isArray(content)
-            ? content.map((item: any) => ({
-              ...item,
-              conta: aplicarMascara(item.conta?.toString() || '0', 'valor')
-            }))
-            : [];
-
-          setDados({ content: dadosComMascara, totalElements: dadosComMascara.length });
         }
       }
     } catch (error) {
