@@ -69,7 +69,9 @@ const cadastro = () => {
           tipo: "number",
           mensagem: "Digite",
           obrigatorio: true,
-          min: 0,
+          min: 1,
+          step: 1,
+
         },
       ],
       acoes: [
@@ -108,10 +110,15 @@ const cadastro = () => {
    * fiquem agrupados em um objeto 'endereco'.
    */
   const salvarRegistro = async (item: any) => {
-    if (typeof item.numeroPeriodos !== "number" || item.numeroPeriodos <= 0) {
-      toast.error("A quantidade de períodos deve ser um número positivo!", { position: "top-left" });
+    const numero = Number(item.numeroPeriodos);
+
+    if (!Number.isFinite(numero) || numero <= 0) {
+      toast.error("A quantidade de períodos deve ser um número maior que zero!", {
+        position: "top-left",
+      });
       return;
     }
+
     try {
       const body = {
         metodo: `${isEditMode ? "patch" : "post"}`,

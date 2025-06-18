@@ -169,17 +169,13 @@ const Tabela = ({ dados = null, estrutura = null, chamarFuncao = null }: any) =>
                         key={"menu_" + index}
                         className={
                           item.nome.toUpperCase() === "AÇÕES"
-                          ? "w-24 px-2 py-3 whitespace-nowrap text-sm font-bold uppercase text-neutrals-900 text-right"
-                          : "px-6 py-3 whitespace-nowrap text-sm font-bold uppercase text-neutrals-900"
+                            ? "w-24 px-2 py-3 whitespace-nowrap text-sm font-bold uppercase text-neutrals-900 text-right"
+                            : "px-6 py-3 whitespace-nowrap text-sm font-bold uppercase text-neutrals-900 text-center"
                         }
 
                       >
                         <div
-                          className={
-                            item.nome.toUpperCase() === "AÇÕES"
-                              ? "flex items-center justify-center gap-2"
-                              : "flex items-center gap-2"
-                          }
+                          className="flex items-center justify-center gap-2"
                         >
                           {item.nome}
                           {item.hint && (
@@ -268,7 +264,7 @@ const Tabela = ({ dados = null, estrutura = null, chamarFuncao = null }: any) =>
                                   element = (
                                     <td
                                       key={chave}
-                                      className="px-6 py-2 whitespace-nowrap flex items-center font-normal"
+                                      className="px-6 py-2 whitespace-nowrap flex justify-center items-center font-normal"
                                     >
                                       <span className="px-2 inline-flex text-sm leading-5 font-normal rounded-full bg-green-100 text-green-800">
                                         {selectOption.valor}
@@ -280,7 +276,7 @@ const Tabela = ({ dados = null, estrutura = null, chamarFuncao = null }: any) =>
                                   element = (
                                     <td
                                       key={chave}
-                                      className="px-6 py-2 whitespace-nowrap flex items-center font-normal"
+                                      className="px-6 py-2 whitespace-nowrap flex justify-center items-center font-normal"
                                     >
                                       <span className="px-2 inline-flex text-sm leading-5 font-normal rounded-full bg-red-100 text-red-800">
                                         {selectOption.valor}
@@ -292,7 +288,7 @@ const Tabela = ({ dados = null, estrutura = null, chamarFuncao = null }: any) =>
                                   element = (
                                     <td
                                       key={chave}
-                                      className="px-6 py-2 whitespace-nowrap flex items-center font-normal"
+                                      className="px-6 py-2 whitespace-nowrap flex justify-center items-center font-normal"
                                     >
                                       <span className="px-3 inline-flex text-sm leading-6 font-normal rounded-full bg-neutrals-100 text-neutrals-800">
                                         {selectOption.valor}
@@ -308,7 +304,7 @@ const Tabela = ({ dados = null, estrutura = null, chamarFuncao = null }: any) =>
                             );
                             if (selectOption) {
                               return (
-                                <td key={chave} className="px-6 py-2 whitespace-nowrap font-normal">
+                                <td key={chave} className="px-6 py-2 whitespace-nowrap font-normal text-center">
                                   <div className={`py-2 text-center rounded-md text-label-medium font-normal ${selectOption.chave === true || selectOption.chave === "APROVADA" ? "bg-success-100 text-success-900" : selectOption.chave === "PENDENTE" ? "bg-warning-100 text-warning-900" : "bg-danger-100 text-danger-900"}`}>
                                     {selectOption.valor}
                                   </div>
@@ -324,7 +320,7 @@ const Tabela = ({ dados = null, estrutura = null, chamarFuncao = null }: any) =>
                             let jsonItem = JSON.parse(item[key]);
                             if (jsonItem && typeof jsonItem[jsonKey] !== 'object') {
                               return (
-                                <td key={chave} className="px-6 py-2 whitespace-nowrap font-normal">
+                                <td key={chave} className="px-6 py-2 whitespace-nowrap font-normal text-center">
                                   {verificaTexto(jsonItem[jsonKey])}
                                 </td>
                               );
@@ -334,16 +330,17 @@ const Tabela = ({ dados = null, estrutura = null, chamarFuncao = null }: any) =>
                           } else if (item[chave] !== undefined) {
                             if (typeof item[chave] !== 'object') {
                               return (
-                                <td key={chave} className="px-6 py-2 whitespace-nowrap font-normal">
+                                <td key={chave} className="px-6 py-2 whitespace-nowrap font-normal text-center">
                                   {verificaTexto(item[chave])}
                                 </td>
                               );
                             } else if (chave === 'auxilios') { // gambiarra especificamente para auxilios retornando do back como array, (detalhe se for corrigido no back remover)
                               const auxilio = item.auxilios?.[0];
                               return (
-                                <td key={auxilio?.tipoAuxilio?.id || 'sem-id'} className="px-6 py-2 whitespace-nowrap font-normal">
+                                <td key={auxilio?.tipoAuxilio?.id || 'sem-id'} className="px-6 py-2 whitespace-nowrap font-normal text-center">
                                   {verificaTexto(auxilio?.tipoAuxilio?.tipo)}
                                 </td>
+
                               );
                             } else {
                               return <td key={chave} className="px-6 py-2 whitespace-nowrap font-normal"></td>;
@@ -359,12 +356,12 @@ const Tabela = ({ dados = null, estrutura = null, chamarFuncao = null }: any) =>
                             }
                             if (typeof nestedValue !== 'object' && nestedValue !== undefined) {
                               return (
-                                <td key={chave} className="px-6 py-2 whitespace-nowrap font-normal">
+                                <td key={chave} className="px-6 py-2 whitespace-nowrap font-normal text-center">
                                   {verificaTexto(nestedValue)}
                                 </td>
                               );
                             } else {
-                              return <td key={chave} className="px-6 py-2 whitespace-nowrap font-normal"></td>;
+                              return <td key={chave} className="px-6 py-2 whitespace-nowrap font-normal text-center"></td>;
                             }
                           }
                           return null;
