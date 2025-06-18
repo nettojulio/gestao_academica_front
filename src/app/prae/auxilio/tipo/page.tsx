@@ -33,7 +33,7 @@ const estrutura: any = {
       { nome: 'Adicionar', chave: 'adicionar', bloqueado: false }, //nome(string),chave(string),bloqueado(booleano)
     ],
     colunas: [ //colunas da tabela
-      { nome: "Tipo do Auxilio", chave: "tipo", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
+      { nome: "Tipo do Auxílio", chave: "tipo", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
       //nome(string),chave(string),tipo(text,select),selectOpcoes([{chave:string, valor:string}]),pesquisar(booleano)
       { nome: "Valor", chave: "valorAuxilio", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
       //nome(string),chave(string),tipo(text,select),selectOpcoes([{chave:string, valor:string}]),pesquisar(booleano)
@@ -71,39 +71,44 @@ const PageLista = () => {
   }
 
   // Função para carregar os dados
-    const pesquisarRegistro = async (params = null) => {
-      try {
-        let body = {
-          metodo: 'get',
-          uri: '/prae/' + estrutura.uri,
-          params: params != null ? params : { size: 25, page: 0 },
-          data: {}
-        };
-        const response = await generica(body);
+  const pesquisarRegistro = async (params = null) => {
+    try {
+      let body = {
+        metodo: 'get',
+        uri: '/prae/' + estrutura.uri,
+        params: params != null ? params : { size: 10, page: 0 },
+        data: {}
+      };
+      const response = await generica(body);
 
-        if (response?.data?.errors) {
-          toast("Erro. Tente novamente!", { position: "bottom-left" });
-        } else if (response?.data?.error) {
-          toast(response.data.error.message, { position: "bottom-left" });
-        } else {
-          if (response?.data) {
-            const content = response.data;
+      if (response?.data?.errors) {
+        toast("Erro. Tente novamente!", { position: "bottom-left" });
+      } else if (response?.data?.error) {
+        toast(response.data.error.message, { position: "bottom-left" });
+      } else {
+        if (response?.data) {
+          const content = response.data.content || [];
 
-            const dadosComMascara = Array.isArray(content)
-              ? content.map((item: any) => ({
-                ...item,
-                valorAuxilio: aplicarMascara(item.valorAuxilio?.toString() || '0', 'valor')
-              }))
-              : [];
+          const dadosComMascara = content.map((item: any) => ({
+            ...item,
+            valorAuxilio: aplicarMascara(item.valorAuxilio?.toString() || '0', 'valor')
+          }));
 
-            setDados({ content: dadosComMascara, totalElements: dadosComMascara.length });
-          }
+          setDados({
+            content: dadosComMascara,
+            totalElements: response.data.totalElements,
+            totalPages: response.data.totalPages,
+            number: response.data.number,
+            size: response.data.size,
+          });
+
         }
-      } catch (error) {
-        console.error('Erro ao carregar registros:', error);
-        toast("Erro ao carregar registros!", { position: "bottom-left" });
       }
-    };
+    } catch (error) {
+      console.error('Erro ao carregar registros:', error);
+      toast("Erro ao carregar registros!", { position: "bottom-left" });
+    }
+  };
 
 
   // Função que redireciona para a tela adicionar

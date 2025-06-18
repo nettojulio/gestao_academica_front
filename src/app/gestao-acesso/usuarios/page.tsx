@@ -73,7 +73,7 @@ const PageLista = () => {
         metodo: 'get',
         uri: '/auth/' + estrutura.uri,
         //+ '/page',
-        params: params != null ? params : { size: 25, page: 0 },
+        params: params != null ? params : { size: 10, page: 0 },
         data: {}
       }
       const response = await generica(body);
@@ -147,10 +147,10 @@ const PageLista = () => {
             title: "Usuário deletado com sucesso!",
             icon: "success",
             customClass: {
-            popup: "my-swal-popup",
-            title: "my-swal-title",
-            htmlContainer: "my-swal-html",
-          },
+              popup: "my-swal-popup",
+              title: "my-swal-title",
+              htmlContainer: "my-swal-html",
+            },
           });
         }
       } catch (error) {

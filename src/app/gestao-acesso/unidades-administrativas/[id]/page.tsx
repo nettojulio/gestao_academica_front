@@ -368,7 +368,7 @@ const cadastro = () => {
           chamarFuncao={chamarFuncao}
         />
       </div>
-      <div>
+      <div className="w-full md:w-11/12 lg:w-10/12 2xl:w-3/4 max-w-6xl p-4">''
         <span className="block text-center text-2xl font-semibold mb-4">
           Consultar Gestores
         </span>

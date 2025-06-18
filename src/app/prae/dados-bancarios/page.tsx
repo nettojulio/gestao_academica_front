@@ -75,7 +75,7 @@ const PageLista = () => {
       let body = {
         metodo: 'get',
         uri: '/prae/' + estrutura.uri,
-        params: params != null ? params : { size: 25, page: 0 },
+        params: params != null ? params : { size: 10, page: 0 },
         data: {}
       };
       const response = await generica(body);
