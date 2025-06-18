@@ -202,7 +202,7 @@ const cadastro = () => {
     console.log(item)
     return {
       ...rest,
-      valorBolsa: isNaN(valorBolsa)? 1: Number(valorBolsa),
+      valorBolsa: isNaN(valorBolsa) ? 1 : Number(valorBolsa),
       horasBolsa: Number(horasBolsa),
       tipoBolsaId: (tipoBeneficioSelecionado == "auxilio") ? null : Number(tipoBolsaId),
       tipoAuxilioId: (tipoBeneficioSelecionado == "bolsa") ? null : Number(tipoAuxilioId),
@@ -223,7 +223,7 @@ const cadastro = () => {
         metodo: 'get',
         uri: '/prae/' + 'estudantes',
         //+ '/page',
-        params: params != null ? params : { size: 25, page: 0 },
+        params: params != null ? params : { size: 10, page: 0 },
         data: {}
       }
       const response = await generica(body);
