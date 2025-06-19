@@ -18,7 +18,7 @@ const estrutura: any = {
     migalha: [
       { nome: 'Home', link: '/home' },
       { nome: 'Prae', link: '/prae' },
-      { nome: 'Dados Bancarios', link: '/prae/dados-bancarios' },
+      { nome: 'Dados Bancários', link: '/prae/dados-bancarios' },
     ]
   },
 

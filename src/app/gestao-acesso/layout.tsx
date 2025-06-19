@@ -1,7 +1,7 @@
 import React from "react";
 import { Metadata } from "next";
 import ClientWrapper from "@/components/AuthProvider/ClientWrapper";
-import { School, PendingActions, Groups2, AccountCircleOutlined, House, Book, Summarize, HowToReg, AssignmentInd } from "@mui/icons-material";
+import { School, PendingActions, Groups2, Diversity3, AccountCircleOutlined, House, Book, Summarize, HowToReg, AssignmentInd } from "@mui/icons-material";
 import { InternalLayoutConfig } from "@/types/InternalLayoutConf";
 
 
@@ -101,6 +101,12 @@ export default function EfrotasLayout({ children }: { children: React.ReactNode 
           route: "/gestao-acesso/usuarios",
           icon: <Groups2 fontSize="small" className="text-white" />,
           roles: ["administrador"],
+        },
+        {
+          label: "Tipo de Etnia",
+          route: "/gestao-acesso/etnia",
+          icon: <Diversity3 fontSize="small" className="text-white" />,
+          roles: ["administrador", "gestor", "tecnico"],
         },
       ],
     },
