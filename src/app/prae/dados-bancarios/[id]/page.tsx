@@ -36,11 +36,11 @@ const cadastro = () => {
   const estrutura: any = {
     uri: "dadosBancarios",
     cabecalho: {
-      titulo: isEditMode ? "Editar Dados Bancarios" : "Cadastrar Dados Bancarios",
+      titulo: isEditMode ? "Editar Dados Bancários" : "Cadastrar Dados Bancários",
       migalha: [
         { nome: 'Home', link: '/home' },
         { nome: 'Prae', link: '/prae' },
-        { nome: 'Dados Bancarios', link: '/prae/dados-bancarios' },
+        { nome: 'Dados Bancários', link: '/prae/dados-bancarios' },
         {
           nome: isEditMode ? "Editar" : "Criar",
           link: `/prae/dados-bancarios/${isEditMode ? id : "criar"}`,

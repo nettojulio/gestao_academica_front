@@ -56,12 +56,6 @@ export default function PraeLayout({ children }: { children: React.ReactNode }) 
           roles: ["administrador", "gestor", "tecnico"],
         },
         {
-          label: "Tipo de Etnia",
-          route: "/prae/etnia",
-          icon: <Diversity3 fontSize="small" className="text-white" />,
-          roles: ["administrador", "gestor", "tecnico"],
-        },
-        {
           label: "Estudantes",
           route: "/prae/estudantes",
           icon: <School fontSize="small" className="text-white" />,
@@ -120,14 +114,6 @@ export default function PraeLayout({ children }: { children: React.ReactNode }) 
             },
           ],
         },
-        {
-          label: "Calendário",
-          route: "/prae/agendamentos/calendario",
-          icon: <CalendarMonth fontSize="small" className="text-white" />,
-          roles: ["administrador", "aluno", "estudante"],
-        },
-
-
       ],
     },
   };
