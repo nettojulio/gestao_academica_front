@@ -6,35 +6,67 @@ import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import Swal from "sweetalert2";
-import { useEnderecoByCep } from "@/utils/brasilianStates";
 import { generica } from "@/utils/api";
 
-const cadastro = () => {
+const CadastroTipoAtendimento = () => {
   const router = useRouter();
   const { id } = useParams();
-  // Inicializamos com um objeto contendo 'endereco' para evitar problemas
-  const [dadosPreenchidos, setDadosPreenchidos] = useState<any>({ endereco: {} });
-  const [unidadesGestoras, setUnidadesGestoras] = useState<any[]>([]);
-  const [lastMunicipioQuery, setLastMunicipioQuery] = useState("");
+  const [dadosPreenchidos, setDadosPreenchidos] = useState<any>({
+    endereco: {},
+    horarios: [] // Inicializa vazio
+  });
+  const [horariosDisponiveis, setHorariosDisponiveis] = useState<any[]>([]);
   const isEditMode = id && id !== "criar";
 
-  const getOptions = (lista: any[], selecionado: any) => {
-    if (!Array.isArray(lista) || lista.length === 0) return [];
-    const options = lista.map((item) => ({
-      chave: item.id, // ID do item (numérico, por exemplo)
-      valor: item.nome, // Texto exibido no <option>
-    }));
-    if (isEditMode && selecionado) {
-      const selectedId = Number(selecionado); // Converte para número, se necessário
-      const selectedOption = options.find((opt) => opt.chave === selectedId);
-      if (selectedOption) {
-        // Coloca a opção selecionada na frente do array
-        return [selectedOption, ...options.filter((opt) => opt.chave !== selectedId)];
-      }
+  // Gera horários com base no tempo de atendimento e reseta seleção
+  const gerarHorariosDisponiveis = (tempoAtendimento: string) => {
+    if (!tempoAtendimento || !tempoAtendimento.match(/^[0-9]{2}:[0-9]{2}$/)) {
+      setHorariosDisponiveis([]);
+      return;
     }
-    return options;
+
+    const [horasStr, minutosStr] = tempoAtendimento.split(':');
+    const horas = parseInt(horasStr, 10);
+    const minutos = parseInt(minutosStr, 10);
+    const intervaloMinutos = horas * 60 + minutos;
+
+    if (intervaloMinutos <= 0) {
+      setHorariosDisponiveis([]);
+      return;
+    }
+
+    const novosHorarios = [];
+    const horaInicio = 8; // 08:00
+    const horaFim = 16;   // 16:00
+
+    for (let minutosTotais = horaInicio * 60; minutosTotais <= horaFim * 60; minutosTotais += intervaloMinutos) {
+      const h = Math.floor(minutosTotais / 60);
+      const m = minutosTotais % 60;
+      const horaFormatada = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+
+      novosHorarios.push({
+        chave: horaFormatada,
+        valor: horaFormatada
+      });
+    }
+
+    setHorariosDisponiveis(novosHorarios);
+
+    // Reseta os horários selecionados quando o tempo muda
+    setDadosPreenchidos((prev: { [key: string]: any }) => ({
+      ...prev,
+      horarios: []
+    }));
   };
 
+  // Atualiza horários quando o tempo de atendimento muda
+  useEffect(() => {
+    if (dadosPreenchidos.tempoAtendimento) {
+      gerarHorariosDisponiveis(dadosPreenchidos.tempoAtendimento);
+    } else {
+      setHorariosDisponiveis([]);
+    }
+  }, [dadosPreenchidos.tempoAtendimento]);
 
   const estrutura: any = {
     uri: "tipo-atendimento",
@@ -52,7 +84,6 @@ const cadastro = () => {
     },
     cadastro: {
       campos: [
-        // Linha 1
         {
           line: 1,
           colSpan: "md:col-span-1",
@@ -71,7 +102,6 @@ const cadastro = () => {
           mensagem: "Digite no padrão hh:mm",
           mascara: "hora",
           obrigatorio: true,
-
         },
         {
           line: 1,
@@ -79,17 +109,7 @@ const cadastro = () => {
           nome: "Horários",
           chave: "horarios",
           tipo: "multi-select",
-          selectOptions: [
-            { chave: "08:00", valor: "08:00" },
-            { chave: "09:00", valor: "09:00" },
-            { chave: "10:00", valor: "10:00" },
-            { chave: "11:00", valor: "11:00" },
-            { chave: "12:00", valor: "12:00" },
-            { chave: "13:00", valor: "13:00" },
-            { chave: "14:00", valor: "14:00" },
-            { chave: "15:00", valor: "15:00" },
-            { chave: "16:00", valor: "16:00" },
-          ],
+          selectOptions: horariosDisponiveis,
           mensagem: "Selecione os horários",
           obrigatorio: true,
         },
@@ -101,10 +121,6 @@ const cadastro = () => {
     },
   };
 
-
-  /**
-   * Chama funções de acordo com o botão clicado
-   */
   const chamarFuncao = async (nomeFuncao = "", valor: any = null) => {
     switch (nomeFuncao) {
       case "salvar":
@@ -125,12 +141,15 @@ const cadastro = () => {
     router.push("/prae/agendamentos/tipo");
   };
 
-  /**
-   * Salva o registro via POST, transformando os dados para que os itens de endereço
-   * fiquem agrupados em um objeto 'endereco'.
-   */
   const salvarRegistro = async (item: any) => {
-    // Supondo que item.tempoAtendimento seja uma string no formato "HH:mm"
+    // Validação do tempo de atendimento
+    if (!item.tempoAtendimento || !item.tempoAtendimento.match(/^[0-9]{2}:[0-9]{2}$/)) {
+      toast.error("Formato de tempo inválido. Use hh:mm", {
+        position: "top-left"
+      });
+      return;
+    }
+
     const [hora, minuto] = item.tempoAtendimento.split(':').map(Number);
     const totalMinutos = hora * 60 + minuto;
 
@@ -141,21 +160,34 @@ const cadastro = () => {
       return;
     }
 
+    // Verifica se há horários selecionados
+    if (!item.horarios || item.horarios.length === 0) {
+      toast.error("Selecione pelo menos um horário", {
+        position: "top-left"
+      });
+      return;
+    }
+
     try {
+      // Remove o ID dos dados enviados
+      const { id, ...dadosParaEnviar } = item;
+
       const body = {
         metodo: `${isEditMode ? "patch" : "post"}`,
-        uri: "/prae/" + `${isEditMode ? estrutura.uri + "/" + item.id : estrutura.uri}`,
+        uri: "/prae/" + `${isEditMode ? estrutura.uri + "/" + id : estrutura.uri}`,
         params: {},
-        data: item,
+        data: dadosParaEnviar,
       };
+
       const response = await generica(body);
+
       if (!response || response.status < 200 || response.status >= 300) {
-        if (response) {
-          console.error("DEBUG: Status de erro:", response.status, 'statusText' in response ? response.statusText : "Sem texto de status");
-        }
-        toast.error(`Erro na requisição (HTTP ${response?.status || "desconhecido"})`, { position: "top-left" });
+        toast.error(`Erro na requisição (HTTP ${response?.status || "desconhecido"})`, {
+          position: "top-left"
+        });
         return;
       }
+
       if (response.data?.errors) {
         Object.keys(response.data.errors).forEach((campoErro) => {
           toast.error(`Erro em ${campoErro}: ${response.data.errors[campoErro]}`, {
@@ -163,31 +195,24 @@ const cadastro = () => {
           });
         });
       } else if (response.data?.error) {
-        toast(response.data.error.message, { position: "top-left" });
+        toast.error(response.data.error.message, { position: "top-left" });
       } else {
         Swal.fire({
-          title: "Tipo de atendimento registrado com sucesso!",
+          title: "Sucesso!",
+          text: "Tipo de atendimento salvo com sucesso",
           icon: "success",
-          customClass: {
-            popup: "my-swal-popup",
-            title: "my-swal-title",
-            htmlContainer: "my-swal-html",
-          },
-        }).then((result) => {
-          if (result.isConfirmed) {
-            chamarFuncao("voltar");
-          }
+        }).then(() => {
+          chamarFuncao("voltar");
         });
       }
     } catch (error) {
-      console.error("DEBUG: Erro ao salvar registro:", error);
-      toast.error("Erro ao salvar registro. Tente novamente!", { position: "top-left" });
+      console.error("Erro ao salvar registro:", error);
+      toast.error("Erro ao salvar registro. Tente novamente!", {
+        position: "top-left"
+      });
     }
   };
 
-  /**
-   * Localiza o registro para edição e preenche os dados
-   */
   const editarRegistro = async (item: any) => {
     try {
       const body = {
@@ -197,39 +222,44 @@ const cadastro = () => {
         data: item,
       };
       const response = await generica(body);
-      if (!response) throw new Error("Resposta inválida do servidor.");
+
+      if (!response) throw new Error("Resposta inválida do servidor");
+
       if (response.data?.errors) {
         Object.keys(response.data.errors).forEach((campoErro) => {
-          toast(`Erro em ${campoErro}: ${response.data.errors[campoErro]}`, {
+          toast.error(`Erro em ${campoErro}: ${response.data.errors[campoErro]}`, {
             position: "top-left",
           });
         });
-      } else if (response.data?.error) {
-        toast.error(response.data.error.message, { position: "top-left" });
       } else {
         const dados = response.data;
 
-        // Transformar 'horarios' para o formato "HH:mm"
-        dados.horarios = Array.isArray(dados.horarios)
-          ? dados.horarios.map((horario: string) => horario.slice(0, 5)) // Remove os segundos
-          : [];
+        // Formata os dados para exibição
+        const dadosFormatados = {
+          ...dados,
+          tempoAtendimento: dados.tempoAtendimento?.slice(0, 5) || "",
+          horarios: Array.isArray(dados.horarios)
+            ? dados.horarios.map((h: string) => h.slice(0, 5))
+            : []
+        };
 
-        // Transformar 'tempoAtendimento' para o formato "HH:mm"
-        dados.tempoAtendimento = dados.tempoAtendimento
-          ? dados.tempoAtendimento.slice(0, 5) // Remove os segundos
-          : "";
+        setDadosPreenchidos(dadosFormatados);
 
-        setDadosPreenchidos(dados);
+        // Gera os horários com base no tempo salvo
+        if (dadosFormatados.tempoAtendimento) {
+          gerarHorariosDisponiveis(dadosFormatados.tempoAtendimento);
+        }
       }
     } catch (error) {
-      console.error("DEBUG: Erro ao localizar registro:", error);
-      toast.error("Erro ao localizar registro. Tente novamente!", { position: "top-left" });
+      console.error("Erro ao carregar registro:", error);
+      toast.error("Erro ao carregar registro. Tente novamente!", {
+        position: "top-left"
+      });
     }
   };
 
-  // Efeito exclusivo para o modo de edição
   useEffect(() => {
-    if (id && id !== "criar") {
+    if (isEditMode) {
       chamarFuncao("editar", id);
     }
   }, [id]);
@@ -249,4 +279,4 @@ const cadastro = () => {
   );
 };
 
-export default withAuthorization(cadastro);
+export default withAuthorization(CadastroTipoAtendimento);
