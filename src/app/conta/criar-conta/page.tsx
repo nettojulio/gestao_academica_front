@@ -8,6 +8,8 @@ import { genericaApiAuth } from "@/utils/api";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import TermosDeUso from "@/app/conta/criar-conta/termos-de-uso/page";
+import Swal from "sweetalert2";
+import SuccessModal from '@/components/Cadastro/modalSucesso';
 
 const openPopup = (url: any) => {
     window.open(url, 'popup', 'width=600,height=600,scrollbars=no,resizable=no');
@@ -19,6 +21,7 @@ export default function PageRegister() {
     const [errorMessageSenha, setErrorMessageSenha] = useState<string | null>(null);
     const [errorMessage, setErrorMessage] = useState<string>("");
     const [successMessage, setSuccessMessage] = useState<string>("");
+    const [showModal, setShowModal] = useState(false);
     const [formData, setFormData] = useState<any>({
         nome: "",
         nomeSocial: "",
@@ -117,85 +120,122 @@ export default function PageRegister() {
         setErrorMessageEmail(null);
         setErrorMessageSenha(null);
 
-        if (!validarCPF(formData.cpf)) {
-            toast.error("CPF inválido!", { position: "top-right" });
-            return;
-        }
+        // Cria o toast de carregamento
+        const toastId = toast.loading("Processando...", {
+            position: "top-right",
+            closeButton: false,
+            hideProgressBar: true,
+            autoClose: false,
+        });
 
-        if (!validarTelefone(formData.telefone)) {
-            toast.error("Telefone inválido!", { position: "top-right" });
-            return;
-        }
+        try {
+            // Validações iniciais
+            if (!validarCPF(formData.cpf)) {
+                toast.dismiss(toastId);
+                toast.error("CPF inválido!", { position: "top-right" });
+                return;
+            }
 
-        if (formData.senha.length < 8) {
-            toast.error("A senha deve ter pelo menos 8 caracteres!", { position: "top-right" });
-            return;
-        }
+            if (!validarTelefone(formData.telefone)) {
+                toast.dismiss(toastId);
+                toast.error("Telefone inválido!", { position: "top-right" });
+                return;
+            }
 
-        if (!formData.termosUso) {
-            setErrorMessage("Você deve ler e aceitar os Termos de Uso antes de criar uma conta");
-            return;
-        }
-        if (formData.email !== formData.repetirEmail) {
-            toast.error("O e-mail e a confirmação não correspondem");
-            setErrorMessageEmail("O e-mail e a confirmação não correspondem");
-            return;
-        }
-        if (!mostrarSenha && formData.senha !== formData.repetirSenha) {
-            setErrorMessageSenha("A senha e a confirmação não correspondem");
-            return;
-        }
+            if (formData.senha.length < 8) {
+                toast.dismiss(toastId);
+                toast.error("A senha deve ter pelo menos 8 caracteres!", { position: "top-right" });
+                return;
+            }
 
-        const formDataWithDate = {
-            ...formData,
-        };
+            if (!formData.termosUso) {
+                toast.dismiss(toastId);
+                setErrorMessage("Você deve ler e aceitar os Termos de Uso antes de criar uma conta");
+                return;
+            }
 
-        const body = {
-            metodo: 'post',
-            uri: '/usuario',
-            params: {},
-            data: formDataWithDate
-        };
+            if (formData.email !== formData.repetirEmail) {
+                toast.dismiss(toastId);
+                toast.error("O e-mail e a confirmação não correspondem");
+                setErrorMessageEmail("O e-mail e a confirmação não correspondem");
+                return;
+            }
 
-        const response = await genericaApiAuth(body);
+            if (!mostrarSenha && formData.senha !== formData.repetirSenha) {
+                toast.dismiss(toastId);
+                setErrorMessageSenha("A senha e a confirmação não correspondem");
+                return;
+            }
 
-        console.log("response: " + JSON.stringify(response));
+            const formDataWithDate = {
+                ...formData,
+            };
 
-        if (response.status === 401) {
-            toast.error("Credenciais já cadastradas!", { position: "top-right" });
-            return;
-        }
+            const body = {
+                metodo: 'post',
+                uri: '/usuario',
+                params: {},
+                data: formDataWithDate
+            };
 
-        if (response.status === 409) {
-            toast.error("CPF e/ou e-mail já cadastrado(s)!", { position: "top-right" });
-            return;
-        }
+            const response = await genericaApiAuth(body);
 
-        if (response.status && response.status === 500) {
-            if (response.data && response.data.message)
-                setErrorMessage(response.data.message);
-            else
-                setErrorMessage(response.data);
-        }
-        if (response.data.errors) {
-            const errors = response.data.errors;
-            if (errors.email) setErrorMessageEmail(errors.email);
-            if (errors.senha) setErrorMessageSenha(errors.senha);
-            console.error("#1 " + JSON.stringify(errors));
-        } else if (response.data.error) {
-            console.error("#2 " + 'Erro ao salvar registro:', response.data.error.message);
-            setErrorMessage("Erro ao criar a conta. " + response.data.error.message);
-        } else if (response.data.detail) {
-            console.error(`Erro: ${response.data.detail}`);
-            setErrorMessage(`${response.data.detail}`);
-        } else if (response.status === 201) {
-            router.push('/conta/criar-conta/sucesso');
-        } else {
-            console.log(JSON.stringify(response));
-            if (response.status === 400)
-                console.log(JSON.stringify(response.data));
-            else
-                console.log(`${response.data.detail}`);
+            // Remove o toast de carregamento antes de processar a resposta
+            toast.dismiss(toastId);
+
+            console.log("response: " + JSON.stringify(response));
+
+            if (response.status === 401) {
+                toast.error("Credenciais já cadastradas!", { position: "top-right" });
+                return;
+            }
+
+            if (response.status === 409) {
+                toast.error("CPF e/ou e-mail já cadastrado(s)!", { position: "top-right" });
+                return;
+            }
+
+            if (response.status && response.status === 500) {
+                if (response.data && response.data.message)
+                    setErrorMessage(response.data.message);
+                else
+                    setErrorMessage(response.data);
+            }
+
+            if (response.data.errors) {
+                const errors = response.data.errors;
+                if (errors.email) setErrorMessageEmail(errors.email);
+                if (errors.senha) setErrorMessageSenha(errors.senha);
+                console.error("#1 " + JSON.stringify(errors));
+            } else if (response.data.error) {
+                console.error("#2 " + 'Erro ao salvar registro:', response.data.error.message);
+                setErrorMessage("Erro ao criar a conta. " + response.data.error.message);
+            } else if (response.data.detail) {
+                console.error(`Erro: ${response.data.detail}`);
+                setErrorMessage(`${response.data.detail}`);
+            } else if (response.status === 201) {
+                toast.success("Conta criada com sucesso!", {
+                    position: "top-right",
+                    autoClose: 3000,
+                    hideProgressBar: true,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    theme: "colored",
+                });
+                setShowModal(true);
+            } else {
+                console.log(JSON.stringify(response));
+                if (response.status === 400)
+                    console.log(JSON.stringify(response.data));
+                else
+                    console.log(`${response.data.detail}`);
+            }
+        } catch (error) {
+            // Garante que o toast de loading seja removido em caso de erro não tratado
+            toast.dismiss(toastId);
+            toast.error("Ocorreu um erro inesperado", { position: "top-right" });
+            console.error("Erro não tratado:", error);
         }
     };
 
@@ -206,7 +246,6 @@ export default function PageRegister() {
                     <img src="/logo/logo_1.png" className='mb-4 mx-auto block' alt="smartApSUS" width={120} />
                 </Link>
                 <h1 className="text-gray-400 text-center text font-normal">Descubra informações essenciais sobre sua região, incluindo unidades de Atenção Primária à Saúde, profissionais de saúde e muito mais.</h1> */}
-
                 <h2 className="text-2xl font-bold custom-text-color">
                     Nova conta
                 </h2>
@@ -254,15 +293,21 @@ export default function PageRegister() {
                         )}
                     </div>
                     <div className="mt-4">
-                        <h3 className="text-lg font-bold mb-2 custom-text-color">Termos de Uso e Privacidade</h3>
-                        <div className="h-[40em] overflow-y-scroll border bg-gray-50 rounded-lg">
-                            <TermosDeUso />
-                        </div>
-                        <div className="flex items-center mt-2">
-                            <div className="flex items-center mt-1">
-                                <input type="checkbox" name="termosUso" id="termosUso" checked={formData.termosUso} onChange={handleChange} className="mr-2" />
-                                <label htmlFor="termosUso" className="text-sm font-medium text-gray-900">Declaro que li e aceito os Termos de Uso</label>
+                        <div className="flex items-start">
+                            <div className="flex items-center h-5">
+                                <input
+                                    type="checkbox"
+                                    name="termosUso"
+                                    id="termosUso"
+                                    checked={formData.termosUso}
+                                    onChange={handleChange}
+                                    className="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-blue-300"
+                                    required
+                                />
                             </div>
+                            <label htmlFor="termosUso" className="ml-2 text-sm font-medium text-gray-900">
+                                Concordo com os <a href="/conta/criar-conta/termos-de-uso" target="_blank" className="text-blue-600 hover:underline">Termos de Uso</a> e <a href="/conta/criar-conta/termos-de-uso#aviso-de-privacidade" className="text-blue-600 hover:underline">Política de Privacidade</a>
+                            </label>
                         </div>
                     </div>
                     <div className="mx-auto  pt:mt-0">
@@ -272,11 +317,14 @@ export default function PageRegister() {
                         </Link>
 
                     </div>
-                    <button type="submit"
-                        className="w-full py-3 px-4 text-sm tracking-wide rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none">
-                        Criar Conta</button>
-                    {errorMessage && <p className="text-red-500 text-sm">{errorMessage}</p>}
-                    {successMessage && <p className="text-green-500 text-sm">{successMessage}</p>}
+                    <div className="flex justify-center mt-6">
+                        <button type="submit"
+                            className="py-3 px-16 text-sm mt-4 tracking-wide rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none">
+                            Criar Conta</button>
+                        {errorMessage && <p className="text-red-500 text-sm">{errorMessage}</p>}
+                        {successMessage && <p className="text-green-500 text-sm">{successMessage}</p>}
+                    </div>
+                    {showModal && <SuccessModal />}
                 </form>
             </div>
         </div>
