@@ -27,9 +27,7 @@ const estrutura: any = {
       cabecalho: true,//cabecalho da tabela (booleano)
       rodape: true,//rodape da tabela (booleano)
     },
-    botoes: [ //links
-      { nome: 'Adicionar', chave: 'adicionar', bloqueado: false }, //nome(string),chave(string),bloqueado(booleano)
-    ],
+    botoes: [],
     colunas: [ //colunas da tabela
       { nome: "Nome", chave: "aluno.nome", tipo: "texto", selectOptions: null, sort: false, pesquisar: true }, //nome(string),chave(string),tipo(text,select),selectOpcoes([{chave:string, valor:string}]),pesquisar(booleano)
       { nome: "CPF", chave: "aluno.cpf", tipo: "texto", selectOptions: null, sort: false, pesquisar: true }, //nome(string),chave(string),tipo(text,select),selectOpcoes([{chave:string, valor:string}]),pesquisar(booleano)
@@ -40,8 +38,7 @@ const estrutura: any = {
       { nome: "ações", chave: "acoes", tipo: "button", selectOptions: null, sort: false, pesquisar: false },
     ],
     acoes_dropdown: [ //botão de acoes de cada registro
-      { nome: 'Visualizar', chave: 'editar' }, //nome(string),chave(string),bloqueado(booleano)
-      { nome: 'Deletar', chave: 'deletar' },
+      { nome: 'Visualizar', chave: 'editar' }
     ]
   }
 
@@ -56,14 +53,8 @@ const PageLista = () => {
       case 'pesquisar':
         pesquisarRegistro(valor);
         break;
-      case 'adicionar':
-        adicionarRegistro();
-        break;
       case 'editar':
         editarRegistro(valor);
-        break;
-      case 'deletar':
-        deletarRegistro(valor);
         break;
       default:
         break;
@@ -95,65 +86,10 @@ const PageLista = () => {
       console.error('Erro ao carregar registros:', error);
     }
   };
-  // Função que redireciona para a tela adicionar
-  const adicionarRegistro = () => {
-    router.push('/prae/estudantes/criar');
-  };
+
   // Função que redireciona para a tela editar
   const editarRegistro = (item: any) => {
     router.push('/prae/estudantes/' + item.id);
-  };
-  // Função que deleta um registro
-  const deletarRegistro = async (item: any) => {
-    const confirmacao = await Swal.fire({
-      title: `Você deseja deletar o estudante ${item.aluno.nome}?`,
-      text: "Essa ação não poderá ser desfeita",
-      icon: "warning",
-      showCancelButton: true,
-
-      // Ajuste as cores conforme seu tema
-      confirmButtonColor: "#1A759F",
-      cancelButtonColor: "#9F2A1A",
-
-      confirmButtonText: "Sim, quero deletar!",
-      cancelButtonText: "Cancelar",
-
-      // Classes personalizadas
-      customClass: {
-        popup: "my-swal-popup",
-        title: "my-swal-title",
-        htmlContainer: "my-swal-html",
-      },
-    });
-
-
-    if (confirmacao.isConfirmed) {
-      try {
-        const body = {
-          metodo: 'delete',
-          uri: '/prae/' + estrutura.uri + '/' + item,
-          params: {},
-          data: {}
-        };
-
-        const response = await generica(body);
-
-        if (response && response.data && response.data.errors) {
-          toast.error("Erro. Tente novamente!", { position: "top-left" });
-        } else if (response && response.data && response.data.error) {
-          toast.error(response.data.error.message, { position: "top-left" });
-        } else {
-          pesquisarRegistro();
-          Swal.fire({
-            title: "Estudante deletado com sucesso!",
-            icon: "success"
-          });
-        }
-      } catch (error) {
-        console.error('Erro ao deletar registro:', error);
-        toast.error("Erro ao deletar registro. Tente novamente!", { position: "top-left" });
-      }
-    }
   };
 
   useEffect(() => {
