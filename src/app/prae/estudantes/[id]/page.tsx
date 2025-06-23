@@ -15,6 +15,8 @@ const cadastro = () => {
   // Inicializamos com um objeto contendo 'endereco' para evitar problemas
   const [dadosPreenchidos, setDadosPreenchidos] = useState<any>({ endereco: {} });
   const [dadosForm, setDadosForm] = useState<any>({ endereco: {} });
+  const [dadosBancariosPreenchidos, setDadosBancariosPreenchidos] = useState<any>({});
+  const [dadosBancariosForm, setDadosBancariosForm] = useState<any>({});
   const [cursos, setCursos] = useState<any[]>([]);
   const [lastMunicipioQuery, setLastMunicipioQuery] = useState("");
   const [isDeficiencia, setIsDeficiencia] = useState();
@@ -38,7 +40,7 @@ const cadastro = () => {
   const estrutura: any = {
     uri: "estudantes",
     cabecalho: {
-      titulo: isEditMode ? "Editar Curso" : "Cadastrar Estudantes",
+      titulo: isEditMode ? "Editar Estudante" : "Cadastrar Estudante",
       migalha: [
         { nome: 'Home', link: '/home' },
         { nome: 'Prae', link: '/prae' },
@@ -300,9 +302,75 @@ const cadastro = () => {
           obrigatorio: isEditMode ? false : true,
           bloqueado: isEditMode,
         },
+      ]
+    },
+  };
+
+  const estruturaDadosBancarios: any = {
+    uri: "dadosBancarios",
+    cabecalho: {
+      titulo: isEditMode ? "Editar Dados Bancários" : "Cadastrar Dados Bancários",
+      migalha: [
+        { nome: 'Home', link: '/home' },
+        { nome: 'Prae', link: '/prae' },
+        { nome: 'Dados Bancários', link: '/prae/dados-bancarios' },
+        {
+          nome: isEditMode ? "Editar" : "Criar",
+          link: `/prae/dados-bancarios/${isEditMode ? id : "criar"}`,
+        },
+      ],
+    },
+    cadastro: {
+      campos: [
+        {
+          line: 1,
+          colSpan: "md:col-span-1",
+          nome: "Titular",
+          chave: "nomeTitular",
+          tipo: "text",
+          mensagem: "Digite",
+          obrigatorio: true,
+        },
+        {
+          line: 1,
+          colSpan: "md:col-span-1",
+          nome: "Banco",
+          chave: "banco",
+          tipo: "text",
+          mensagem: "Digite",
+          obrigatorio: true,
+        },
+        {
+          line: 1,
+          colSpan: "md:col-span-1",
+          nome: "Tipo de Conta",
+          chave: "tipoConta",
+          tipo: "text",
+          mensagem: "Digite",
+          obrigatorio: true,
+        },
+        {
+          line: 2,
+          colSpan: "md:col-span-1",
+          nome: "Conta Bancária",
+          chave: "conta",
+          tipo: "text",
+          mensagem: "Digite",
+          obrigatorio: true,
+        },
+        {
+          line: 2,
+          colSpan: "md:col-span-1",
+          nome: "Agencia Bancária",
+          chave: "agencia",
+          tipo: "text",
+          mensagem: "Digite",
+          obrigatorio: true,
+        },
       ],
       acoes: [
-        { nome: "Voltar", chave: "voltar", tipo: "botao" },
+        { nome: "Cancelar", chave: "voltar", tipo: "botao" },
+        { nome: dadosPreenchidos?.dadosBancarios? "Salvar" : "Cadastrar", chave: "salvarDadosBancarios", tipo: "submit" },
       ],
     },
   };
@@ -347,6 +415,9 @@ const cadastro = () => {
     switch (nomeFuncao) {
       case "salvar":
         await salvarRegistro(valor);
+        break;
+      case "salvarDadosBancarios":
+        await salvarRegistroDadosBancarios(valor);
         break;
       case "voltar":
         voltarRegistro();
@@ -454,6 +525,48 @@ const cadastro = () => {
     }
   };
 
+  const salvarRegistroDadosBancarios = async (item: any) => {
+      try {
+        const dataToSend = dadosBancariosPreenchidos;
+        console.log("aqui", item)
+        const body = {
+          metodo: `${dadosPreenchidos?.dadosBancarios ? "patch" : "post"}`,
+          uri: "/prae/" + `${dadosPreenchidos?.dadosBancarios ? estruturaDadosBancarios.uri + "/" + item.id : estruturaDadosBancarios.uri + "/" + dadosPreenchidos.id}`,
+          params: {},
+          data: dataToSend,
+        };
+        const response = await generica(body);
+        if (!response || response.status < 200 || response.status >= 300) {
+          if (response) {
+            console.error("DEBUG: Status de erro:", response.status, 'statusText' in response ? response.statusText : "Sem texto de status");
+          }
+          toast.error(`Erro na requisição (HTTP ${response?.status || "desconhecido"})`, { position: "top-left" });
+          return;
+        }
+        if (response.data?.errors) {
+          Object.keys(response.data.errors).forEach((campoErro) => {
+            toast.error(`Erro em ${campoErro}: ${response.data.errors[campoErro]}`, {
+              position: "top-left",
+            });
+          });
+        } else if (response.data?.error) {
+          toast(response.data.error.message, { position: "top-left" });
+        } else {
+          Swal.fire({
+            title: "Dados bancarios salvo com sucesso!",
+            icon: "success",
+          }).then((result) => {
+            if (result.isConfirmed) {
+              chamarFuncao("voltar");
+            }
+          });
+        }
+      } catch (error) {
+        console.error("DEBUG: Erro ao salvar registro:", error);
+        toast.error("Erro ao salvar registro. Tente novamente!", { position: "top-left" });
+      }
+    };
+
   /**
    * Localiza o registro para edição e preenche os dados
    */
@@ -493,6 +606,9 @@ const cadastro = () => {
           bairro: response.data.endereco.bairro,
           tipoEtniaId: response.data.tipoEtnia.id,
         });
+        if(response.data?.dadosBancarios	) {
+          setDadosBancariosPreenchidos(response.data.dadosBancarios);
+        }
       }
     } catch (error) {
       console.error("DEBUG: Erro ao localizar registro:", error);
@@ -523,6 +639,13 @@ const cadastro = () => {
           }}
           dadosPreenchidos={dadosPreenchidos}
           setDadosPreenchidos={setDadosPreenchidos}
+          chamarFuncao={chamarFuncao}
+        />
+        <h2 className='text-3xl'>Dados Bancários</h2>
+        <Cadastro
+          estrutura={estruturaDadosBancarios}
+          dadosPreenchidos={dadosBancariosPreenchidos}
+          setDadosPreenchidos={setDadosBancariosPreenchidos}
           chamarFuncao={chamarFuncao}
         />
       </div>
