@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import withAuthorization from '@/components/AuthProvider/withAuthorization';
 import Cabecalho from '@/components/Layout/Interno/Cabecalho';
 import Tabela from '@/app/prae/agendamentos/cronograma/tabela/tabela';
@@ -9,10 +9,8 @@ import { toast } from 'react-toastify';
 import Swal from 'sweetalert2';
 
 const estrutura: any = {
-
-  uri: "cronograma", //caminho base
-
-  cabecalho: { //cabecalho da pagina
+  uri: "cronograma",
+  cabecalho: {
     titulo: "Cronogramas",
     migalha: [
       { nome: 'Home', link: '/home' },
@@ -20,34 +18,32 @@ const estrutura: any = {
       { nome: 'Cronogramas', link: '/prae/agendamentos/cronograma' },
     ]
   },
-
   tabela: {
     configuracoes: {
-      pesquisar: true,//campo pesquisar nas colunas (booleano)
-      cabecalho: true,//cabecalho da tabela (booleano)
-      rodape: true,//rodape da tabela (booleano)
+      pesquisar: true,
+      cabecalho: true,
+      rodape: true,
     },
-    botoes: [ //links
-      { nome: 'Adicionar', chave: 'adicionar', bloqueado: false }, //nome(string),chave(string),bloqueado(booleano)
+    botoes: [
+      { nome: 'Adicionar', chave: 'adicionar', bloqueado: false },
     ],
-    colunas: [ //colunas da tabela
-      { nome: "Tipo de Atendimento", chave: "tipoAtendimento.nome", tipo: "texto", selectOptions: null, sort: false, pesquisar: true }, //nome(string),chave(string),tipo(text,select),selectOpcoes([{chave:string, valor:string}]),pesquisar(booleano)
-      { nome: "Dia de Atendimento", chave: "data", tipo: "texto", selectOptions: null, sort: false, pesquisar: true }, //nome(string),chave(string),tipo(text,select),selectOpcoes([{chave:string, valor:string}]),pesquisar(booleano)
+    colunas: [
+      { nome: "Tipo de Atendimento", chave: "tipoAtendimento.nome", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
+      { nome: "Dia de Atendimento", chave: "data", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
       { nome: "Quantidade de Vagas", chave: "vagas", tipo: "quantidade", selectOptions: null, sort: false, pesquisar: false },
-      { nome: "Horários", chave: "vagas", tipo: "array", selectOptions: null, sort: false, pesquisar: false },
+      { nome: "Horários", chave: "horarios", tipo: "array", selectOptions: null, sort: false, pesquisar: false },
       { nome: "ações", chave: "acoes", tipo: "button", selectOptions: null, sort: false, pesquisar: false },
     ],
-    acoes_dropdown: [ //botão de acoes de cada registro
-      { nome: 'Editar', chave: 'editar' }, //nome(string),chave(string),bloqueado(booleano)
+    acoes_dropdown: [
+      { nome: 'Editar', chave: 'editar' },
       { nome: 'Deletar', chave: 'deletar' },
     ]
   }
-
-}
+};
 
 const PageLista = () => {
   const router = useRouter();
-  const [dados, setDados] = useState<any>({ content: [] });
+  const [dados, setDados] = useState<any>({ content: [], totalPages: 0, number: 0 });
 
   const chamarFuncao = (nomeFuncao = "", valor: any = null) => {
     switch (nomeFuncao) {
@@ -66,38 +62,41 @@ const PageLista = () => {
       default:
         break;
     }
-  }
-  // Função para carregar os dados
+  };
+
   const pesquisarRegistro = async (params = null) => {
-    { console.log('Dados enviados para a tabela:', dados) }
     try {
       let body = {
         metodo: 'get',
         uri: '/prae/' + estrutura.uri,
-        //+ '/page',
         params: params != null ? params : { size: 10, page: 0 },
         data: {}
-      }
+      };
+
       const response = await generica(body);
-      //tratamento dos erros
-      if (response && response.data.errors != undefined) {
+
+      if (response?.data?.errors) {
         toast("Erro. Tente novamente!", { position: "bottom-left" });
-      } else if (response && response.data.error != undefined) {
+      } else if (response?.data?.error) {
         toast(response.data.error.message, { position: "bottom-left" });
-      } else {
-        if (response && response.data) {
-          setDados(response.data);
-        }
+      } else if (response?.data) {
+        // Transforma os dados para adicionar o campo horarios, conforme a lógica que desejar
+        const dadosTransformados = response.data.content.map((item: any) => ({
+          ...item,
+          horarios: item.vagas.map((vaga: any) => `${vaga.horaInicio} - ${vaga.horaFim}`),
+        }));
+        setDados({ ...response.data, content: dadosTransformados });
       }
     } catch (error) {
       console.error('Erro ao carregar registros:', error);
     }
   };
-  // Função que redireciona para a tela adicionar
+
+
   const adicionarRegistro = () => {
     router.push('/prae/agendamentos/cronograma/criar');
   };
-  // Função que redireciona para a tela editar
+
   const editarRegistro = (item: any) => {
     router.push('/prae/agendamentos/cronograma/' + item.id);
   };
@@ -136,9 +135,9 @@ const PageLista = () => {
 
         const response = await generica(body);
 
-        if (response && response.data && response.data.errors) {
+        if (response?.data?.errors) {
           toast.error("Erro. Tente novamente!", { position: "top-left" });
-        } else if (response && response.data && response.data.error) {
+        } else if (response?.data?.error) {
           toast.error(response.data.error.message, { position: "top-left" });
         } else {
           pesquisarRegistro();
@@ -155,29 +154,22 @@ const PageLista = () => {
   };
 
   useEffect(() => {
-    chamarFuncao('pesquisar', null);
+    chamarFuncao('pesquisar');
   }, []);
 
   return (
-    <main className="flex flex-wrap justify-center mx-auto">
-      {/* 
-      Em telas muito pequenas: w-full, p-4
-      A partir de sm (>=640px): p-6
-      A partir de md (>=768px): p-8
-      A partir de lg (>=1024px): p-12
-      A partir de xl (>=1280px): p-16
-      A partir de 2xl (>=1536px): p-20 e w-10/12
-    */}
-      <div className="w-full sm:w-11/12 2xl:w-10/12 p-4 sm:p-6 md:p-8 lg:p-12 :p-16 2xl:p-20 pt-7 md:pt-8 md:pb-8 ">
+    <main className="flex justify-center mx-auto" style={{ marginLeft: '250px' }}>
+      <div className="w-full max-w-screen-2xl px-4 sm:px-6 md:px-8 lg:px-10 py-6">
         <Cabecalho dados={estrutura.cabecalho} />
-        <Tabela
-          dados={dados}
-          estrutura={estrutura}
-          chamarFuncao={chamarFuncao}
-        />
+        <div className="rounded-lg shadow-sm p-4 md:p-6">
+          <Tabela
+            dados={dados}
+            estrutura={estrutura}
+            chamarFuncao={chamarFuncao}
+          />
+        </div>
       </div>
     </main>
-
   );
 };
 

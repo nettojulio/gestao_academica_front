@@ -10,14 +10,14 @@ import Swal from 'sweetalert2';
 
 const estrutura: any = {
 
-  uri: "tecnico", //caminho base
+  uri: "gestor", //caminho base
 
   cabecalho: { //cabecalho da pagina
-    titulo: "Colaboradores",
+    titulo: "Minhas Unidades Administrativas",
     migalha: [
       { nome: 'Início', link: '/home' },
       { nome: 'Gestão Acesso', link: '/gestao-acesso' },
-      { nome: 'Colaboradores', link: '/gestao-acesso/alocar-colaborador' },
+      { nome: 'Minhas Unidades Administrativas', link: '/gestao-acesso/alocar-colaborador' },
     ]
   },
 
@@ -27,23 +27,15 @@ const estrutura: any = {
       cabecalho: true,//cabecalho da tabela (booleano)
       rodape: true,//rodape da tabela (booleano)
     },
-    botoes: [ //links
-      { nome: 'Adicionar', chave: 'adicionar', bloqueado: false }, //nome(string),chave(string),bloqueado(booleano)
-    ],
+    botoes: [],
     colunas: [ //colunas da tabela
       //{nome:"Código",chave:"id",tipo:"texto",selectOptions:null,sort:true,pesquisar:true}, //nome(string),chave(string),tipo(text,select),selectOpcoes([{chave:string, valor:string}]),pesquisar(booleano)
       { nome: "Nome", chave: "nome", tipo: "texto", selectOptions: null, sort: false, pesquisar: true }, //nome(string),chave(string),tipo(text,select),selectOpcoes([{chave:string, valor:string}]),pesquisar(booleano)
       { nome: "Código", chave: "codigo", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
-      // {
-      //   nome: "Status", chave: "ativo", tipo: "boolean", selectOptions: [
-      //     { chave: true, valor: "Ativa" },
-      //     { chave: false, valor: "Inativa" },
-      //   ], sort: false, pesquisar: true
-      // },      
       { nome: "ações", chave: "acoes", tipo: "button", selectOptions: null, sort: false, pesquisar: false },
     ],
-    acoes_dropdown: [ //botão de acoes de cada registro
-      { nome: 'Visualizar', chave: 'editar' }, //nome(string),chave(string),bloqueado(booleano)
+    acoes_dropdown: [
+      { nome: 'Editar', chave: 'editar' }, //nome(string),chave(string),bloqueado(booleano)
       { nome: 'Remover', chave: 'deletar' },
     ]
   }
@@ -78,9 +70,9 @@ const PageLista = () => {
     try {
       let body = {
         metodo: 'get',
-        uri: '/auth/' + estrutura.uri,
+        uri: '/auth/unidade-administrativa/' + estrutura.uri,
         //+ '/page',
-        params: params != null ? params : { size: 10, page: 0 },
+        params: params ?? { size: 10, page: 0 },
         data: {}
       }
       const response = await generica(body);
@@ -102,11 +94,11 @@ const PageLista = () => {
   };
   // Função que redireciona para a tela adicionar
   const adicionarRegistro = () => {
-    router.push('/gestao-acesso/alocar-colaborador/criar');
+    router.push('/gestao-acesso/minhas-unidades/criar');
   };
   // Função que redireciona para a tela editar
   const editarRegistro = (item: any) => {
-    router.push('/gestao-acesso/alocar-colaborador/' + item);
+    router.push('/gestao-acesso/minhas-unidades/' + item.id);
   };
   // Função que deleta um registro
   const deletarRegistro = async (item: any, id: any) => {

@@ -106,7 +106,7 @@ const PageLista = () => {
   };
   // Função que redireciona para a tela editar
   const editarRegistro = (item: any) => {
-    router.push('/gestao-acesso/unidades-administrativas/' + item);
+    router.push('/gestao-acesso/unidades-administrativas/' + item.id);
   };
   // Função que deleta um registro
   const deletarRegistro = async (item: any) => {

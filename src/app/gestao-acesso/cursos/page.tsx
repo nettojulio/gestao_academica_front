@@ -161,22 +161,16 @@ const PageLista = () => {
   }, []);
 
   return (
-    <main className="flex flex-wrap justify-center mx-auto">
-      {/* 
-      Em telas muito pequenas: w-full, p-4
-      A partir de sm (>=640px): p-6
-      A partir de md (>=768px): p-8
-      A partir de lg (>=1024px): p-12
-      A partir de xl (>=1280px): p-16
-      A partir de 2xl (>=1536px): p-20 e w-10/12
-    */}
-      <div className="w-full sm:w-11/12 2xl:w-10/12 p-4 sm:p-6 md:p-8 lg:p-12 :p-16 2xl:p-20 pt-7 md:pt-8 md:pb-8 ">
+    <main className="flex justify-center mx-auto" style={{ marginLeft: '250px' }}>
+      <div className="w-full max-w-screen-2xl px-4 sm:px-6 md:px-8 lg:px-10 py-6">
         <Cabecalho dados={estrutura.cabecalho} />
-        <Tabela
-          dados={dados}
-          estrutura={estrutura}
-          chamarFuncao={chamarFuncao}
-        />
+        <div className="rounded-lg shadow-sm p-4 md:p-6">
+          <Tabela
+            dados={dados}
+            estrutura={estrutura}
+            chamarFuncao={chamarFuncao}
+          />
+        </div>
       </div>
     </main>
 

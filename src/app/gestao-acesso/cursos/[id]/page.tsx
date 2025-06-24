@@ -200,15 +200,17 @@ const cadastro = () => {
   }, [id]);
 
   return (
-    <main className="flex flex-wrap justify-center mx-auto">
-      <div className="w-full md:w-11/12 lg:w-10/12 2xl:w-3/4 max-w-6xl p-4 pt-10 md:pt-12 md:pb-12">
+    <main className="flex justify-center mx-auto" style={{ marginLeft: '250px' }}>
+      <div className="w-full max-w-screen-2xl px-4 sm:px-6 md:px-8 lg:px-10 py-6">
         <Cabecalho dados={estrutura.cabecalho} />
-        <Cadastro
-          estrutura={estrutura}
-          dadosPreenchidos={dadosPreenchidos}
-          setDadosPreenchidos={setDadosPreenchidos}
-          chamarFuncao={chamarFuncao}
-        />
+        <div className="rounded-lg shadow-sm p-4 md:p-6">
+          <Cadastro
+            estrutura={estrutura}
+            dadosPreenchidos={dadosPreenchidos}
+            setDadosPreenchidos={setDadosPreenchidos}
+            chamarFuncao={chamarFuncao}
+          />
+        </div>
       </div>
     </main>
   );

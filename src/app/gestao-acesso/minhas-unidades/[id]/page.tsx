@@ -15,7 +15,7 @@ const cadastro = () => {
   const [dadosPreenchidos, setDadosPreenchidos] = useState<any>();
   const [UnidadesPai, setUnidadesPai] = useState<any[]>([]);
   const [colaboradores, setColaboradores] = useState<any[]>([]);
-  const [user, setUser] = useState<any[]>([]);	
+  const [user, setUser] = useState<any[]>([]);
 
   const isEditMode = id && id !== "criar";
   const getOptions = (lista: any[], selecionado: any) => {
@@ -35,34 +35,22 @@ const cadastro = () => {
     return options;
   };
   const estrutura: any = {
-    uri: "alocar-gestor",
+    uri: "gestor",
     cabecalho: {
-      titulo: isEditMode ? "Alocar Gestor" : "Alocar Gestor",
+      titulo: isEditMode ? "Alocar Colaborador" : "Alocar Colaborador",
       migalha: [
         { nome: 'Início', link: '/home' },
         { nome: 'Gestão Acesso', link: '/gestao-acesso' },
-        { nome: "Unidades Administrativas", link: "/gestao-acesso/unidades-administrativas" },
+        { nome: "Minhas Unidades", link: "/gestao-acesso/minhas-unidades" },
         {
           nome: isEditMode ? "Visualizar" : "Criar",
-          link: `/gestao-acesso/alocar-gestor/${isEditMode ? id : "criar"}`,
+          link: `/gestao-acesso/minhas-unidades/${isEditMode ? id : "criar"}`,
         },
       ],
     },
     cadastro: {
       campos: [
 
-        {
-          line: 1,
-          colSpan: "md:col-span-1",
-          nome: "Unidade Administrativa",
-          chave: "unidadePaiId",
-          tipo: "select",
-          mensagem: "Selecione a unidade",
-          obrigatorio: false,
-          selectOptions: getOptions(UnidadesPai, dadosPreenchidos?.unidadePaiId),
-          //exibirPara: ["ALUNO"],
-          bloqueado: isEditMode,
-        },
         {
           line: 1,
           colSpan: "md:col-span-1",
@@ -73,9 +61,9 @@ const cadastro = () => {
           obrigatorio: false,
           selectOptions: getOptions(colaboradores, dadosPreenchidos?.usuarioId),
           //exibirPara: ["ALUNO"],
-          bloqueado: isEditMode,
+
         },
-        
+
 
       ],
       acoes: [
@@ -105,48 +93,39 @@ const cadastro = () => {
   };
 
   const voltarRegistro = () => {
-    router.push("/gestao-acesso/alocar-gestor");
+    router.push("/gestao-acesso/minhas-unidades");
   };
 
   /**
    * Salva o registro via POST, transformando os dados para que os itens de endereço
    * fiquem agrupados em um objeto 'endereco'.
    */
-  const salvarRegistro = async (item: any,) => {
+
+  const salvarRegistro = async (item: any) => {
     try {
+      const unidadeId = Number(id);
+      const usuarioId = item.usuarioId;
 
-      const dadosParaEnviar = {
-        usuarioId: item.usuarioId,
-      };
-
-      if (item.usuarioId !== undefined && item.usuarioId !== null) {
-        dadosParaEnviar.usuarioId = item.usuarioId;
+      if (!unidadeId || !usuarioId) {
+        toast.error("É necessário selecionar a unidade e o colaborador!", { position: "top-left" });
+        return;
       }
 
       const body = {
         metodo: "post",
-        uri: "/auth/" + `unidade-administrativa/${item.id}/gestores`,
+        uri: `/auth/unidade-administrativa/${unidadeId}/funcionarios`,
         params: {},
-        data: dadosParaEnviar,
+        data: { usuarioId }, // apenas o ID do colaborador no body
       };
 
       const response = await generica(body);
 
-      // 1) Checar se deu erro no status da resposta
-      //    (isso depende de como 'generica' retorna as informações).
-      // Exemplo com Axios:
       if (!response || response.status < 200 || response.status >= 300) {
-        // Se cair aqui, é porque o status não foi 2xx
         console.error("Status de erro:", response?.status, (response as any)?.statusText || "Status text não disponível");
-        if (response) {
-          toast(`Erro na requisição (HTTP ${response.status})`, { position: "top-left" });
-        } else {
-          toast("Erro na requisição: resposta nula", { position: "top-left" });
-        }
+        toast(`Erro na requisição (HTTP ${response?.status})`, { position: "top-left" });
         return;
       }
 
-      // 2) Checar se existe 'errors' ou 'error' no body
       if (response.data?.errors) {
         Object.keys(response.data.errors).forEach((campoErro) => {
           toast(`Erro em ${campoErro}: ${response.data.errors[campoErro]}`, {
@@ -156,9 +135,8 @@ const cadastro = () => {
       } else if (response.data?.error) {
         toast(response.data.error.message, { position: "top-left" });
       } else {
-        // 3) Se chegou até aqui, é realmente sucesso
         Swal.fire({
-          title: "Unidade gestora salvo com sucesso!",
+          title: "Colaborador alocado com sucesso!",
           icon: "success",
           customClass: {
             popup: "my-swal-popup",
@@ -176,6 +154,7 @@ const cadastro = () => {
       toast.error("Erro ao salvar registro. Tente novamente!", { position: "top-left" });
     }
   };
+
 
 
   /**
@@ -219,7 +198,7 @@ const cadastro = () => {
     try {
       let body = {
         metodo: 'get',
-        uri: '/auth/' + "unidade-administrativa" + "",
+        uri: '/auth/' + "unidade-administrativa",
         params: params != null ? params : { size: 25, page: 0 },
         data: {}
       }
@@ -238,28 +217,53 @@ const cadastro = () => {
       console.error('Erro ao carregar registros:', error);
     }
   };
-  const pesquisarColaboradores = async (params = null, id = null) => {
+
+  const pesquisarColaboradores = async () => {
     try {
-      let body = {
-        metodo: 'get',
-        uri: '/auth/unidade-administrativa/' + id + "/funcionarios",
-        params: params != null ? params : { size: 25, page: 0 },
-        data: {}
+      let tecnicos: any[] = [];
+      let professores: any[] = [];
+
+      // Buscar técnicos
+      const responseTecnicos = await generica({
+        metodo: "get",
+        uri: "/auth/tecnico",
+        params: { size: 50, page: 0 },
+        data: {},
+      });
+
+      if (responseTecnicos?.data && !responseTecnicos.data.errors) {
+        tecnicos = responseTecnicos.data.content.map((item: any) => ({
+          id: item.id,
+          nome: item.nome, // ou item.nomeSocial, se preferir
+          tipo: "Técnico",
+        }));
       }
-      const response = await generica(body);
-      // Tratamento de erros
-      if (response && response.data.errors != undefined) {
-        toast("Erro. Tente novamente!", { position: "bottom-left" });
-      } else if (response && response.data.error != undefined) {
-        toast(response.data.error.message, { position: "bottom-left" });
-      } else if (response && response.data) {
-        // Filtra os itens para manter somente aqueles sem unidade pai (unidadePaiId nulo ou indefinido)
-        setColaboradores(response.data);
+
+      // Buscar professores
+      const responseProfessores = await generica({
+        metodo: "get",
+        uri: "/auth/professor",
+        params: { size: 50, page: 0 },
+        data: {},
+      });
+
+      if (responseProfessores?.data && !responseProfessores.data.errors) {
+        professores = responseProfessores.data.content.map((item: any) => ({
+          id: item.id,
+          nome: item.nome, // ou item.nomeSocial, se preferir
+          tipo: "Professor",
+        }));
       }
+
+      const uniao = [...tecnicos, ...professores];
+      setColaboradores(uniao);
     } catch (error) {
-      console.error('Erro ao carregar registros:', error);
+      console.error("Erro ao carregar colaboradores:", error);
+      toast.error("Erro ao carregar colaboradores!", { position: "top-left" });
     }
   };
+
+
   const currentUser = async () => {
     try {
       const response = await generica(
@@ -282,11 +286,9 @@ const cadastro = () => {
   // Se estiver em modo de edição, carrega os dados ao montar
   useEffect(() => {
     pesquisarColaboradores();
-    pesquisarUnidadesAdm();
-    if (id && id !== "criar") {
-      chamarFuncao("editar", id);
-    }
+
   }, [id]);
+
 
   return (
     <main className="flex flex-wrap justify-center mx-auto">

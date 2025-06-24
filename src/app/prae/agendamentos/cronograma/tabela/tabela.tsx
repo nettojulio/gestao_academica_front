@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import Pagination from '@/components/Tabela/Itens/Paginacao';
+import { Delete, Edit, Visibility } from '@mui/icons-material';
 
 const Tabela = ({ dados = null, estrutura = null, chamarFuncao = null }: any) => {
   const [dropdownAberto, setDropdownAberto] = useState<any>({});
@@ -35,26 +36,24 @@ const Tabela = ({ dados = null, estrutura = null, chamarFuncao = null }: any) =>
     }
   };
 
-const verificaTexto = (texto: any) => {
-  // Regex para data no formato yyyy-MM-dd
-  const dataRegex = /^\d{4}-\d{2}-\d{2}$/;
-  if (typeof texto === 'string' && dataRegex.test(texto)) {
-    const [ano, mes, dia] = texto.split('-');
-    return `${dia}/${mes}/${ano}`;
-  }
-  // Mantém o tratamento para datas ISO completas
-  const iso8601Regex = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})\.(\d{3})[+-]\d{2}:\d{2}$/;
-  if (texto != null && iso8601Regex.test(texto)) {
-    let dataString = texto;
-    let data = dataString.split("T")[0];
-    let hora = dataString.split("T")[1].split(".")[0];
-    let dia = data.split('-')[2];
-    let mes = data.split('-')[1];
-    let ano = data.split('-')[0];
-    return `${dia}/${mes}/${ano} ${hora}`;
-  }
-  return texto;
-};
+  const verificaTexto = (texto: any) => {
+    const dataRegex = /^\d{4}-\d{2}-\d{2}$/;
+    if (typeof texto === 'string' && dataRegex.test(texto)) {
+      const [ano, mes, dia] = texto.split('-');
+      return `${dia}/${mes}/${ano}`;
+    }
+    const iso8601Regex = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})\.(\d{3})[+-]\d{2}:\d{2}$/;
+    if (texto != null && iso8601Regex.test(texto)) {
+      let dataString = texto;
+      let data = dataString.split("T")[0];
+      let hora = dataString.split("T")[1].split(".")[0];
+      let dia = data.split('-')[2];
+      let mes = data.split('-')[1];
+      let ano = data.split('-')[0];
+      return `${dia}/${mes}/${ano} ${hora}`;
+    }
+    return texto;
+  };
 
   useEffect(() => {
     document.addEventListener('mousedown', dropdownCliqueiFora);
@@ -63,7 +62,6 @@ const verificaTexto = (texto: any) => {
     };
   }, []);
 
-  // Renderiza os filtros em um grid responsivo:
   const renderFiltros = () => {
     const filters = estrutura.tabela.colunas.filter((col: any) => col.pesquisar);
 
@@ -118,7 +116,7 @@ const verificaTexto = (texto: any) => {
       <div className="flex flex-col">
         {/* Linha de botões */}
         <div className="flex justify-between items-center overflow-x-auto mt-2.5">
-          {/* Lado Esquerdo: Botão de Filtrar */}
+          {/* Botão Filtrar */}
           <div className="flex items-center">
             {estrutura.tabela.configuracoes?.pesquisar && (
               <div className="relative ml-2">
@@ -131,7 +129,7 @@ const verificaTexto = (texto: any) => {
               </div>
             )}
           </div>
-          {/* Lado Direito: Outros botões */}
+          {/* Outros botões */}
           <div className="flex items-center">
             {estrutura.tabela.botoes &&
               estrutura.tabela.botoes
@@ -154,7 +152,8 @@ const verificaTexto = (texto: any) => {
             {renderFiltros()}
           </div>
         )}
-        {/* Tabela (Desktop) */}
+
+        {/* Tabela Desktop */}
         <div className="overflow-x-auto rounded-md border-2 border-neutrals-200 hidden md:block">
           <div className="min-w-full inline-block align-middle">
             <div className="rounded-md overflow-hidden">
@@ -226,43 +225,34 @@ const verificaTexto = (texto: any) => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-neutrals-200">
-                  {dados && dados && dados.length > 0 ? (
-                    dados.map((item: any) => (
+                  {dados?.content && dados.content.length > 0 ? (
+                    dados.content.map((item: any) => (
                       <tr key={item.id} className="hover:bg-neutrals-100">
                         {estrutura.tabela.colunas.map(({ chave, tipo, selectOptions }: any) => {
                           if (chave === 'acoes') {
                             return (
                               <td
-                                key="acoes"
-                                className="px-6 py-2 whitespace-nowrap relative border-l border-neutrals-200 flex items-center justify-center"
+                                key={`${item.id}_${chave}`}
+                                className="px-2 py-2 whitespace-nowrap relative border-l border-neutrals-200 flex items-center justify-center"
                               >
-                                <button
-                                  onClick={() => dropdownAbrirFechar(item.id)}
-                                  className="flex justify-center items-center text-neutrals-500 hover:text-neutrals-700 focus:outline-none"
-                                >
-                                  <p className="text-lg font-bold text-neutrals-900">...</p>
-                                </button>
-                                {dropdownAberto[item.id] && (
-                                  <div
-                                    ref={dropdownRef}
-                                    className="absolute z-10 mt-2 w-30 rounded-md shadow-lg bg-neutrals-50 border-2 border-neutrals-200 ring-1 ring-black ring-opacity-5 left-0"
-                                    style={{ marginLeft: '-55px', marginTop: '-60px' }}
-                                    role="menu"
-                                    aria-orientation="vertical"
-                                    aria-labelledby="options-menu"
+                                {estrutura.tabela.acoes_dropdown.map((acao: any, index_acao: any) => (
+                                  <button
+                                    key={index_acao}
+                                    className="block px-3 py-2 text-sm text-neutrals-700 hover:bg-neutrals-100 w-full text-center justify-center"
+                                    role="menuitem"
+                                    onClick={() => chamarFuncao(acao.chave, item)}
                                   >
-                                    {estrutura.tabela.acoes_dropdown.map((acao: any, index_acao: any) => (
-                                      <button
-                                        key={index_acao}
-                                        className="block px-4 py-2 text-sm text-neutrals-700 hover:bg-neutrals-100 w-full text-center"
-                                        role="menuitem"
-                                        onClick={() => chamarFuncao(acao.chave, item)}
-                                      >
-                                        {acao.nome}
-                                      </button>
-                                    ))}
-                                  </div>
-                                )}
+                                    {acao.nome === 'Editar' && (
+                                      <Edit className='text-primary-700' />
+                                    )}
+                                    {acao.nome === 'Visualizar' && (
+                                      <Visibility className='text-primary-700' />
+                                    )}
+                                    {acao.nome === 'Deletar' && (
+                                      <Delete className='text-danger-500' />
+                                    )}
+                                  </button>
+                                ))}
                               </td>
                             );
                           } else if (item[chave] !== undefined && tipo === "status") {
@@ -275,7 +265,7 @@ const verificaTexto = (texto: any) => {
                                 case 'Finalizado':
                                   element = (
                                     <td
-                                      key={chave}
+                                      key={`${item.id}_${chave}`}
                                       className="px-6 py-2 whitespace-nowrap flex items-center font-normal"
                                     >
                                       <span className="px-2 inline-flex text-sm leading-5 font-normal rounded-full bg-green-100 text-green-800">
@@ -287,7 +277,7 @@ const verificaTexto = (texto: any) => {
                                 case 'Erro':
                                   element = (
                                     <td
-                                      key={chave}
+                                      key={`${item.id}_${chave}`}
                                       className="px-6 py-2 whitespace-nowrap flex items-center font-normal"
                                     >
                                       <span className="px-2 inline-flex text-sm leading-5 font-normal rounded-full bg-red-100 text-red-800">
@@ -299,7 +289,7 @@ const verificaTexto = (texto: any) => {
                                 default:
                                   element = (
                                     <td
-                                      key={chave}
+                                      key={`${item.id}_${chave}`}
                                       className="px-6 py-2 whitespace-nowrap flex items-center font-normal"
                                     >
                                       <span className="px-3 inline-flex text-sm leading-6 font-normal rounded-full bg-neutrals-100 text-neutrals-800">
@@ -316,7 +306,7 @@ const verificaTexto = (texto: any) => {
                             );
                             if (selectOption) {
                               return (
-                                <td key={chave} className="px-6 py-2 whitespace-nowrap font-normal">
+                                <td key={chave} className="px-6 py-2 whitespace-nowrap font-normal text-center align-middle">
                                   <div className={`py-2 text-center rounded-md text-label-medium font-normal ${selectOption.chave === true || selectOption.chave === "APROVADA" ? "bg-success-100 text-success-900" : selectOption.chave === "PENDENTE" ? "bg-warning-100 text-warning-900" : "bg-danger-100 text-danger-900"}`}>
                                     {selectOption.valor}
                                   </div>
@@ -332,35 +322,33 @@ const verificaTexto = (texto: any) => {
                             let jsonItem = JSON.parse(item[key]);
                             if (jsonItem && typeof jsonItem[jsonKey] !== 'object') {
                               return (
-                                <td key={chave} className="px-6 py-2 whitespace-nowrap font-normal">
+                                <td key={chave} className="px-6 py-2 whitespace-nowrap font-normal text-center align-middle">
                                   {verificaTexto(jsonItem[jsonKey])}
                                 </td>
                               );
                             } else {
-                              return <td key={chave} className="px-6 py-2 whitespace-nowrap font-normal"></td>;
+                              return <td key={chave} className="px-6 py-2 whitespace-nowrap font-normal text-center align-middle"></td>;
                             }
                           } else if (tipo === "quantidade" && Array.isArray(item[chave])) {
-                            // SUPORTE À QUANTIDADE DE ITENS DO ARRAY
                             return (
-                              <td key={chave} className="px-6 py-2 whitespace-nowrap font-normal">
+                              <td key={chave} className="px-6 py-2 whitespace-nowrap font-normal text-center align-middle">
                                 {item[chave].length}
                               </td>
                             );
                           } else if (item[chave] !== undefined) {
                             if (typeof item[chave] !== 'object') {
                               return (
-                                <td key={chave} className="px-6 py-2 whitespace-nowrap font-normal">
+                                <td key={chave} className="px-6 py-2 whitespace-nowrap font-normal text-center align-middle">
                                   {verificaTexto(item[chave])}
                                 </td>
                               );
                             } else if (Array.isArray(item[chave])) {
-                              // SUPORTE A ARRAYS
                               return (
-                                <td key={chave} className="px-6 py-2 whitespace-nowrap font-normal">
+                                <td key={chave} className="px-6 py-2 whitespace-nowrap font-normal text-center align-middle">
                                   {item[chave].length > 0 ? (
                                     <ul className="list-disc pl-4">
                                       {item[chave].map((element: any, idx: number) => (
-                                        <li key={idx}>
+                                        <li key={element.id || idx}>
                                           {element.horaInicio && element.horaFim
                                             ? `${element.horaInicio} - ${element.horaFim}`
                                             : JSON.stringify(element)}
@@ -373,7 +361,7 @@ const verificaTexto = (texto: any) => {
                                 </td>
                               );
                             } else {
-                              return <td key={chave} className="px-6 py-2 whitespace-nowrap font-normal"></td>;
+                              return <td key={chave} className="px-6 py-2 whitespace-nowrap font-normal text-center align-middle"></td>;
                             }
                           } else if (item[chave] === undefined) {
                             const keys = chave.split('.');
@@ -385,27 +373,25 @@ const verificaTexto = (texto: any) => {
                               }
                             }
                             if (tipo === "quantidade" && Array.isArray(nestedValue)) {
-                              // SUPORTE À QUANTIDADE DE ITENS DO ARRAY ANINHADO
                               return (
-                                <td key={chave} className="px-6 py-2 whitespace-nowrap font-normal">
+                                <td key={chave} className="px-6 py-2 whitespace-nowrap font-normal text-center align-middle">
                                   {nestedValue.length}
                                 </td>
                               );
                             }
                             if (typeof nestedValue !== 'object' && nestedValue !== undefined) {
                               return (
-                                <td key={chave} className="px-6 py-2 whitespace-nowrap font-normal">
+                                <td key={chave} className="px-6 py-2 whitespace-nowrap font-normal text-center align-middle">
                                   {verificaTexto(nestedValue)}
                                 </td>
                               );
                             } else if (Array.isArray(nestedValue)) {
-                              // SUPORTE A ARRAYS EM OBJETOS ANINHADOS
                               return (
-                                <td key={chave} className="px-6 py-2 whitespace-nowrap font-normal">
+                                <td key={chave} className="px-6 py-2 whitespace-nowrap font-normal text-center align-middle">
                                   {nestedValue.length > 0 ? (
                                     <ul className="list-disc pl-4">
                                       {nestedValue.map((element: any, idx: number) => (
-                                        <li key={idx}>
+                                        <li key={element.id || idx}>
                                           {element.horaInicio && element.horaFim
                                             ? `${element.horaInicio} - ${element.horaFim}`
                                             : JSON.stringify(element)}
@@ -418,7 +404,7 @@ const verificaTexto = (texto: any) => {
                                 </td>
                               );
                             } else {
-                              return <td key={chave} className="px-6 py-2 whitespace-nowrap font-normal"></td>;
+                              return <td key={chave} className="px-6 py-2 whitespace-nowrap font-normal text-center align-middle"></td>;
                             }
                           }
                           return null;
@@ -440,8 +426,8 @@ const verificaTexto = (texto: any) => {
 
         {/* Layout Stacked (Mobile) */}
         <div className="block md:hidden">
-          {dados && dados && dados.length > 0 ? (
-            dados.map((item: any) => (
+          {dados?.content && dados.content.length > 0 ? (
+            dados.content.map((item: any) => (
               <div
                 key={item.id}
                 className="bg-white border border-neutrals-200 rounded-md p-4 mb-4 shadow"
@@ -450,7 +436,7 @@ const verificaTexto = (texto: any) => {
                   if (col.chave === 'acoes') {
                     // No mobile, exibe os botões de ação diretamente
                     return (
-                      <div key={col.chave} className="mt-2 flex justify-end gap-2">
+                      <div key={`${item.id}_${col.chave}`} className="mt-2 flex justify-end gap-2">
                         {estrutura.tabela.acoes_dropdown.map((acao: any, index_acao: any) => (
                           <button
                             key={index_acao}
@@ -474,7 +460,7 @@ const verificaTexto = (texto: any) => {
                         value = (
                           <ul className="list-disc pl-4">
                             {item[col.chave].map((element: any, idx: number) => (
-                              <li key={idx}>
+                              <li key={element.id || idx}>
                                 {element.horaInicio && element.horaFim
                                   ? `${element.horaInicio} - ${element.horaFim}`
                                   : JSON.stringify(element)}
@@ -499,7 +485,7 @@ const verificaTexto = (texto: any) => {
                         value = (
                           <ul className="list-disc pl-4">
                             {nestedValue.map((element: any, idx: number) => (
-                              <li key={idx}>
+                              <li key={element.id || idx}>
                                 {element.horaInicio && element.horaFim
                                   ? `${element.horaInicio} - ${element.horaFim}`
                                   : JSON.stringify(element)}
@@ -541,7 +527,7 @@ const verificaTexto = (texto: any) => {
                       }
                     }
                     return (
-                      <div key={index} className="mb-2">
+                      <div key={`${item.id}_${col.chave}_${index}`} className="mb-2">
                         <span className="block text-sm font-bold text-neutrals-900">
                           {label}:
                         </span>
