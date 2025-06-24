@@ -62,12 +62,6 @@ export default function PraeLayout({ children }: { children: React.ReactNode }) 
           roles: ["administrador", "gestor", "tecnico", "aluno"],
         },
         {
-          label: "Dados Bancários",
-          route: "/prae/dados-bancarios",
-          icon: <AccountBalance fontSize="small" className="text-white" />,
-          roles: ["administrador", "gestor", "tecnico"],
-        },
-        {
           label: "Auxílios",
           route: "/prae/auxilio",
           icon: <VolunteerActivism fontSize="small" className="text-white" />,
