@@ -10,7 +10,7 @@ import Image from "next/image";
 import Link from "next/link";
 import AuthTokenService from "@/app/authentication/auth.token";
 import authService from "@/app/authentication/auth.service";
-import { toast } from "react-toastify"; // Importação do Toastify
+import { toast } from "react-toastify";
 
 const loginSchema = z.object({
   email: z.string().email("Informe um e-mail válido"),
@@ -67,6 +67,13 @@ export default function Login() {
     const userEmail = dataForm.get('email') as string;
     const userPassword = dataForm.get('password') as string;
 
+    const toastId = toast.loading("Processando...", {
+      position: "top-right",
+      closeButton: false,
+      hideProgressBar: true,
+      autoClose: false,
+    });
+
     try {
       const authData = await authService.authenticate({ email: userEmail, password: userPassword });
       if (!authData || !authData.token) {
@@ -78,16 +85,32 @@ export default function Login() {
         localStorage.setItem("sgu_saved_emails", JSON.stringify(updatedEmails));
       }
       setIsAuthenticated(true);
+
+      // Update the toast to success
+      toast.update(toastId, {
+        render: "Login realizado com sucesso!",
+        type: "success",
+        isLoading: false,
+        autoClose: 3000,
+        closeButton: true,
+        hideProgressBar: false,
+      });
+
       router.push('/home');
     } catch (error: any) {
       console.error('Erro ao fazer o login:', error);
 
-      // Exibe toast para erro 401 (e-mail ou senha incorretos)
-      if (error?.response?.status === 401) {
-        toast.error("E-mail ou senha incorretos", { position: "top-right" });
-      } else {
-        toast.error(error.message || "Erro ao fazer o login.", { position: "top-right" });
-      }
+      // Update the toast to error
+      toast.update(toastId, {
+        render: error?.response?.status === 401
+          ? "E-mail ou senha incorretos"
+          : error.message || "Erro ao fazer o login.",
+        type: "error",
+        isLoading: false,
+        autoClose: 3000,
+        closeButton: true,
+        hideProgressBar: false,
+      });
     }
   };
 
@@ -142,10 +165,8 @@ export default function Login() {
                       className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-600 hover:text-primary-500"
                     >
                       {mostrarSenha ? (
-                        // Olho aberto
                         <Image src="/assets/icons/eyeOff.svg" alt="Facebook Icon" width={24} height={24} />
                       ) : (
-                        // Olho fechado
                         <Image src="/assets/icons/eyeOn.svg" className="text-purple-900" alt="Facebook Icon" width={25} height={25} />
                       )}
                     </button>

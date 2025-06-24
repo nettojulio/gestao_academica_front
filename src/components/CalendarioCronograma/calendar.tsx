@@ -1,8 +1,9 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 interface CalendarProps {
-  onChange?: (selectedDays: string[]) => void; // Callback para informar dias selecionados
+  selectedDates?: string[]; // ou Date[] dependendo do seu uso
+  onChange: (dias: string[]) => void;
 }
 
 const formatDate = (date: Date): string => {
@@ -12,9 +13,27 @@ const formatDate = (date: Date): string => {
   return `${day}/${month}/${year}`;
 };
 
-const Calendar: React.FC<CalendarProps> = ({ onChange }) => {
+const Calendar: React.FC<CalendarProps> = ({ selectedDates = [], onChange }: CalendarProps) => {
   const [currentDate, setCurrentDate] = useState<Date>(new Date());
   const [selectedDays, setSelectedDays] = useState<string[]>([]);
+  useEffect(() => {
+    if (selectedDates && selectedDates.length > 0) {
+      const formatted = selectedDates.map(date => {
+        const [year, month, day] = date.split('-').map(Number);
+        const d = new Date(year, month - 1, day);
+        return formatDate(d);
+      });
+      setSelectedDays(formatted);
+    }
+  }, [selectedDates]);
+
+  const parseISODateToLocal = (iso: string): Date => {
+    const [year, month, day] = iso.split('-').map(Number);
+    return new Date(year, month - 1, day);
+  };
+
+
+
 
   // Gera todos os dias do mês atual
   const getDaysInMonth = () => {
@@ -30,7 +49,13 @@ const Calendar: React.FC<CalendarProps> = ({ onChange }) => {
       const updated = alreadySelected
         ? prev.filter(d => d !== dateStr)
         : [...prev, dateStr];
-      if (onChange) onChange(updated);
+      if (onChange) {
+        const converted = updated.map(dateStr => {
+          const [dia, mes, ano] = dateStr.split('/');
+          return `${ano}-${mes.padStart(2, '0')}-${dia.padStart(2, '0')}`;
+        });
+        onChange(converted);
+      }
       return updated;
     });
   };
@@ -44,6 +69,7 @@ const Calendar: React.FC<CalendarProps> = ({ onChange }) => {
   };
 
   const daysInMonth = getDaysInMonth();
+
 
   return (
     <main className="p-4 md:p-8">

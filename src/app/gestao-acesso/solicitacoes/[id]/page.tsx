@@ -124,6 +124,7 @@ const cadastro = () => {
           mensagem: "Digite",
           obrigatorio: true,
           bloqueado: isEditMode,
+          pesquisar: true,
 
         },
         {
@@ -311,7 +312,7 @@ const cadastro = () => {
         toast(response.data.error.message, { position: "bottom-left" });
       } else {
         if (response && response.data) {
-          setCursos(response.data);
+          setCursos(response.data.content);
         }
       }
     } catch (error) {

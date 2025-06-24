@@ -3,6 +3,7 @@ import withAuthorization from "@/components/AuthProvider/withAuthorization";
 import Cadastro from "@/components/Cadastro/Estrutura";
 import Cabecalho from "@/components/Layout/Interno/Cabecalho";
 import Tabela from "@/components/Tabela/Estrutura";
+import { useRole } from "@/context/roleContext";
 import { generica } from "@/utils/api";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -18,8 +19,11 @@ const cadastro = () => {
   const [dadosPreenchidos, setDadosPreenchidos] = useState<any>();
   const [dadosTabela, setDadosTabela] = useState<any>({});
 
+  const [colaboradores, setColaboradores] = useState<any[]>([]);
   const [UnidadesPai, setUnidadesPai] = useState<any[]>([]);
   const [tipoUnidade, setTipoUnidade] = useState<any[]>([]);
+  const { activeRole, userRoles } = useRole();
+  const isPrivileged = activeRole;//activeRole === "administrador" || activeRole === "gestor";
 
   const isEditMode = id && id !== "criar";
   const getOptions = (lista: any[], selecionado: any) => {
@@ -38,6 +42,7 @@ const cadastro = () => {
     }
     return options;
   };
+
   const estrutura: any = {
     uri: "unidade-administrativa",
     cabecalho: {
@@ -58,11 +63,11 @@ const cadastro = () => {
         cabecalho: true,
         rodape: true,
       },
-      botoes: [ //links
-        { nome: 'Adicionar', chave: 'adicionar', bloqueado: false }, //nome(string),chave(string),bloqueado(booleano)
-      ],
+      botoes: isEditMode ? [ // Mostra botão apenas no modo edição
+        { nome: 'Adicionar', chave: 'adicionar', bloqueado: false },
+      ] : [],
       //Ajustar coluna com as colunas de gestores
-      colunas: [
+      colunas: [ // <-- já define as colunas aqui!
         { nome: "CPF", chave: "cpf", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
         { nome: "Nome", chave: "nome", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
         { nome: "E-mail", chave: "email", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
@@ -110,7 +115,6 @@ const cadastro = () => {
           obrigatorio: false,
           selectOptions: getOptions(tipoUnidade, dadosPreenchidos?.tipoUnidadeAdministrativaId),
           //exibirPara: ["ALUNO"],
-          bloqueado: isEditMode,
         },
         {
           line: 2,
@@ -122,7 +126,6 @@ const cadastro = () => {
           obrigatorio: false,
           selectOptions: getOptions(UnidadesPai, dadosPreenchidos?.unidadePaiId),
           //exibirPara: ["ALUNO"],
-          bloqueado: isEditMode,
         }
 
       ],
@@ -148,16 +151,23 @@ const cadastro = () => {
         editarRegistro(valor);
         break;
       case 'adicionar':
-        adicionarGestor();
+        adicionarGestor(valor);
         break;
       default:
         break;
     }
   };
+  const adicionarGestor = (idUnidade: string) => {
+    if (!idUnidade) {
+      console.error("ID da unidade não fornecido");
+      return;
+    }
 
-  const adicionarGestor = () => {
-    //Precisa ajustar essa rota para levar para o adicionar gestor
-    router.push('/gestao-acesso/unidades-administrativas/gestor/criar');
+    const rota = activeRole === "administrador"
+      ? `/gestao-acesso/alocar-gestor/${isEditMode ? id : "criar"}`
+      : `/gestao-acesso/alocar-colaborador/${isEditMode ? id : "criar"}`;
+
+    router.push(rota);
   };
   const voltarRegistro = () => {
     router.push("/gestao-acesso/unidades-administrativas");
@@ -264,6 +274,69 @@ const cadastro = () => {
     }
   };
 
+  const pesquisarColaborador = async () => {
+    try {
+      let tecnicos: any[] = [];
+      let professores: any[] = [];
+
+      // Buscar técnicos
+      const responseTecnicos = await generica({
+        metodo: "get",
+        uri: "/auth/tecnico",
+        params: { size: 10, page: 0 },
+        data: {},
+      });
+
+      if (responseTecnicos?.data && !responseTecnicos.data.errors) {
+        tecnicos = responseTecnicos.data.content.map((item: any) => ({
+          ...item,
+          tipo: "Técnico",
+        }));
+      }
+
+      // Buscar professores
+      const responseProfessores = await generica({
+        metodo: "get",
+        uri: "/auth/professor",
+        params: { size: 10, page: 0 },
+        data: {},
+      });
+
+      if (responseProfessores?.data && !responseProfessores.data.errors) {
+        professores = responseProfessores.data.content.map((item: any) => ({
+          ...item,
+          tipo: "Professor",
+        }));
+      }
+
+      const uniao = [...tecnicos, ...professores];
+
+      // Adaptando para o formato esperado pela Tabela
+      const dadosAdaptados = {
+        content: uniao,
+        pageable: {
+          pageNumber: 0,
+          pageSize: 20,
+        },
+        totalElements: uniao.length,
+        totalPages: 1,
+        number: 0,
+        size: 50,
+        sort: { sorted: false, unsorted: true, empty: true },
+        numberOfElements: uniao.length,
+        first: true,
+        last: true,
+        empty: false,
+      };
+
+      setDadosTabela(dadosAdaptados);
+    } catch (error) {
+      console.error("Erro ao carregar colaboradores:", error);
+      toast.error("Erro ao carregar colaboradores!", { position: "top-left" });
+    }
+  };
+
+
   /**
    * Localiza o registro para edição e preenche os dados
    */
@@ -275,12 +348,8 @@ const cadastro = () => {
         params: {},
         data: item,
       };
-
       const response = await generica(body);
-      if (!response) {
-        throw new Error("Resposta inválida do servidor.");
-      }
-
+      if (!response) throw new Error("Resposta inválida do servidor.");
       if (response.data?.errors) {
         Object.keys(response.data.errors).forEach((campoErro) => {
           toast(`Erro em ${campoErro}: ${response.data.errors[campoErro]}`, {
@@ -288,16 +357,12 @@ const cadastro = () => {
           });
         });
       } else if (response.data?.error) {
-        toast(response.data.error.message, { position: "top-left" });
+        toast.error(response.data.error.message, { position: "top-left" });
       } else {
-        const data = response.data;
-        // data.endereco existe e tem { cep, logradouro, ... }.
-        // Precisamos jogar cada um deles para o "top-level" do estado,
-
-        setDadosPreenchidos(data);
+        setDadosPreenchidos(response.data);
       }
     } catch (error) {
-      console.error("Erro ao localizar registro:", error);
+      console.error("DEBUG: Erro ao localizar registro:", error);
       toast.error("Erro ao localizar registro. Tente novamente!", { position: "top-left" });
     }
   };
@@ -331,16 +396,15 @@ const cadastro = () => {
         uri: '/auth/tipo-unidade-administrativa',
         params: params != null ? params : { size: 25, page: 0 },
         data: {}
-      }
+      };
       const response = await generica(body);
-      // Tratamento de erros
-      if (response && response.data.errors != undefined) {
+
+      if (response?.data?.errors) {
         toast("Erro. Tente novamente!", { position: "bottom-left" });
-      } else if (response && response.data.error != undefined) {
+      } else if (response?.data?.error) {
         toast(response.data.error.message, { position: "bottom-left" });
-      } else if (response && response.data) {
-        // Filtra os itens para manter somente aqueles sem unidade pai (unidadePaiId nulo ou indefinido)
-        setTipoUnidade(response.data);
+      } else if (response?.data?.content) { // Acessando 'content'
+        setTipoUnidade(response.data.content); // Passa apenas o array de itens
       }
     } catch (error) {
       console.error('Erro ao carregar registros:', error);
@@ -351,32 +415,51 @@ const cadastro = () => {
   useEffect(() => {
     pesquisarTipoUnidades();
     pesquisarUnidadesPai();
-    pesquisarGestores();
+
+    if (activeRole === "administrador") {
+      pesquisarGestores();
+    } else {
+      pesquisarColaborador(); // aqui está o correto
+    }
+
     if (id && id !== "criar") {
       chamarFuncao("editar", id);
     }
-  }, [id]);
+  }, [id, activeRole]);
+
+
+
 
   return (
     <main className="flex flex-wrap justify-center mx-auto">
-      <div className="w-full md:w-11/12 lg:w-10/12 2xl:w-3/4 max-w-6xl p-4 pt-10 md:pt-12 md:pb-12">
-        <Cabecalho dados={estrutura.cabecalho} />
-        <Cadastro
-          estrutura={estrutura}
-          dadosPreenchidos={dadosPreenchidos}
-          setDadosPreenchidos={setDadosPreenchidos}
-          chamarFuncao={chamarFuncao}
-        />
-      </div>
-      <div className="w-full md:w-11/12 lg:w-10/12 2xl:w-3/4 max-w-6xl p-4">''
-        <span className="block text-center text-2xl font-semibold mb-4">
-          Consultar Gestores
-        </span>
-        <Tabela
-          dados={dadosTabela}
-          estrutura={estrutura}
-          chamarFuncao={chamarFuncao}
-        />
+      {/* Container principal (mesmo padrão do primeiro exemplo) */}
+      <div className="w-full max-w-screen-2xl px-4 sm:px-6 md:px-8 lg:px-10 py-6">
+        {/* Seção de Cadastro */}
+        <div className="rounded-lg shadow-sm p-4 md:p-6">
+          <Cabecalho dados={estrutura.cabecalho} />
+          <Cadastro
+            estrutura={estrutura}
+            dadosPreenchidos={dadosPreenchidos}
+            setDadosPreenchidos={setDadosPreenchidos}
+            chamarFuncao={chamarFuncao}
+          />
+        </div>
+
+        {/* Seção Condicional (Tabela) */}
+        {isEditMode && (  // ← Renderiza apenas se isEditMode = true
+          <div className="rounded-lg shadow-sm p-4 md:p-6 mt-6">
+            <span className="block text-center text-2xl font-semibold mb-4">
+              {isPrivileged === "administrador"
+                ? "Consultar Gestores"
+                : "Consultar Colaborador"}
+            </span>
+            <Tabela
+              dados={dadosTabela}
+              estrutura={estrutura}
+              chamarFuncao={chamarFuncao}
+            />
+          </div>
+        )}
       </div>
     </main>
   );

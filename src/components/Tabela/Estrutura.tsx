@@ -304,10 +304,14 @@ const Tabela = ({ dados = null, estrutura = null, chamarFuncao = null }: any) =>
                             );
                             if (selectOption) {
                               return (
-                                <td key={chave} className="px-6 py-2 whitespace-nowrap font-normal text-center">
-                                  <div className={`py-2 text-center rounded-md text-label-medium font-normal ${selectOption.chave === true || selectOption.chave === "APROVADA" ? "bg-success-100 text-success-900" : selectOption.chave === "PENDENTE" ? "bg-warning-100 text-warning-900" : "bg-danger-100 text-danger-900"}`}>
+                                <td key={chave} className="px-4 py-3 whitespace-nowrap text-center">
+                                  <span className={`text-sm ${selectOption.chave === true || selectOption.chave === "APROVADA"
+                                    ? "text-green-600"
+                                    : selectOption.chave === "PENDENTE"
+                                      ? "text-yellow-600"
+                                      : "text-red-600"}`}>
                                     {selectOption.valor}
-                                  </div>
+                                  </span>
                                 </td>
                               );
                             } else {

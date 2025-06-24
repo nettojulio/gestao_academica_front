@@ -1,6 +1,7 @@
 "use client";
 import React, { useEffect, useRef, useState } from 'react';
 import Pagination from './Itens/Paginacao';
+import { Delete, Edit, Visibility } from '@mui/icons-material';
 
 const TabelaArvore = ({ dados = null, estrutura = null, chamarFuncao = null }: any) => {
   // Estados
@@ -272,38 +273,30 @@ const TabelaArvore = ({ dados = null, estrutura = null, chamarFuncao = null }: a
                   key={col.chave}
                   className="px-6 py-2 whitespace-nowrap relative border-l border-neutrals-200 flex items-center justify-center"
                 >
-                  <button
-                    onClick={() => dropdownAbrirFechar(node.id)}
-                    className="flex justify-center items-center text-neutrals-500 hover:text-neutrals-700 focus:outline-none"
-                  >
-                    <p className="text-lg font-bold text-neutrals-900">...</p>
-                  </button>
-                  {dropdownAberto[node.id] && (
-                    <div
-                      ref={dropdownRef}
-                      className="absolute z-10 mt-2 w-30 rounded-md shadow-lg bg-neutrals-50 border-2 border-neutrals-200 ring-1 ring-black ring-opacity-5 left-0"
-                      style={{ marginLeft: '-55px', marginTop: '-60px' }}
-                      role="menu"
-                      aria-orientation="vertical"
-                      aria-labelledby="options-menu"
-                    >
-                      {estrutura.tabela.acoes_dropdown &&
-                        estrutura.tabela.acoes_dropdown.map((acao: any, idx: number) => (
-                          <button
-                            key={idx}
-                            className="block px-4 py-2 text-sm text-neutrals-700 hover:bg-neutrals-100 w-full text-center"
-                            role="menuitem"
-                            onClick={() => chamarFuncao(acao.chave, node.id)}
-                          >
-                            {acao.nome}
-                          </button>
-                        ))}
-                    </div>
-                  )}
+                  {estrutura.tabela.acoes_dropdown &&
+                    estrutura.tabela.acoes_dropdown.map((acao: any, idx: number) => (
+                      <button
+                        key={idx}
+                        className="block px-3 py-2 text-sm text-neutrals-700 hover:bg-neutrals-100 w-full text-center justify-center"
+                        role="menuitem"
+                        onClick={() => chamarFuncao(acao.chave, node)}
+                      >
+                        {acao.nome === 'Editar' && (
+                          <Edit className="text-primary-700" />
+                        )}
+                        {acao.nome === 'Visualizar' && (
+                          <Visibility className="text-primary-700" />
+                        )}
+                        {acao.nome === 'Deletar' && (
+                          <Delete className="text-danger-500" />
+                        )}
+                      </button>
+                    ))}
                 </td>
               );
+            }
 
-            } else {
+            else {
               return (
                 <td key={col.chave} className="px-6 py-2 whitespace-nowrap font-normal">
                   {renderCellContent(node, col)}

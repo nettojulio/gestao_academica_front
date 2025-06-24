@@ -73,19 +73,18 @@ const PageLista = () => {
       let body = {
         metodo: 'get',
         uri: '/prae/' + estrutura.uri,
-        //+ '/page',
         params: params != null ? params : { size: 10, page: 0 },
         data: {}
-      }
+      };
       const response = await generica(body);
-      console.log(response?.data)
-      //tratamento dos erros
+
       if (response && response.data.errors != undefined) {
         toast("Erro. Tente novamente!", { position: "bottom-left" });
       } else if (response && response.data.error != undefined) {
         toast(response.data.error.message, { position: "bottom-left" });
       } else {
         if (response && response.data) {
+          // Guarda a resposta completa para manter paginação e dados intactos
           setDados(response.data);
         }
       }
@@ -93,6 +92,7 @@ const PageLista = () => {
       console.error('Erro ao carregar registros:', error);
     }
   };
+
   // Função que redireciona para a tela adicionar
   const adicionarRegistro = () => {
     router.push('/prae/pagamentos/criar');
