@@ -271,27 +271,30 @@ const TabelaArvore = ({ dados = null, estrutura = null, chamarFuncao = null }: a
               return (
                 <td
                   key={col.chave}
-                  className="px-6 py-2 whitespace-nowrap relative border-l border-neutrals-200 flex items-center justify-center"
+                  className="py-2 whitespace-nowrap border-l border-neutrals-200 text-center"
+                  style={{ width: '100px', minWidth: '100px', maxWidth: '100px' }}
                 >
-                  {estrutura.tabela.acoes_dropdown &&
-                    estrutura.tabela.acoes_dropdown.map((acao: any, idx: number) => (
-                      <button
-                        key={idx}
-                        className="block px-3 py-2 text-sm text-neutrals-700 hover:bg-neutrals-100 w-full text-center justify-center"
-                        role="menuitem"
-                        onClick={() => chamarFuncao(acao.chave, node)}
-                      >
-                        {acao.nome === 'Editar' && (
-                          <Edit className="text-primary-700" />
-                        )}
-                        {acao.nome === 'Visualizar' && (
-                          <Visibility className="text-primary-700" />
-                        )}
-                        {acao.nome === 'Deletar' && (
-                          <Delete className="text-danger-500" />
-                        )}
-                      </button>
-                    ))}
+                  <div className="flex items-center justify-center gap-2">
+                    {estrutura.tabela.acoes_dropdown &&
+                      estrutura.tabela.acoes_dropdown.map((acao: any, idx: number) => (
+                        <button
+                          key={idx}
+                          className="p-1 hover:bg-neutrals-100 rounded"
+                          role="menuitem"
+                          onClick={() => chamarFuncao(acao.chave, node)}
+                        >
+                          {acao.nome === 'Editar' && (
+                            <Edit className="text-primary-700" />
+                          )}
+                          {acao.nome === 'Visualizar' && (
+                            <Visibility className="text-primary-700" />
+                          )}
+                          {acao.nome === 'Deletar' && (
+                            <Delete className="text-danger-500" />
+                          )}
+                        </button>
+                      ))}
+                  </div>
                 </td>
               );
             }
@@ -453,6 +456,7 @@ const TabelaArvore = ({ dados = null, estrutura = null, chamarFuncao = null }: a
                             ? 'px-6 py-3 whitespace-nowrap text-sm font-bold uppercase text-neutrals-900 text-center'
                             : 'px-6 py-3 whitespace-nowrap text-sm font-bold uppercase text-neutrals-900'
                         }
+                        style={item.nome.toUpperCase() === 'AÇÕES' ? { width: '100px', minWidth: '100px', maxWidth: '100px' } : {}}
                         title={item.hint || ''}
                       >
                         <div
