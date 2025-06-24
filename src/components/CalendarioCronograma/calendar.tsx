@@ -23,19 +23,21 @@ const Calendar: React.FC<CalendarProps> = ({ selectedDates = [], onChange }: Cal
         const d = new Date(year, month - 1, day);
         return formatDate(d);
       });
-      setSelectedDays(formatted);
+
+      // Evita update desnecessário
+      const changed = formatted.some(date => !selectedDays.includes(date)) || formatted.length !== selectedDays.length;
+      if (changed) {
+        setSelectedDays(formatted);
+      }
     }
   }, [selectedDates]);
+
 
   const parseISODateToLocal = (iso: string): Date => {
     const [year, month, day] = iso.split('-').map(Number);
     return new Date(year, month - 1, day);
   };
 
-
-
-
-  // Gera todos os dias do mês atual
   const getDaysInMonth = () => {
     const year = currentDate.getFullYear();
     const month = currentDate.getMonth();
@@ -65,7 +67,6 @@ const Calendar: React.FC<CalendarProps> = ({ selectedDates = [], onChange }: Cal
     newDate.setMonth(currentDate.getMonth() + (direction === 'next' ? 1 : -1));
     setCurrentDate(newDate);
     setSelectedDays([]); // Limpa seleção ao trocar de mês
-    if (onChange) onChange([]);
   };
 
   const daysInMonth = getDaysInMonth();
