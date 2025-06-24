@@ -24,13 +24,15 @@ const Calendar: React.FC<CalendarProps> = ({ selectedDates = [], onChange }: Cal
         return formatDate(d);
       });
 
-      // Evita update desnecessário
-      const changed = formatted.some(date => !selectedDays.includes(date)) || formatted.length !== selectedDays.length;
-      if (changed) {
+      // Só atualiza se for diferente do que já está
+      const formattedStr = formatted.join(",");
+      const currentStr = selectedDays.join(",");
+      if (formattedStr !== currentStr) {
         setSelectedDays(formatted);
       }
     }
   }, [selectedDates]);
+
 
 
   const parseISODateToLocal = (iso: string): Date => {
@@ -51,16 +53,19 @@ const Calendar: React.FC<CalendarProps> = ({ selectedDates = [], onChange }: Cal
       const updated = alreadySelected
         ? prev.filter(d => d !== dateStr)
         : [...prev, dateStr];
-      if (onChange) {
-        const converted = updated.map(dateStr => {
-          const [dia, mes, ano] = dateStr.split('/');
-          return `${ano}-${mes.padStart(2, '0')}-${dia.padStart(2, '0')}`;
-        });
-        onChange(converted);
-      }
-      return updated;
+
+      return updated; 
     });
   };
+
+  useEffect(() => {
+    const converted = selectedDays.map(dateStr => {
+      const [dia, mes, ano] = dateStr.split('/');
+      return `${ano}-${mes.padStart(2, '0')}-${dia.padStart(2, '0')}`;
+    });
+    onChange(converted); 
+  }, [selectedDays]);
+
 
   const changeMonth = (direction: 'prev' | 'next') => {
     const newDate = new Date(currentDate);

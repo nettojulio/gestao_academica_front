@@ -73,14 +73,14 @@ const cadastro = () => {
       });
 
       console.log("Resposta recebida:", response);
-      if (response?.data?.content) {
-        setTiposAtendimento(
-          response.data.content.map((tipo: any) => ({
-            chave: tipo.id,
-            valor: tipo.nome,
-          }))
-        );
-      }
+      const tipos = response?.data?.data || response?.data?.content || [];
+
+      setTiposAtendimento(
+        tipos.map((tipo: any) => ({
+          chave: tipo.id,
+          valor: tipo.nome,
+        }))
+      );
     } catch (error) {
       console.error("Erro ao buscar tipos de atendimento:", error);
     }
