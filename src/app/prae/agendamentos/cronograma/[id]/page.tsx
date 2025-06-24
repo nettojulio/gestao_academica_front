@@ -64,6 +64,7 @@ const cadastro = () => {
   const isEditMode = id && id !== "criar";
 
   const fetchTiposAtendimento = async () => {
+    console.log("Buscando tipos de atendimento...");
     try {
       const response = await generica({
         metodo: "get",
@@ -71,6 +72,7 @@ const cadastro = () => {
         params: {},
       });
 
+      console.log("Resposta recebida:", response);
       if (response?.data?.content) {
         setTiposAtendimento(
           response.data.content.map((tipo: any) => ({

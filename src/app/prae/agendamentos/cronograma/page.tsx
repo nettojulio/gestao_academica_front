@@ -158,7 +158,7 @@ const PageLista = () => {
   }, []);
 
   return (
-    <main className="flex justify-center mx-auto" style={{ marginLeft: '250px' }}>
+    <main className="flex justify-center mx-auto ml-14">
       <div className="w-full max-w-screen-2xl px-4 sm:px-6 md:px-8 lg:px-10 py-6">
         <Cabecalho dados={estrutura.cabecalho} />
         <div className="rounded-lg shadow-sm p-4 md:p-6">
