@@ -126,7 +126,7 @@ const cadastro = () => {
   };
 
   const voltarRegistro = () => {
-    router.push("/prae/beneficio/tipos");
+    router.push("/prae/beneficios/tipos");
   };
 
   function transformarDados(item: any) {
