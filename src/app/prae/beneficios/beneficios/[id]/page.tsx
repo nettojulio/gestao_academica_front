@@ -15,7 +15,7 @@ const cadastro = () => {
   const { id } = useParams();
   // Inicializamos com um objeto contendo 'endereco' para evitar problemas
   const [dadosPreenchidos, setDadosPreenchidos] = useState<any>([]);
-  const [tipoBeneficioSelecionado, setTipoBeneficioSelecionado] = useState<Object | null>(null);
+  const [tipoBeneficioSelecionado, setTipoBeneficioSelecionado] = useState<any | null>(null);
   const [estudanteSelecionado, setEstudanteSelecionado] = useState<Object | null>(null);
   const [estudantes, setEstudantes] = useState<any>({ content: [] });
   const [tipoBeneficio, setTipoBeneficio] = useState<any[]>([]);
@@ -254,7 +254,7 @@ const cadastro = () => {
         setDadosPreenchidos((prev: any) => ({
           ...prev,
           estudanteId: valor.id,
-          estudante: `${valor.aluno.nome} (${valor.aluno.cpf})` ,
+          estudante: `${valor.aluno.nome} (${valor.aluno.cpf})`,
         }));
         break;
       case 'desselecionarEstudante':
@@ -270,11 +270,11 @@ const cadastro = () => {
     }
   };
 
-  function buildFormData(): FormData {
+  function buildFormData(): any {
     const fd = new FormData();
-    if(!dadosPreenchidos.estudanteId) {
+    if (!dadosPreenchidos.estudanteId) {
       toast.error("Selecione um estudante antes de salvar o benefício.", { position: "top-right" });
-      return null;
+      return undefined;
     }
     fd.append('estudanteId', dadosPreenchidos.estudanteId.toString());
     if (Array.isArray(dadosPreenchidos.documentos)) {
@@ -404,7 +404,7 @@ const cadastro = () => {
       return;
     }
     try {
-      
+
       const body = {
         metodo: `${isEditMode ? "patch" : "post"}`,
         uri: "/prae/" + `${isEditMode ? estrutura.uri + "/" + id : estrutura.uri}`,
