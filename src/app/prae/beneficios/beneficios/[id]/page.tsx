@@ -15,11 +15,17 @@ const cadastro = () => {
   const { id } = useParams();
   // Inicializamos com um objeto contendo 'endereco' para evitar problemas
   const [dadosPreenchidos, setDadosPreenchidos] = useState<any>([]);
-  const [tipoBeneficioSelecionado, setTipoBeneficioSelecionado] = useState<string | null>(null);
-  const [tipoBolsa, setTipoBolsa] = useState<any[]>([]);
+  const [tipoBeneficioSelecionado, setTipoBeneficioSelecionado] = useState<Object | null>(null);
   const [estudanteSelecionado, setEstudanteSelecionado] = useState<Object | null>(null);
   const [estudantes, setEstudantes] = useState<any>({ content: [] });
-  const [tipoAuxilio, setTipoAuxilio] = useState<any[]>([]);
+  const [tipoBeneficio, setTipoBeneficio] = useState<any[]>([]);
+
+  const naturezasBeneficio = [
+    { chave: "BOLSA", valor: "Bolsa" },
+    { chave: "AUXILIO", valor: "Auxílio" },
+    { chave: "ISENCAO", valor: "Isenção" },
+    { chave: "OUTROS", valor: "Outros" },
+  ];
 
   useEffect(() => {
     chamarFuncao('pesquisar', null);
@@ -28,23 +34,22 @@ const cadastro = () => {
   const isEditMode = id && id !== "criar";
 
   useEffect(() => {
-    setTipoBeneficioSelecionado(dadosPreenchidos.tipoBeneficio);
-  }, [dadosPreenchidos.tipoBeneficio]);
+    setTipoBeneficioSelecionado(dadosPreenchidos?.tipoBeneficioId ? tipoBeneficio?.filter(tipo => tipo.id == dadosPreenchidos?.tipoBeneficioId)[0] : null);
+  }, [dadosPreenchidos.tipoBeneficioId]);
 
   useEffect(() => {
-    if (dadosPreenchidos.tipoAuxilioId) {
-      let valor = tipoAuxilio?.filter(tipo => tipo.id == dadosPreenchidos?.tipoAuxilioId)[0]?.valorAuxilio;
+    if (dadosPreenchidos.tipoBeneficioId) {
+      let valor = tipoBeneficio?.filter(tipo => tipo.id == dadosPreenchidos?.tipoBeneficioId)[0]?.valorBeneficio;
       valor = aplicarMascara(valor, "valor");
-      setDadosPreenchidos((prev: any) => ({ ...prev, valorAuxilio: valor }));
+      setDadosPreenchidos((prev: any) => ({ ...prev, valorBeneficio: valor }));
     } else {
-      setDadosPreenchidos((prev: any) => ({ ...prev, valorAuxilio: undefined }));
+      setDadosPreenchidos((prev: any) => ({ ...prev, valorBeneficio: undefined }));
     }
-  }, [dadosPreenchidos.tipoAuxilioId]);
+  }, [dadosPreenchidos.tipoBeneficioId]);
 
   // Efeito exclusivo para o modo de edição
   useEffect(() => {
-    pesquisarTipoBolsa();
-    pesquisarTipoAuxilio();
+    pesquisarTipoBeneficio();
 
     if (id && id !== "criar") {
       chamarFuncao("editar", id);
@@ -102,72 +107,46 @@ const cadastro = () => {
           chave: "estudanteId",
           tipo: "number",
           visivel: false,
-        },
+        },/*
         {
           line: 2,
           colSpan: "md:col-span-1",
-          nome: "Tipo de Benefício",
-          chave: "tipoBeneficio",
+          nome: "Natureza do Benefício",
+          chave: "naturezasBeneficio",
           tipo: "select",
-          selectOptions: [
-            { chave: "beneficio", valor: "Auxílio" },
-            { chave: "bolsa", valor: "Bolsa" },
-          ],
+          selectOptions: naturezasBeneficio,
           mensagem: "Selecione",
           obrigatorio: true,
           bloqueado: isEditMode,
-        },
+        },*/
         {
           line: 2,
           colSpan: "md:col-span-1",
-          nome: "Tipo do Auxílio",
-          chave: "tipoAuxilioId",
+          nome: "Tipo do Benefício",
+          chave: "tipoBeneficioId",
           tipo: "select",
-          selectOptions: getOptions(tipoAuxilio, dadosPreenchidos?.tipo),
+          selectOptions: getOptions(tipoBeneficio, dadosPreenchidos?.tipoBeneficioId),
           mensagem: "Selecione",
           obrigatorio: false, // Alterado para não obrigatório inicialmente
           bloqueado: isEditMode,
-          visivel: tipoBeneficioSelecionado === "beneficio" // Mostrar apenas quando for auxílio
+          //visivel: tipoBeneficioSelecionado === "beneficio" // Mostrar apenas quando for auxílio
         },
         {
           line: 2,
           colSpan: "md:col-span-1",
-          nome: "Valor Auxílio",
-          chave: "valorAuxilio",
+          nome: "Valor",
+          chave: "valorBeneficio",
           tipo: "text",
           obrigatorio: false,
           bloqueado: true,
           mascara: "valor",
-          visivel: tipoBeneficioSelecionado === "beneficio" && (dadosPreenchidos?.valorAuxilio != undefined)
-        },
-        {
-          line: 2,
-          colSpan: "md:col-span-1",
-          nome: "Tipo da Bolsa",
-          chave: "tipoBolsaId",
-          tipo: "select",
-          selectOptions: getOptions(tipoBolsa, dadosPreenchidos?.tipo),
-          mensagem: "Selecione",
-          obrigatorio: false, // Alterado para não obrigatório inicialmente
-          bloqueado: isEditMode,
-          visivel: tipoBeneficioSelecionado === "bolsa" // Mostrar apenas quando for bolsa
-        },
-        {
-          line: 2,
-          colSpan: "md:col-span-1",
-          nome: "Valor Bolsa",
-          chave: "valorBolsa",
-          tipo: "text",
-          mensagem: "Digite",
-          mascara: "valor",
-          obrigatorio: true,
-          visivel: tipoBeneficioSelecionado === "bolsa"
+          visivel: dadosPreenchidos?.valorBeneficio != undefined
         },
         {
           line: 3,
           colSpan: "md:col-span-1",
           nome: "Horas da Bolsa",
-          chave: "horasBolsa",
+          chave: "horasBeneficio",
           tipo: "text",
           mensagem: "Digite",
           obrigatorio: true,
@@ -176,7 +155,7 @@ const cadastro = () => {
           line: 3,
           colSpan: "md:col-span-1",
           nome: "Início da Bolsa",
-          chave: "inicioBolsa",
+          chave: "inicioBeneficio",
           tipo: "date",
           mensagem: "Digite",
           obrigatorio: true,
@@ -185,7 +164,7 @@ const cadastro = () => {
           line: 3,
           colSpan: "md:col-span-1",
           nome: "Fim da Bolsa",
-          chave: "fimBolsa",
+          chave: "fimBeneficio",
           tipo: "date",
           mensagem: "Digite",
           obrigatorio: true,
@@ -268,6 +247,7 @@ const cadastro = () => {
         break;
       case 'pesquisar':
         pesquisarEstudantes(valor);
+        pesquisarTipoBeneficio();
         break;
       case 'selecionarEstudante':
         setEstudanteSelecionado(valor);
@@ -292,30 +272,28 @@ const cadastro = () => {
 
   function buildFormData(): FormData {
     const fd = new FormData();
+    if(!dadosPreenchidos.estudanteId) {
+      toast.error("Selecione um estudante antes de salvar o benefício.", { position: "top-right" });
+      return null;
+    }
     fd.append('estudanteId', dadosPreenchidos.estudanteId.toString());
     if (Array.isArray(dadosPreenchidos.documentos)) {
       dadosPreenchidos.documentos.forEach((file: string | Blob) =>
         fd.append('termo', file)
       );
     }
-    if (tipoBeneficioSelecionado === 'beneficio') {
-      fd.append('tipoAuxilioId', dadosPreenchidos.tipoAuxilioId?.toString() || '');
-    }
-
-    if (tipoBeneficioSelecionado === 'bolsa') {
-      fd.append('tipoBolsaId', dadosPreenchidos.tipoBolsaId?.toString() || '');
-    }
+    fd.append('tipoBeneficioId', dadosPreenchidos.tipoBeneficioId?.toString() || '');
     fd.append('parecerTermino', dadosPreenchidos.parecerTermino || '');
-    fd.append('horasBolsa', dadosPreenchidos.horasBolsa?.toString() || '');
-    fd.append('inicioBolsa', dadosPreenchidos.inicioBolsa || '');
-    fd.append('fimBolsa', dadosPreenchidos.fimBolsa || '');
-    fd.append('valorBolsa', dadosPreenchidos.valorBolsa?.toString() || '1');
+    fd.append('horasBeneficio', dadosPreenchidos.horasBeneficio?.toString() || '');
+    fd.append('inicioBeneficio', dadosPreenchidos.inicioBeneficio || '');
+    fd.append('fimBeneficio', dadosPreenchidos.fimBeneficio || '');
+    fd.append('valorPagamento', tipoBeneficioSelecionado?.valorBeneficio || '0');
     console.log("DEBUG: Dados do FormData:", fd);
     return fd;
   }
 
   const voltarRegistro = () => {
-    router.push("/prae/beneficio/beneficios");
+    router.push("/prae/beneficios/beneficios");
   };
 
 
@@ -369,7 +347,7 @@ const cadastro = () => {
     try {
       let body = {
         metodo: 'get',
-        uri: `/prae/estudantes/auxlio/${id}`,
+        uri: `/prae/estudantes/beneficio/${id}`,
         data: {}
       }
       const response = await generica(body);
@@ -392,13 +370,13 @@ const cadastro = () => {
   };
 
 
-  const pesquisarTipoAuxilio = async (params = null) => {
+  const pesquisarTipoBeneficio = async (params = null) => {
     try {
       let body = {
         metodo: 'get',
         uri: '/prae/' + 'tipo-beneficio',
         //+ '/page',
-        params: params != null ? params : { size: 25, page: 0 },
+        params: params != null ? params : { size: 200, page: 0 },
         data: {}
       }
       const response = await generica(body);
@@ -408,32 +386,8 @@ const cadastro = () => {
         toast(response.data.error.message, { position: "bottom-left" });
       } else {
         if (response && response.data) {
-          setTipoAuxilio(response.data);
-        }
-      }
-    } catch (error) {
-      console.error('Erro ao carregar registros:', error);
-    }
-  };
-
-  const pesquisarTipoBolsa = async (params = null) => {
-    try {
-      let body = {
-        metodo: 'get',
-        uri: '/prae/' + 'tipo-bolsa',
-        //+ '/page',
-        params: params != null ? params : { size: 25, page: 0 },
-        data: {}
-      }
-      const response = await generica(body);
-      //tratamento dos erros
-      if (response && response.data.errors != undefined) {
-        toast("Erro. Tente novamente!", { position: "bottom-left" });
-      } else if (response && response.data.error != undefined) {
-        toast(response.data.error.message, { position: "bottom-left" });
-      } else {
-        if (response && response.data) {
-          setTipoBolsa(response.data);
+          console.log("DEBUG: Tipo de benefício:", response.data);
+          setTipoBeneficio(response.data.content);
         }
       }
     } catch (error) {
@@ -446,7 +400,11 @@ const cadastro = () => {
    */
   const salvarRegistro = async (item: any) => {
     const dataToSend = buildFormData();
+    if (!dataToSend) {
+      return;
+    }
     try {
+      
       const body = {
         metodo: `${isEditMode ? "patch" : "post"}`,
         uri: "/prae/" + `${isEditMode ? estrutura.uri + "/" + id : estrutura.uri}`,
@@ -510,17 +468,15 @@ const cadastro = () => {
       } else {
         const beneficio = response.data;
         setDadosPreenchidos({
-          tipoBeneficio: beneficio.tipoAuxilio ? "beneficio" : "bolsa",
-          tipoAuxilioId: beneficio.tipoAuxilio?.id,
-          valorAuxilio: beneficio.tipoAuxilio?.valorAuxilio,
-          tipoBolsaId: beneficio.tipoBolsa?.id,
-          valorBolsa: beneficio.valorBolsa,
-          horasBolsa: beneficio.horasBolsa,
-          inicioBolsa: beneficio.inicioBolsa,
-          fimBolsa: beneficio.fimBolsa,
+          tipoBeneficioId: beneficio.tipoBeneficio?.id,
+          valorBeneficio: beneficio.tipoBeneficio?.valorBeneficio,
+          horasBeneficio: beneficio.horasBeneficio,
+          inicioBeneficio: beneficio.inicioBeneficio,
+          fimBeneficio: beneficio.fimBeneficio,
+          estudanteId: beneficio.estudante?.id,
           parecerTermino: beneficio.parecerTermino,
         });
-        setTipoBeneficioSelecionado(beneficio.tipoAuxilio ? "beneficio" : "bolsa");
+        setTipoBeneficioSelecionado(beneficio.tipoBeneficio.naturezaBeneficio);
         buscarTermo(Number(id));
         pesquisarEstudantesAuxilio();
       }

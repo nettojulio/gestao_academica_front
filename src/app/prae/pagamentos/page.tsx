@@ -32,7 +32,6 @@ const estrutura: any = {
     ],
     colunas: [ //colunas da tabela
       { nome: "CPF ", chave: "cpf", tipo: "texto", selectOptions: null, sort: false, pesquisar: true }, //nome
-      { nome: "Nome ", chave: "nome", tipo: "texto", selectOptions: null, sort: false, pesquisar: true }, //nome
       { nome: "Valor Pago", chave: "valor", tipo: "texto", selectOptions: null, sort: false, pesquisar: true }, //nome(string),chave(string),tipo(text,select),selectOpcoes([{chave:string, valor:string}]),pesquisar(booleano)
       { nome: "Data Pagamento ", chave: "data", tipo: "texto", selectOptions: null, sort: false, pesquisar: true }, //nome(string),chave(string),tipo(text,select),selectOpcoes([{chave:string, valor:string}]),pesquisar(booleano)
       { nome: "ações", chave: "acoes", tipo: "button", selectOptions: null, sort: false, pesquisar: false },

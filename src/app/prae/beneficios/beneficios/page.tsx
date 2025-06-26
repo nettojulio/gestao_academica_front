@@ -32,15 +32,12 @@ const estrutura: any = {
       { nome: 'Adicionar', chave: 'adicionar', bloqueado: false }, //nome(string),chave(string),bloqueado(booleano)
     ],
     colunas: [ //colunas da tabela
-      { nome: "Tipo Auxílio", chave: "tipoAuxilio.tipo", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
-      { nome: "Valor Auxílio", chave: "tipoAuxilio.valorAuxilio", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
-      { nome: "Tipo Bolsa", chave: "tipoBolsa.descricao", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
-      { nome: "Tipo de Conta", chave: "estudantes[0].dadosBancarios.tipoConta", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
-      { nome: "Banco", chave: "", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
-      { nome: "Agência", chave: "tipodeconta", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
-      { nome: "valor Bolsa", chave: "valorPagamento", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
-      { nome: "Início do Auxílio", chave: "inicioBolsa", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
-      { nome: "Final do Auxílio", chave: "fimBolsa", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
+      { nome: "Tipo", chave: "tipoBeneficio.tipo", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
+      { nome: "Valor", chave: "tipoBeneficio.valorBeneficio", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
+      { nome: "Natureza", chave: "tipoBeneficio.naturezaBeneficio", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
+      { nome: "Valor Benefício", chave: "valorPagamento", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
+      { nome: "Início do Benefício", chave: "inicioBeneficio", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
+      { nome: "Final do Benefício", chave: "fimBeneficio", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
       {
         nome: "Status", chave: "status", tipo: "texto",
         selectOptions: [
@@ -98,6 +95,19 @@ const PageLista = () => {
         toast(response.data.error.message, { position: "bottom-left" });
       } else {
         if (response && response.data) {
+          let dadosTratados = response.data.content.map((item: any) => {
+            return {
+              ...item,
+              tipoBeneficio: {
+                ...item.tipoBeneficio,
+                valorBeneficio: aplicarMascara(item.tipoBeneficio.valorBeneficio, 'valor')
+              },
+              inicioBeneficio: aplicarMascara(item.inicioBeneficio, 'data'),
+              fimBeneficio: aplicarMascara(item.fimBeneficio, 'data'),
+            };
+          });
+          response.data.content = dadosTratados;
+          console.log(response.data);
           setDados(response.data);
         }
       }
@@ -115,7 +125,6 @@ const PageLista = () => {
   };
   // Função que deleta um registro
   const deletarRegistro = async (item: any) => {
-    console.log(dados)
     const confirmacao = await Swal.fire({
       title: `Você deseja deletar o curso ${item.nome}?`,
       text: "Essa ação não poderá ser desfeita",
