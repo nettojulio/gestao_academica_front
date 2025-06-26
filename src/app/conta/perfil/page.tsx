@@ -91,7 +91,8 @@ const PagePerfil = () => {
           nome: "E-mail",
           chave: "email",
           tipo: "text",
-          bloqueado: true
+          bloqueado: true,
+          somenteLeitura: true, // se seu componente suporte isso
         },
         {
           line: 3,
@@ -100,6 +101,7 @@ const PagePerfil = () => {
           chave: "cpf",
           tipo: "text",
           bloqueado: true,
+          somenteLeitura: true,
           mascara: "cpf"
         },
         {
@@ -148,6 +150,16 @@ const PagePerfil = () => {
           bloqueado: !editando,
           exibirPara: ["ADMINISTRADOR", "GESTOR", "TECNICO", "PROFESSOR"],
         },
+        {
+          line: 4,
+          colSpan: "md:col-span-1",
+          nome: "Senha",
+          chave: "senha",
+          tipo: "password",
+          obrigatorio: editando,
+          bloqueado: !editando,
+        },
+
       ],
       acoes: [
         { nome: "Voltar", chave: "voltar", tipo: "botao" },
@@ -174,25 +186,41 @@ const PagePerfil = () => {
   };
 
   const salvarRegistro = async (item: any) => {
+    // Remove campos desnecessários do item
+    const { id, perfil, ...rest } = item;
+
+    // Monta o payload com apenas os campos esperados pela API
+    const payload = {
+      ...rest,
+      email: dadosPreenchidos?.email,
+      cpf: dadosPreenchidos?.cpf,
+    };
+
     try {
       const response = await generica({
         metodo: "patch",
-        uri: `/auth/${estrutura.uri}/${item.id}`,
-        params: {},
-        data: item,
+        uri: `/auth/usuario/${item.id}`,
+        data: payload,
       });
 
+      console.log("Payload enviado:", payload);
+
       if (response && response.data?.errors) {
-        Object.values(response.data.errors).forEach((erro: any) => toast.error(erro, { position: "top-left" }));
+        Object.values(response.data.errors).forEach((erro: any) =>
+          toast.error(erro, { position: "top-left" })
+        );
       } else {
         Swal.fire({ title: "Perfil atualizado com sucesso!", icon: "success" }).then(() => {
-          router.push("/home");
+          router.push("/conta/perfil");
         });
       }
     } catch (error) {
       toast.error("Erro ao salvar registro!", { position: "top-left" });
     }
   };
+
+
+
 
   useEffect(() => {
     currentUser();

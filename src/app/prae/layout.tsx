@@ -86,25 +86,52 @@ export default function PraeLayout({ children }: { children: React.ReactNode }) 
           roles: ["administrador", "gestor"],
         },
         {
-          label: "Agendamentos",
+          label: "Gerenciar Agendamentos",
           route: "/prae/agendamentos",
           icon: <EventNote fontSize="small" className="text-white" />,
-          roles: ["administrador", "gestor", "tecnico"],
+          roles: ["administrador", "gestor", "aluno"],
           subItems: [
             {
               label: "Tipo de Atendimento",
               route: "/prae/agendamentos/tipo",
               icon: <Schedule fontSize="small" className="text-white" />,
+              roles: ["administrador", "gestor"],
             },
             {
-              label: "Cronograma",
+              label: "Gerenciar Cronograma",
               route: "/prae/agendamentos/cronograma",
               icon: <EventNote fontSize="small" className="text-white" />,
+              roles: ["administrador", "gestor"],
             },
             {
               label: "Calendário",
               route: "/prae/agendamentos/calendario",
               icon: <CalendarMonth fontSize="small" className="text-white" />,
+              roles: ["administrador", "gestor", "aluno"],
+            },
+            {
+              label: "Todos os Agendamentos",
+              route: "/prae/agendamentos/calendario/todos-agendamentos",
+              icon: <EventNote fontSize="small" className="text-white" />,
+              roles: ["administrador", "gestor"],
+            },
+            {
+              label: "Todos os Cancelamentos",
+              route: "/prae/agendamentos/calendario/todos-cancelamentos",
+              icon: <EventNote fontSize="small" className="text-white" />,
+              roles: ["administrador", "gestor"],
+            },
+            {
+              label: "Meus Agendamentos",
+              route: "/prae/agendamentos/calendario/meus-agendamentos",
+              icon: <EventNote fontSize="small" className="text-white" />,
+              roles: ["administrador", "gestor", "aluno"],
+            },
+            {
+              label: "Meus Cancelamentos",
+              route: "/prae/agendamentos/calendario/meus-cancelamentos",
+              icon: <EventNote fontSize="small" className="text-white" />,
+              roles: ["administrador", "gestor", "aluno"],
             },
           ],
         },
@@ -115,3 +142,4 @@ export default function PraeLayout({ children }: { children: React.ReactNode }) 
     <ClientWrapper layoutConfig={layoutConfig}>{children}</ClientWrapper>
   )
 }
+

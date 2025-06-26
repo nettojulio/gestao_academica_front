@@ -34,8 +34,8 @@ const estrutura: any = {
       { nome: "Nome", chave: "agendamento.estudante.aluno", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
       { nome: "Tipo de Atendimento", chave: "tipoAtendimento", tipo: "texto", selectOptions: null, sort: false, pesquisar: true }, //nome(string),chave(string),tipo(text,select),selectOpcoes([{chave:string, valor:string}]),pesquisar(booleano)
       { nome: "Dia do Atendimento", chave: "agendamento.data", tipo: "texto", selectOptions: null, sort: false, pesquisar: true }, //nome(string),chave(string),tipo(text,select),selectOpcoes([{chave:string, valor:string}]),pesquisar(booleano)
-      { nome: "Horário", chave: "agendamento.vaga.horaInicio", tipo: "array", selectOptions: null, sort: false, pesquisar: false },
-      { nome: "Data do Cancelamento", chave: "dataCancelamento", tipo: "array", selectOptions: null, sort: false, pesquisar: false },
+      { nome: "Horário", chave: "agendamento.vaga.horaInicio", tipo: "texto", selectOptions: null, sort: false, pesquisar: false },
+      { nome: "Data do Cancelamento", chave: "dataCancelamento", tipo: "texto", selectOptions: null, sort: false, pesquisar: false },
     ],
     acoes_dropdown: [ //botão de acoes de cada registro
       { nome: 'Deletar', chave: 'deletar' },
@@ -46,7 +46,13 @@ const estrutura: any = {
 
 const PageLista = () => {
   const router = useRouter();
-  const [dados, setDados] = useState<any>({ content: [] });
+  const [dados, setDados] = useState<any>({
+    content: [],
+    totalPages: 0,
+    number: 0,
+    size: 10,
+    totalElements: 0
+  });
 
   const chamarFuncao = (nomeFuncao = "", valor: any = null) => {
     switch (nomeFuncao) {
@@ -171,7 +177,7 @@ const PageLista = () => {
       <div className="w-full sm:w-11/12 2xl:w-10/12 p-4 sm:p-6 md:p-8 lg:p-12 :p-16 2xl:p-20 pt-7 md:pt-8 md:pb-8 ">
         <Cabecalho dados={estrutura.cabecalho} />
         <Tabela
-          dados={dados}
+          dados={dados.content}
           estrutura={estrutura}
           chamarFuncao={chamarFuncao}
         />

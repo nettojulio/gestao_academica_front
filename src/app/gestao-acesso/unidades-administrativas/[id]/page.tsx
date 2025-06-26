@@ -68,11 +68,11 @@ const cadastro = () => {
       ] : [],
       //Ajustar coluna com as colunas de gestores
       colunas: [ // <-- já define as colunas aqui!
-        { nome: "CPF", chave: "cpf", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
-        { nome: "Nome", chave: "nome", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
-        { nome: "E-mail", chave: "email", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
-        { nome: "Siape", chave: "siape", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
-        { nome: "Telefone", chave: "telefone", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
+        { nome: "CPF", chave: "gestor.cpf", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
+        { nome: "Nome", chave: "gestor.nome", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
+        { nome: "E-mail", chave: "gestor.email", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
+        { nome: "Siape", chave: "gestor.siape", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
+        { nome: "Telefone", chave: "gestor.telefone", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
       ],
       acoes_dropdown: [
         { nome: 'Editar', chave: 'editar' },
@@ -90,6 +90,7 @@ const cadastro = () => {
           tipo: "text",
           mensagem: "Digite",
           obrigatorio: true,
+          maxLength: 50, // Limita a 50 caracteres 
         },
         {
           line: 1,
@@ -111,7 +112,7 @@ const cadastro = () => {
           ),
           chave: "tipoUnidadeAdministrativaId",
           tipo: "select",
-          mensagem: "Selecione a unidade responsavel",
+          mensagem: "Selecione o tipo de unidade",
           obrigatorio: false,
           selectOptions: getOptions(tipoUnidade, dadosPreenchidos?.tipoUnidadeAdministrativaId),
           //exibirPara: ["ALUNO"],
@@ -187,6 +188,11 @@ const cadastro = () => {
         unidadePaiId: item.unidadePaiId,
       };
 
+      if (item.nome?.length > 30) {
+        toast.warning("O nome deve ter no máximo 30 caracteres", { position: "top-left" });
+        return; // Interrompe a execução se a validação falhar
+      }
+
       if (item.unidadePaiId !== undefined && item.unidadePaiId !== null) {
         dadosParaEnviar.unidadePaiId = item.unidadePaiId;
       }
@@ -247,11 +253,11 @@ const cadastro = () => {
 
 
   //Corrigir a consulta para gestores
-  const pesquisarGestores = async (params = null) => {
+  const pesquisarGestores = async (item: any, params = null) => {
     try {
       let body = {
         metodo: 'get',
-        uri: '/auth/' + "gestor",
+        uri: '/auth/unidade-administrativa/' + item + "/gestores",
         //+ '/page',
         params: params != null ? params : { size: 25, page: 0 },
         data: {}
@@ -417,7 +423,7 @@ const cadastro = () => {
     pesquisarUnidadesPai();
 
     if (activeRole === "administrador") {
-      pesquisarGestores();
+      pesquisarGestores(id);
     } else {
       pesquisarColaborador(); // aqui está o correto
     }

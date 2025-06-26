@@ -226,8 +226,8 @@ const Tabela = ({ dados = null, estrutura = null, chamarFuncao = null }: any) =>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-neutrals-200">
-                  {dados && dados && dados.length > 0 ? (
-                    dados.map((item: any) => (
+                  {dados?.content?.length > 0 ? (
+                    dados.content.map((item: any) => (
                       <tr key={item.id} className="hover:bg-neutrals-100">
                         {estrutura.tabela.colunas.map(({ chave, tipo, selectOptions }: any) => {
                           if (chave === 'acoes') {

@@ -136,7 +136,7 @@ const Tabela = ({ dados = null, estrutura = null, chamarFuncao = null }: any) =>
   };
 
   // Filtra os dados no frontend conforme os filtros selecionados
-  let dadosFiltrados = dados;
+  let dadosFiltrados = dados.content || [];
   if (filtroDataAgendamento) {
     dadosFiltrados = dadosFiltrados.filter((item: any) =>
       item.agendamento?.data === filtroDataAgendamento
@@ -292,7 +292,7 @@ const Tabela = ({ dados = null, estrutura = null, chamarFuncao = null }: any) =>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-neutrals-200">
-                  {dadosFiltrados && dadosFiltrados.length > 0 ? (
+                  {dadosFiltrados.length > 0 ? (
                     dadosFiltrados.map((item: any) => (
                       <tr key={item.id} className="hover:bg-neutrals-100">
                         {estrutura.tabela.colunas.map(({ chave, tipo, selectOptions }: any) => {

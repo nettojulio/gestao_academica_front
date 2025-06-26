@@ -233,26 +233,28 @@ const Tabela = ({ dados = null, estrutura = null, chamarFuncao = null }: any) =>
                             return (
                               <td
                                 key={`${item.id}_${chave}`}
-                                className="px-2 py-2 whitespace-nowrap relative border-l border-neutrals-200 flex items-center justify-center"
+                                className="px-1 py-2 border-l border-neutrals-200 w-24" // Largura reduzida (w-24) e padding horizontal menor (px-1)
                               >
-                                {estrutura.tabela.acoes_dropdown.map((acao: any, index_acao: any) => (
-                                  <button
-                                    key={index_acao}
-                                    className="block px-3 py-2 text-sm text-neutrals-700 hover:bg-neutrals-100 w-full text-center justify-center"
-                                    role="menuitem"
-                                    onClick={() => chamarFuncao(acao.chave, item)}
-                                  >
-                                    {acao.nome === 'Editar' && (
-                                      <Edit className='text-primary-700' />
-                                    )}
-                                    {acao.nome === 'Visualizar' && (
-                                      <Visibility className='text-primary-700' />
-                                    )}
-                                    {acao.nome === 'Deletar' && (
-                                      <Delete className='text-danger-500' />
-                                    )}
-                                  </button>
-                                ))}
+                                <div className="flex justify-around"> {/* Usando justify-around para distribuir o espaço igualmente */}
+                                  {estrutura.tabela.acoes_dropdown.map((acao: any, index_acao: any) => (
+                                    <button
+                                      key={index_acao}
+                                      className="p-1 text-neutrals-700 hover:bg-neutrals-100 rounded-full" // rounded-full para círculo no hover
+                                      role="menuitem"
+                                      onClick={() => chamarFuncao(acao.chave, item)}
+                                    >
+                                      {acao.nome === 'Editar' && (
+                                        <Edit className='text-primary-700 w-4 h-4' /> // Ícones um pouco menores (w-4 h-4)
+                                      )}
+                                      {acao.nome === 'Visualizar' && (
+                                        <Visibility className='text-primary-700 w-4 h-4' />
+                                      )}
+                                      {acao.nome === 'Deletar' && (
+                                        <Delete className='text-danger-500 w-4 h-4' />
+                                      )}
+                                    </button>
+                                  ))}
+                                </div>
                               </td>
                             );
                           } else if (item[chave] !== undefined && tipo === "status") {
