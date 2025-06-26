@@ -33,7 +33,7 @@ const estrutura: any = {
     colunas: [ //colunas da tabela
       { nome: "Tipo de Atendimento", chave: "tipoAtendimento", tipo: "texto", selectOptions: null, sort: false, pesquisar: true }, //nome(string),chave(string),tipo(text,select),selectOpcoes([{chave:string, valor:string}]),pesquisar(booleano)
       { nome: "Dia de Atendimento", chave: "data", tipo: "texto", selectOptions: null, sort: false, pesquisar: true }, //nome(string),chave(string),tipo(text,select),selectOpcoes([{chave:string, valor:string}]),pesquisar(booleano)
-      { nome: "Horário", chave: "vaga.horaInicio", tipo: "array", selectOptions: null, sort: false, pesquisar: false },
+      { nome: "Horário", chave: "vaga.horaInicio", tipo: "texto", selectOptions: null, sort: false, pesquisar: false },
       { nome: "ações", chave: "acoes", tipo: "button", selectOptions: null, sort: false, pesquisar: false },
     ],
     acoes_dropdown: [ //botão de acoes de cada registro

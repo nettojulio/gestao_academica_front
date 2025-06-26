@@ -136,7 +136,7 @@ const PageLista = () => {
       try {
         const body = {
           metodo: 'delete',
-          uri: '/auth/' + estrutura.uri + '/' + item,
+          uri: '/auth/' + estrutura.uri + '/' + item.id,
           params: {},
         };
 

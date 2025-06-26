@@ -69,6 +69,15 @@ const cadastro = () => {
     return options;
   };
 
+  const validateFileSize = (files: File[], maxSize: number) => {
+    for (const file of files) {
+      if (file.size > maxSize) {
+        return false;
+      }
+    }
+    return true;
+  };
+
   const estrutura: any = {
     uri: "solicitacao",
     cabecalho: {
@@ -239,16 +248,15 @@ const cadastro = () => {
         {
           line: 6,
           colSpan: "md:col-span-1",
-          nome: "Documentos",
+          nome: "Documentos (tamanho máximo 2MB)",
           chave: "documentos",
-          tipo: "documento", // ou outro tipo apropriado
+          tipo: "documento",
           mensagem: "Anexe os documentos",
-          obrigatorio: false,
+          obrigatorio: true,
           bloqueado: isEditMode,
-
-        },
-
-
+          maxFileSize: 2 * 1024 * 1024, // 2MB em bytes
+          maxFileSizeMessage: "O tamanho máximo permitido por arquivo é 2MB",
+        }
 
       ],
       acoes: isEditMode
@@ -477,7 +485,14 @@ const cadastro = () => {
   }
   const salvarRegistro = async (item: any) => {
     try {
-      // 1) monta o FormData
+
+      if (item.documentos && item.documentos.length > 0) {
+        const maxSize = 2 * 1024 * 1024; // 2MB
+        if (!validateFileSize(item.documentos, maxSize)) {
+          toast.error("Um ou mais arquivos excedem o tamanho máximo de 2MB");
+          return;
+        }
+      }
       const formData = buildSolicitacaoFormData(item);
 
       // 2) dispara a chamada multipart

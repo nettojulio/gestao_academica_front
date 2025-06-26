@@ -31,7 +31,7 @@ const estrutura: any = {
 
     ],
     colunas: [ //colunas da tabela
-      { nome: "Tipo de Atendimento", chave: "agendamento.tipoAtendimento", tipo: "texto", selectOptions: null, sort: false, pesquisar: true }, //nome(string),chave(string),tipo(text,select),selectOpcoes([{chave:string, valor:string}]),pesquisar(booleano)
+      { nome: "Tipo de Atendimento", chave: "tipoAtendimento", tipo: "texto", selectOptions: null, sort: false, pesquisar: true }, //nome(string),chave(string),tipo(text,select),selectOpcoes([{chave:string, valor:string}]),pesquisar(booleano)
       { nome: "Dia do Atendimento", chave: "agendamento.data", tipo: "texto", selectOptions: null, sort: false, pesquisar: true }, //nome(string),chave(string),tipo(text,select),selectOpcoes([{chave:string, valor:string}]),pesquisar(booleano)
       { nome: "Horário", chave: "agendamento.vaga.horaInicio", tipo: "array", selectOptions: null, sort: false, pesquisar: false },
       { nome: "Data do Cancelamento", chave: "dataCancelamento", tipo: "array", selectOptions: null, sort: false, pesquisar: false },

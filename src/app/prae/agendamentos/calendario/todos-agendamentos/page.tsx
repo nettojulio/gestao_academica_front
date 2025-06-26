@@ -31,7 +31,7 @@ const estrutura: any = {
       { nome: 'Agendamento por Aluno', chave: 'adicionar', bloqueado: false }, //nome(string),chave(string),bloqueado(booleano)
     ],
     colunas: [ //colunas da tabela
-      { nome: "Nome", chave: "estudante.aluno", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
+      { nome: "Nome", chave: "estudante.aluno.nome", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
       { nome: "Tipo de Atendimento", chave: "tipoAtendimento", tipo: "texto", selectOptions: null, sort: false, pesquisar: true }, //nome(string),chave(string),tipo(text,select),selectOpcoes([{chave:string, valor:string}]),pesquisar(booleano)
       { nome: "Dia de Atendimento", chave: "data", tipo: "texto", selectOptions: null, sort: false, pesquisar: true }, //nome(string),chave(string),tipo(text,select),selectOpcoes([{chave:string, valor:string}]),pesquisar(booleano)
       { nome: "Horário", chave: "vaga.horaInicio", tipo: "array", selectOptions: null, sort: false, pesquisar: false },
@@ -47,6 +47,7 @@ const estrutura: any = {
 const PageLista = () => {
   const router = useRouter();
   const [dados, setDados] = useState<any>({ content: [] });
+  const [agendamentos, setAgendamentos] = useState<any>([]);
 
   const chamarFuncao = (nomeFuncao = "", valor: any = null) => {
     switch (nomeFuncao) {
@@ -68,28 +69,27 @@ const PageLista = () => {
   }
   // Função para carregar os dados
   const pesquisarRegistro = async (params = null) => {
-    { console.log('Dados enviados para a tabela:', dados) }
     try {
       let body = {
         metodo: 'get',
         uri: '/prae/' + estrutura.uri,
-        //+ '/page',
         params: params != null ? params : { size: 10, page: 0 },
         data: {}
-      }
+      };
       const response = await generica(body);
-      //tratamento dos erros
-      if (response && response.data.errors != undefined) {
+
+      if (response?.data?.errors) {
         toast("Erro. Tente novamente!", { position: "bottom-left" });
-      } else if (response && response.data.error != undefined) {
+      } else if (response?.data?.error) {
         toast(response.data.error.message, { position: "bottom-left" });
       } else {
-        if (response && response.data) {
-          setDados(response.data);
+        if (response?.data) {
+          setDados(response.data.content);
         }
       }
     } catch (error) {
       console.error('Erro ao carregar registros:', error);
+      toast("Erro ao carregar registros!", { position: "bottom-left" });
     }
   };
   // Função que redireciona para a tela adicionar

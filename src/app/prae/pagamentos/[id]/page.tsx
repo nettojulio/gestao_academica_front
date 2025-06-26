@@ -73,15 +73,6 @@ const cadastro = () => {
         {
           line: 1,
           colSpan: "md:col-span-1",
-          nome: "A",
-          chave: "valor",
-          tipo: "text",
-          mensagem: "Digite",
-          obrigatorio: true,
-        },
-        {
-          line: 1,
-          colSpan: "md:col-span-1",
           nome: "Data de Pagamento",
           chave: "data",
           tipo: "date",
