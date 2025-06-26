@@ -24,6 +24,7 @@ const cadastro = () => {
       chave: item.id, // ID do item (numérico, por exemplo)
       valor: item.nome, // Texto exibido no <option>
     }));
+
     if (isEditMode && selecionado) {
       const selectedId = Number(selecionado); // Converte para número, se necessário
       const selectedOption = options.find((opt) => opt.chave === selectedId);
@@ -35,17 +36,24 @@ const cadastro = () => {
     return options;
   };
 
+  const naturezasBeneficio = [
+    { id: "BOLSA", nome: "Bolsa" },
+    { id: "AUXILIO", nome: "Auxílio" },
+    { id: "ISENCAO", nome: "Isenção" },
+    { id: "OUTROS", nome: "Outros" },
+  ];
+
   const estrutura: any = {
-    uri: "tipo-auxilio",
+    uri: "tipo-beneficio",
     cabecalho: {
-      titulo: isEditMode ? "Editar Tipo de Auxílio" : "Cadastrar Tipo de Auxílio",
+      titulo: isEditMode ? "Editar Tipo de Benefício" : "Cadastrar Tipo de Benefício",
       migalha: [
         { nome: 'Home', link: '/home' },
         { nome: 'PRAE', link: '/prae' },
-        { nome: 'Tipo Auxílio', link: '/prae/auxilios/tipo' },
+        { nome: 'Tipo de Benefício', link: '/prae/beneficios/tipo' },
         {
           nome: isEditMode ? "Editar" : "Criar",
-          link: `/prae/auxilios/tipo/${isEditMode ? id : "criar"}`,
+          link: `/prae/beneficios/tipo/${isEditMode ? id : "criar"}`,
         },
       ],
     },
@@ -55,7 +63,7 @@ const cadastro = () => {
         {
           line: 1,
           colSpan: "md:col-span-1",
-          nome: "Tipo do Auxílio",
+          nome: "Tipo do Benefício",
           chave: "tipo",
           tipo: "text",
           mensagem: "Digite",
@@ -64,8 +72,27 @@ const cadastro = () => {
         {
           line: 1,
           colSpan: "md:col-span-1",
-          nome: "Valor do Auxilio (Utilize ponto ao invés de vírgula)",
-          chave: "valorAuxilio",
+          nome: "Natureza do Benefício",
+          chave: "naturezaBeneficio",
+          tipo: "select",
+          mensagem: "Selecione a natureza do benefício",
+          obrigatorio: true,
+          selectOptions: getOptions(naturezasBeneficio, dadosPreenchidos?.naturezaBeneficio),
+        },
+        {
+          line: 2,
+          colSpan: "md:col-span-1",
+          nome: "Descrição",
+          chave: "descricao",
+          tipo: "text",
+          mensagem: "Digite a descrição do benefício",
+          obrigatorio: true,
+        },
+        {
+          line: 2,
+          colSpan: "md:col-span-1",
+          nome: "Valor do Benefício",
+          chave: "valorBeneficio",
           tipo: "text",
           mensagem: "Digite",
           obrigatorio: true,
@@ -99,20 +126,41 @@ const cadastro = () => {
   };
 
   const voltarRegistro = () => {
-    router.push("/prae/auxilio/tipo");
+    router.push("/prae/beneficio/tipos");
   };
 
-  /**
-   * Salva o registro via POST, transformando os dados para que os itens de endereço
-   * fiquem agrupados em um objeto 'endereco'.
-   */
+  function transformarDados(item: any) {
+  if (dadosPreenchidos?.tipo && (dadosPreenchidos?.tipo.length > 50 || dadosPreenchidos?.tipo.length < 3)) {
+      toast.error("Tipo deve ter entre 3 e 50 caracteres.", { position: "top-left" });
+      return;
+    }
+    if (dadosPreenchidos?.descricao && (dadosPreenchidos?.descricao.length > 200 || dadosPreenchidos?.descricao.length < 3)) {
+      toast.error("Descrição deve ter entre 3 e 200 caracteres.", { position: "top-left" });
+      return;
+    }
+  if (!item) return null;
+  console.log("DEBUG: Transformando dados:", item.valorBeneficio.toString().replace(',', '.'));
+  return {
+    tipo: item.tipo,
+    naturezaBeneficio: item.naturezaBeneficio,
+    descricao: item.descricao,
+    valorBeneficio: item.valorBeneficio ? parseFloat(item.valorBeneficio.toString().replace(',', '.')) : 0,
+  };
+}
+
   const salvarRegistro = async (item: any) => {
+    const dataToSend = transformarDados(item);
+    console.log("DEBUG: Dados a enviar:", dataToSend);
+    if (!dataToSend) {
+      toast.error("Dados inválidos. Verifique os campos preenchidos.", { position: "top-left" });
+      return;
+    }
     try {
       const body = {
         metodo: `${isEditMode ? "patch" : "post"}`,
         uri: "/prae/" + `${isEditMode ? estrutura.uri + "/" + item.id : estrutura.uri}`,
         params: {},
-        data: item,
+        data: dataToSend,
       };
       const response = await generica(body);
       if (!response || response.status < 200 || response.status >= 300) {
@@ -132,7 +180,7 @@ const cadastro = () => {
         toast(response.data.error.message, { position: "top-left" });
       } else {
         Swal.fire({
-          title: "Tipo de auxílio registrado com sucesso!",
+          title: "Tipo de benefício registrado com sucesso!",
           icon: "success",
         }).then((result) => {
           if (result.isConfirmed) {
@@ -146,9 +194,6 @@ const cadastro = () => {
     }
   };
 
-  /**
-   * Localiza o registro para edição e preenche os dados
-   */
   const editarRegistro = async (item: any) => {
     try {
       const body = {
@@ -199,3 +244,5 @@ const cadastro = () => {
 };
 
 export default withAuthorization(cadastro);
+
+

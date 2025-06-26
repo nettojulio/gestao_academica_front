@@ -34,6 +34,8 @@ export type Campo = {
   allSelect?: boolean; // para multi-select com "selecionar tudo"
   mascara?: string;
   exibirPara?: string[]; // Perfis que podem ver/editar este campo
+  multiple?: boolean; // Para campos de documento que aceitam múltiplos arquivos
+  funcao?: string; // Função para lidar com cliques em botões
 };
 
 // -------------------------------------------------------------
@@ -530,7 +532,7 @@ const Cadastro = ({
                             type="file"
                             accept=".pdf,.png,.jpeg,.jpg"
                             className="hidden"
-                            multiple
+                            multiple={campo.multiple}
                             onChange={(e) => {
                               const files = e.target.files;
                               if (files && files.length > 0) {
@@ -1201,6 +1203,19 @@ const Cadastro = ({
                       </div>
                     );
                   })()}
+
+                  {campo.tipo === "button" && (
+                    <>
+                    <label><br></br></label>
+                      <input
+                        type="button"
+                        value={campo.nome}
+                        className="bg-primary-500 hover:bg-primary-700 text-white px-4 py-2 rounded text-body-medium align-middle"
+                        onClick={(e) => {e.preventDefault(); chamarFuncao(campo.funcao);}}
+                        disabled={campo.bloqueado}
+                      />
+                    </>
+                  )}
 
                 </div>
               ))}

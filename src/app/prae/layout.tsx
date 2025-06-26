@@ -62,19 +62,19 @@ export default function PraeLayout({ children }: { children: React.ReactNode }) 
           roles: ["administrador", "gestor", "tecnico", "aluno"],
         },
         {
-          label: "Auxílios",
-          route: "/prae/auxilio",
+          label: "Benefícios",
+          route: "/prae/beneficios",
           icon: <VolunteerActivism fontSize="small" className="text-white" />,
           roles: ["administrador", "gestor"],
           subItems: [
             {
               label: "Tipos",
-              route: "/prae/auxilio/tipo",
+              route: "/prae/beneficios/tipos",
               icon: <VolunteerActivism fontSize="small" className="text-white" />,
             },
             {
-              label: "Auxílio",
-              route: "/prae/auxilio/auxilios",
+              label: "Benefícios",
+              route: "/prae/beneficios/beneficios",
               icon: <VolunteerActivism fontSize="small" className="text-white" />,
             },
           ],

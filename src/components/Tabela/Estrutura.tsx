@@ -249,6 +249,9 @@ const Tabela = ({ dados = null, estrutura = null, chamarFuncao = null }: any) =>
                                     {acao.nome === 'Deletar' && (
                                       <Delete className='text-danger-500' />
                                     )}
+                                    {acao.nome === 'Selecionar' && (
+                                      <span className='text-primary-700'>Selecionar</span>
+                                    )}
                                   </button>
                                 ))}
                               </td>
@@ -338,11 +341,11 @@ const Tabela = ({ dados = null, estrutura = null, chamarFuncao = null }: any) =>
                                   {verificaTexto(item[chave])}
                                 </td>
                               );
-                            } else if (chave === 'auxilios') { // gambiarra especificamente para auxilios retornando do back como array, (detalhe se for corrigido no back remover)
-                              const auxilio = item.auxilios?.[0];
+                            } else if (chave === 'beneficios') { // gambiarra especificamente para beneficios retornando do back como array, (detalhe se for corrigido no back remover)
+                              const beneficio = item.beneficios?.[0];
                               return (
-                                <td key={auxilio?.tipoAuxilio?.id || 'sem-id'} className="px-6 py-2 whitespace-nowrap font-normal text-center">
-                                  {verificaTexto(auxilio?.tipoAuxilio?.tipo)}
+                                <td key={beneficio?.tipoAuxilio?.id || 'sem-id'} className="px-6 py-2 whitespace-nowrap font-normal text-center">
+                                  {verificaTexto(beneficio?.tipoAuxilio?.tipo)}
                                 </td>
 
                               );
