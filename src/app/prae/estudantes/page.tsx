@@ -33,7 +33,7 @@ const estrutura: any = {
       { nome: "CPF", chave: "aluno.cpf", tipo: "texto", selectOptions: null, sort: false, pesquisar: true }, //nome(string),chave(string),tipo(text,select),selectOpcoes([{chave:string, valor:string}]),pesquisar(booleano)
       { nome: "E-mail", chave: "aluno.email", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
       { nome: "Curso", chave: "aluno.curso.nome", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
-      { nome: "Auxílio", chave: "auxilios", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
+      { nome: "Auxílio", chave: "beneficios", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
       { nome: "Contato", chave: "aluno.telefone", tipo: "texto", selectOptions: null, sort: false, pesquisar: true }, //nome(string),chave(string),tipo(text,select),selectOpcoes([{chave:string, valor:string}]),pesquisar(booleano)
       { nome: "ações", chave: "acoes", tipo: "button", selectOptions: null, sort: false, pesquisar: false },
     ],
@@ -98,14 +98,6 @@ const PageLista = () => {
 
   return (
     <main className="flex flex-wrap justify-center mx-auto">
-      {/* 
-      Em telas muito pequenas: w-full, p-4
-      A partir de sm (>=640px): p-6
-      A partir de md (>=768px): p-8
-      A partir de lg (>=1024px): p-12
-      A partir de xl (>=1280px): p-16
-      A partir de 2xl (>=1536px): p-20 e w-10/12
-    */}
       <div className="w-full sm:w-11/12 2xl:w-10/12 p-4 sm:p-6 md:p-8 lg:p-12 :p-16 2xl:p-20 pt-7 md:pt-8 md:pb-8 ">
         <Cabecalho dados={estrutura.cabecalho} />
         <Tabela
@@ -115,7 +107,6 @@ const PageLista = () => {
         />
       </div>
     </main>
-
   );
 };
 

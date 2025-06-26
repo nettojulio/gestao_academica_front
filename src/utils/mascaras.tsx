@@ -102,16 +102,22 @@ function maskHora(value: string) {
  * Função principal que decide qual máscara usar com base em `tipoMascara`.
  */
 function maskValorMonetario(valor: number | string): string {
-  // Garante que o valor é número
-  const numero = typeof valor === "string" ? parseFloat(valor.replace(',', '.')) : valor;
+  // Garante que o valor seja convertido corretamente
+  let numero: number;
 
-  // Se não for um número válido, retorna zero formatado
+  if (typeof valor === "string") {
+    // Remove qualquer ponto usado como separador de milhar e substitui vírgula decimal por ponto
+    const normalizado = valor.replace(/\./g, "").replace(",", ".");
+    numero = parseFloat(normalizado);
+  } else {
+    numero = valor;
+  }
+
   if (isNaN(numero)) return "R$ 0,00";
 
-  // Formata no padrão brasileiro (com vírgula para decimais)
   return numero.toLocaleString("pt-BR", {
     style: "currency",
-    currency: "BRL"
+    currency: "BRL",
   });
 }
 

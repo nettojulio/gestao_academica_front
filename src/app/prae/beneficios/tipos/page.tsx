@@ -5,20 +5,22 @@ import Tabela from '@/components/Tabela/Estrutura';
 import { generica } from '@/utils/api';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import aplicarMascara from '@/utils/mascaras';
 import { toast } from 'react-toastify';
 import Swal from 'sweetalert2';
+import aplicarMascara from '@/utils/mascaras';
+
+
 
 const estrutura: any = {
 
-  uri: "auxilio", //caminho base
+  uri: "tipo-beneficio", //caminho base
 
   cabecalho: { //cabecalho da pagina
-    titulo: "Auxílios",
+    titulo: "Tipo de Benefício",
     migalha: [
       { nome: 'Home', link: '/home' },
-      { nome: 'Prae', link: '/prae' },
-      { nome: 'Auxílios', link: '/prae/auxilio/auxilios' },
+      { nome: 'PRAE', link: '/prae' },
+      { nome: 'Tipo de Benefício', link: '/prae/beneficios/tipos' },
     ]
   },
 
@@ -32,31 +34,20 @@ const estrutura: any = {
       { nome: 'Adicionar', chave: 'adicionar', bloqueado: false }, //nome(string),chave(string),bloqueado(booleano)
     ],
     colunas: [ //colunas da tabela
-      { nome: "Tipo Auxílio", chave: "tipoAuxilio.tipo", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
-      { nome: "Valor Auxílio", chave: "tipoAuxilio.valorAuxilio", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
-      { nome: "Tipo Bolsa", chave: "tipoBolsa.descricao", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
-      { nome: "Tipo de Conta", chave: "estudantes[0].dadosBancarios.tipoConta", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
-      { nome: "Banco", chave: "", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
-      { nome: "Agência", chave: "tipodeconta", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
-      { nome: "valor Bolsa", chave: "valorBolsa", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
-      { nome: "Início do Auxílio", chave: "tipodeconta", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
-      { nome: "Final do Auxílio", chave: "tipodeconta", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
-      {
-        nome: "Status", chave: "status", tipo: "texto",
-        selectOptions: [
-          { chave: true, valor: "Ativo" },
-          { chave: false, valor: "Inativo" },
-        ], sort: false, pesquisar: true
-      },
+      { nome: "Tipo do Benefício", chave: "tipo", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
+      { nome: "Descrição", chave: "descricao", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
+      { nome: "Natureza do Benefício", chave: "naturezaBeneficio.descricao", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
+      { nome: "Valor", chave: "valorBeneficio", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
       { nome: "ações", chave: "acoes", tipo: "button", selectOptions: null, sort: false, pesquisar: false },
     ],
     acoes_dropdown: [ //botão de acoes de cada registro
-      { nome: 'Editar', chave: 'editar' }, //nome(string),chave(string),bloqueado(booleano)
+      { nome: 'Editar', chave: 'editar' }, //nome(string),chave(string),bloq=ueado(booleano)
       { nome: 'Deletar', chave: 'deletar' },
     ]
   }
 
 }
+
 
 const PageLista = () => {
   const router = useRouter();
@@ -80,43 +71,67 @@ const PageLista = () => {
         break;
     }
   }
+
+  const naturezasBeneficio = [
+    { id: "BOLSA", nome: "Bolsa" },
+    { id: "AUXILIO", nome: "Auxílio" },
+    { id: "ISENCAO", nome: "Isenção" },
+    { id: "OUTROS", nome: "Outros" },
+  ];
   // Função para carregar os dados
   const pesquisarRegistro = async (params = null) => {
     try {
       let body = {
         metodo: 'get',
         uri: '/prae/' + estrutura.uri,
-        //+ '/page',
         params: params != null ? params : { size: 10, page: 0 },
         data: {}
-      }
+      };
       const response = await generica(body);
-      //tratamento dos erros
-      if (response && response.data.errors != undefined) {
+
+      if (response?.data?.errors) {
         toast("Erro. Tente novamente!", { position: "bottom-left" });
-      } else if (response && response.data.error != undefined) {
+      } else if (response?.data?.error) {
         toast(response.data.error.message, { position: "bottom-left" });
       } else {
-        if (response && response.data) {
-          setDados(response.data);
+        if (response?.data) {
+          const content = response.data.content || [];
+
+          const dadosComMascara = content.map((item: any) => ({
+            ...item,
+            valorBeneficio: aplicarMascara(item.valorBeneficio?.toString() || '0', 'valor'),
+            naturezaBeneficio: naturezasBeneficio.find(n => n.id === item.naturezaBeneficio)?.nome || item.naturezaBeneficio,
+          }));
+
+          setDados({
+            content: dadosComMascara,
+            totalElements: response.data.totalElements,
+            totalPages: response.data.totalPages,
+            number: response.data.number,
+            size: response.data.size,
+          });
+
         }
       }
     } catch (error) {
       console.error('Erro ao carregar registros:', error);
+      toast("Erro ao carregar registros!", { position: "bottom-left" });
     }
   };
+
+
   // Função que redireciona para a tela adicionar
   const adicionarRegistro = () => {
-    router.push('/prae/auxilio/auxilios/criar');
+    router.push('/prae/beneficios/tipos/criar');
   };
   // Função que redireciona para a tela editar
   const editarRegistro = (item: any) => {
-    router.push('/prae/auxilio/auxilios/' + item.id);
+    router.push('/prae/beneficios/tipos/' + item.id);
   };
   // Função que deleta um registro
   const deletarRegistro = async (item: any) => {
     const confirmacao = await Swal.fire({
-      title: `Você deseja deletar o curso ${item.nome}?`,
+      title: `Você deseja deletar o tipo do benefício ${item.tipo}?`,
       text: "Essa ação não poderá ser desfeita",
       icon: "warning",
       showCancelButton: true,
@@ -141,7 +156,7 @@ const PageLista = () => {
       try {
         const body = {
           metodo: 'delete',
-          uri: '/auth/' + estrutura.uri + '/' + item.id,
+          uri: '/prae/' + estrutura.uri + '/' + item.id,
           params: {},
           data: {}
         };
@@ -155,7 +170,7 @@ const PageLista = () => {
         } else {
           pesquisarRegistro();
           Swal.fire({
-            title: "Auxílio registrado com sucesso!",
+            title: "Tipo de benefício deletado com sucesso!",
             icon: "success"
           });
         }

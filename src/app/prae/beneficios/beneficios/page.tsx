@@ -5,21 +5,20 @@ import Tabela from '@/components/Tabela/Estrutura';
 import { generica } from '@/utils/api';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { toast } from 'react-toastify';
-import ModalTipo from '@/components/Cadastro/modal';
-import Swal from 'sweetalert2';
 import aplicarMascara from '@/utils/mascaras';
+import { toast } from 'react-toastify';
+import Swal from 'sweetalert2';
 
 const estrutura: any = {
 
-  uri: "tipo-auxilio", //caminho base
+  uri: "beneficio", //caminho base
 
   cabecalho: { //cabecalho da pagina
-    titulo: "Tipo Auxílio",
+    titulo: "Benefícios",
     migalha: [
       { nome: 'Home', link: '/home' },
-      { nome: 'PRAE', link: '/prae' },
-      { nome: 'Tipo Auxílio', link: '/prae/auxilios/tipo' },
+      { nome: 'Prae', link: '/prae' },
+      { nome: 'Benefícios', link: '/prae/beneficios/beneficios' },
     ]
   },
 
@@ -33,14 +32,26 @@ const estrutura: any = {
       { nome: 'Adicionar', chave: 'adicionar', bloqueado: false }, //nome(string),chave(string),bloqueado(booleano)
     ],
     colunas: [ //colunas da tabela
-      { nome: "Tipo do Auxílio", chave: "tipo", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
-      //nome(string),chave(string),tipo(text,select),selectOpcoes([{chave:string, valor:string}]),pesquisar(booleano)
-      { nome: "Valor", chave: "valorAuxilio", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
-      //nome(string),chave(string),tipo(text,select),selectOpcoes([{chave:string, valor:string}]),pesquisar(booleano)
+      { nome: "Tipo Auxílio", chave: "tipoAuxilio.tipo", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
+      { nome: "Valor Auxílio", chave: "tipoAuxilio.valorAuxilio", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
+      { nome: "Tipo Bolsa", chave: "tipoBolsa.descricao", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
+      { nome: "Tipo de Conta", chave: "estudantes[0].dadosBancarios.tipoConta", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
+      { nome: "Banco", chave: "", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
+      { nome: "Agência", chave: "tipodeconta", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
+      { nome: "valor Bolsa", chave: "valorPagamento", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
+      { nome: "Início do Auxílio", chave: "inicioBolsa", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
+      { nome: "Final do Auxílio", chave: "fimBolsa", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
+      {
+        nome: "Status", chave: "status", tipo: "texto",
+        selectOptions: [
+          { chave: true, valor: "Ativo" },
+          { chave: false, valor: "Inativo" },
+        ], sort: false, pesquisar: true
+      },
       { nome: "ações", chave: "acoes", tipo: "button", selectOptions: null, sort: false, pesquisar: false },
     ],
     acoes_dropdown: [ //botão de acoes de cada registro
-      { nome: 'Editar', chave: 'editar' }, //nome(string),chave(string),bloq=ueado(booleano)
+      { nome: 'Editar', chave: 'editar' }, //nome(string),chave(string),bloqueado(booleano)
       { nome: 'Deletar', chave: 'deletar' },
     ]
   }
@@ -69,60 +80,44 @@ const PageLista = () => {
         break;
     }
   }
-
   // Função para carregar os dados
   const pesquisarRegistro = async (params = null) => {
     try {
       let body = {
         metodo: 'get',
         uri: '/prae/' + estrutura.uri,
+        //+ '/page',
         params: params != null ? params : { size: 10, page: 0 },
         data: {}
-      };
+      }
       const response = await generica(body);
-
-      if (response?.data?.errors) {
+      //tratamento dos erros
+      if (response && response.data.errors != undefined) {
         toast("Erro. Tente novamente!", { position: "bottom-left" });
-      } else if (response?.data?.error) {
+      } else if (response && response.data.error != undefined) {
         toast(response.data.error.message, { position: "bottom-left" });
       } else {
-        if (response?.data) {
-          const content = response.data.content || [];
-
-          const dadosComMascara = content.map((item: any) => ({
-            ...item,
-            valorAuxilio: aplicarMascara(item.valorAuxilio?.toString() || '0', 'valor')
-          }));
-
-          setDados({
-            content: dadosComMascara,
-            totalElements: response.data.totalElements,
-            totalPages: response.data.totalPages,
-            number: response.data.number,
-            size: response.data.size,
-          });
-
+        if (response && response.data) {
+          setDados(response.data);
         }
       }
     } catch (error) {
       console.error('Erro ao carregar registros:', error);
-      toast("Erro ao carregar registros!", { position: "bottom-left" });
     }
   };
-
-
   // Função que redireciona para a tela adicionar
   const adicionarRegistro = () => {
-    router.push('/prae/auxilio/tipo/criar');
+    router.push('/prae/beneficios/beneficios/criar');
   };
   // Função que redireciona para a tela editar
   const editarRegistro = (item: any) => {
-    router.push('/prae/auxilio/tipo/' + item.id);
+    router.push('/prae/beneficios/beneficios/' + item.id);
   };
   // Função que deleta um registro
   const deletarRegistro = async (item: any) => {
+    console.log(dados)
     const confirmacao = await Swal.fire({
-      title: `Você deseja deletar o tipo do auxílio ${item.tipo}?`,
+      title: `Você deseja deletar o curso ${item.nome}?`,
       text: "Essa ação não poderá ser desfeita",
       icon: "warning",
       showCancelButton: true,
@@ -147,7 +142,7 @@ const PageLista = () => {
       try {
         const body = {
           metodo: 'delete',
-          uri: '/prae/' + estrutura.uri + '/' + item.id,
+          uri: '/auth/' + estrutura.uri + '/' + item.id,
           params: {},
           data: {}
         };
@@ -161,7 +156,7 @@ const PageLista = () => {
         } else {
           pesquisarRegistro();
           Swal.fire({
-            title: "Tipo de auxílio deletado com sucesso!",
+            title: "Auxílio registrado com sucesso!",
             icon: "success"
           });
         }
@@ -193,7 +188,6 @@ const PageLista = () => {
           estrutura={estrutura}
           chamarFuncao={chamarFuncao}
         />
-        <ModalTipo />
       </div>
     </main>
 

@@ -8,18 +8,25 @@ import { toast } from "react-toastify";
 import Swal from "sweetalert2";
 import { useEnderecoByCep } from "@/utils/brasilianStates";
 import { generica } from "@/utils/api";
+import AuthTokenService from "@/app/authentication/auth.token";
+import React from "react";
+import { useAuth } from "@/components/AuthProvider/AuthProvider";
+
 
 const cadastro = () => {
   const router = useRouter();
   const { id } = useParams();
   // Inicializamos com um objeto contendo 'endereco' para evitar problemas
+  const { isAuthenticated, setIsAuthenticated } = useAuth();
+  const [userRoles, setUserRoles] = useState<string[]>([]);
+  const [isGestor, setIsGestor] = useState<boolean>(false);
+  const [isAluno, setisAluno] = useState<boolean>(false);
+  const [activeRole, setActiveRole] = useState<string>("");
   const [dadosPreenchidos, setDadosPreenchidos] = useState<any>({ endereco: {} });
   const [dadosForm, setDadosForm] = useState<any>({ endereco: {} });
   const [dadosBancariosPreenchidos, setDadosBancariosPreenchidos] = useState<any>({});
   const [dadosBancariosForm, setDadosBancariosForm] = useState<any>({});
   const [cursos, setCursos] = useState<any[]>([]);
-  const [lastMunicipioQuery, setLastMunicipioQuery] = useState("");
-  const [isDeficiencia, setIsDeficiencia] = useState();
   const [etnia, setEtnia] = useState<any[]>([]);
   const [isDeficiente, setIsDeficiente] = useState<boolean>(false);
   const isEditMode = id && id !== "criar";
@@ -58,7 +65,7 @@ const cadastro = () => {
           colSpan: "md:col-span-1",
           nome: "Foto Perfil",
           chave: "perfil.fotoPerfil",
-          tipo: "foto", // ou outro tipo apropriado
+          tipo: "foto",
           mensagem: "Anexe os documentos",
           obrigatorio: false,
           bloqueado: isEditMode,
@@ -302,7 +309,12 @@ const cadastro = () => {
           obrigatorio: isEditMode ? false : true,
           bloqueado: isEditMode,
         },
-      ]
+      ],
+      acoes: isAluno ? [
+        { nome: "Cancelar", chave: "voltar", tipo: "botao" },
+        { nome: isEditMode ? "Salvar" : "Cadastrar", chave: "salvar", tipo: "submit" }
+      ] :
+        [],
     },
   };
 
@@ -368,10 +380,11 @@ const cadastro = () => {
           obrigatorio: true,
         },
       ],
-      acoes: [
+      acoes: isGestor ? [
         { nome: "Cancelar", chave: "voltar", tipo: "botao" },
-        { nome: dadosPreenchidos?.dadosBancarios? "Salvar" : "Cadastrar", chave: "salvarDadosBancarios", tipo: "submit" },
-      ],
+        { nome: dadosPreenchidos?.dadosBancarios ? "Salvar" : "Cadastrar", chave: "salvarDadosBancarios", tipo: "submit" }
+      ] :
+        [{ nome: "Voltar", chave: "voltar", tipo: "botao" }],
     },
   };
 
@@ -402,6 +415,8 @@ const cadastro = () => {
       const response = await generica(body);
       if (response && response.data) {
         setDadosPreenchidos(response.data);
+        console.log("----------------------Aqui, viado---------------------");
+        console.log("Dados do usuário atual:", response.data);
       }
     } catch (error) {
       console.error('Erro ao carregar registros:', error);
@@ -482,6 +497,29 @@ const cadastro = () => {
     }
   }, [endereco]);
 
+  useEffect(() => {
+    const authenticated = AuthTokenService.isAuthenticated(true);
+    setIsAuthenticated(authenticated);
+
+    if (authenticated) {
+      const roles: string[] = [];
+      if (AuthTokenService.isAdmin(false)) roles.push("administrador");
+      if (AuthTokenService.isGestor(false)) { roles.push("gestor"); setIsGestor(true); }
+      if (AuthTokenService.isTecnico(false)) roles.push("tecnico");
+      if (AuthTokenService.isProfessor(false)) roles.push("professor");
+      if (AuthTokenService.isAluno(false)) { roles.push("aluno"); setisAluno(true); }
+      if (AuthTokenService.isVisitante(false)) roles.push("visitante");
+      setUserRoles(roles);
+
+      if (roles.length > 0 && activeRole === "") {
+        setActiveRole(roles[0]);
+      }
+    } else {
+      setUserRoles([]);
+      setActiveRole("");
+    }
+  }, [isAuthenticated]);
+
 
   /**
    * Salva o registro via POST, transformando os dados para que os itens de endereço
@@ -526,46 +564,46 @@ const cadastro = () => {
   };
 
   const salvarRegistroDadosBancarios = async (item: any) => {
-      try {
-        const dataToSend = dadosBancariosPreenchidos;
-        console.log("aqui", item)
-        const body = {
-          metodo: `${dadosPreenchidos?.dadosBancarios ? "patch" : "post"}`,
-          uri: "/prae/" + `${dadosPreenchidos?.dadosBancarios ? estruturaDadosBancarios.uri + "/" + item.id : estruturaDadosBancarios.uri + "/" + dadosPreenchidos.id}`,
-          params: {},
-          data: dataToSend,
-        };
-        const response = await generica(body);
-        if (!response || response.status < 200 || response.status >= 300) {
-          if (response) {
-            console.error("DEBUG: Status de erro:", response.status, 'statusText' in response ? response.statusText : "Sem texto de status");
-          }
-          toast.error(`Erro na requisição (HTTP ${response?.status || "desconhecido"})`, { position: "top-left" });
-          return;
+    try {
+      const dataToSend = dadosBancariosPreenchidos;
+      console.log("aqui", item)
+      const body = {
+        metodo: `${dadosPreenchidos?.dadosBancarios ? "patch" : "post"}`,
+        uri: "/prae/" + `${dadosPreenchidos?.dadosBancarios ? estruturaDadosBancarios.uri + "/" + item.id : estruturaDadosBancarios.uri + "/" + dadosPreenchidos.id}`,
+        params: {},
+        data: dataToSend,
+      };
+      const response = await generica(body);
+      if (!response || response.status < 200 || response.status >= 300) {
+        if (response) {
+          console.error("DEBUG: Status de erro:", response.status, 'statusText' in response ? response.statusText : "Sem texto de status");
         }
-        if (response.data?.errors) {
-          Object.keys(response.data.errors).forEach((campoErro) => {
-            toast.error(`Erro em ${campoErro}: ${response.data.errors[campoErro]}`, {
-              position: "top-left",
-            });
-          });
-        } else if (response.data?.error) {
-          toast(response.data.error.message, { position: "top-left" });
-        } else {
-          Swal.fire({
-            title: "Dados bancarios salvo com sucesso!",
-            icon: "success",
-          }).then((result) => {
-            if (result.isConfirmed) {
-              chamarFuncao("voltar");
-            }
-          });
-        }
-      } catch (error) {
-        console.error("DEBUG: Erro ao salvar registro:", error);
-        toast.error("Erro ao salvar registro. Tente novamente!", { position: "top-left" });
+        toast.error(`Erro na requisição (HTTP ${response?.status || "desconhecido"})`, { position: "top-left" });
+        return;
       }
-    };
+      if (response.data?.errors) {
+        Object.keys(response.data.errors).forEach((campoErro) => {
+          toast.error(`Erro em ${campoErro}: ${response.data.errors[campoErro]}`, {
+            position: "top-left",
+          });
+        });
+      } else if (response.data?.error) {
+        toast(response.data.error.message, { position: "top-left" });
+      } else {
+        Swal.fire({
+          title: "Dados bancarios salvo com sucesso!",
+          icon: "success",
+        }).then((result) => {
+          if (result.isConfirmed) {
+            chamarFuncao("voltar");
+          }
+        });
+      }
+    } catch (error) {
+      console.error("DEBUG: Erro ao salvar registro:", error);
+      toast.error("Erro ao salvar registro. Tente novamente!", { position: "top-left" });
+    }
+  };
 
   /**
    * Localiza o registro para edição e preenche os dados
@@ -606,7 +644,7 @@ const cadastro = () => {
           bairro: response.data.endereco.bairro,
           tipoEtniaId: response.data.tipoEtnia.id,
         });
-        if(response.data?.dadosBancarios	) {
+        if (response.data?.dadosBancarios) {
           setDadosBancariosPreenchidos(response.data.dadosBancarios);
         }
       }
@@ -618,10 +656,12 @@ const cadastro = () => {
 
   // Efeito exclusivo para o modo de edição
   useEffect(() => {
-    currentUser();
     pesquisarEtnia();
     if (id && id !== "criar") {
       chamarFuncao("editar", id);
+    } else {
+      if (isAluno)
+      currentUser();
     }
   }, [id]);
 
@@ -641,13 +681,17 @@ const cadastro = () => {
           setDadosPreenchidos={setDadosPreenchidos}
           chamarFuncao={chamarFuncao}
         />
-        <h2 className='text-3xl'>Dados Bancários</h2>
-        <Cadastro
-          estrutura={estruturaDadosBancarios}
-          dadosPreenchidos={dadosBancariosPreenchidos}
-          setDadosPreenchidos={setDadosBancariosPreenchidos}
-          chamarFuncao={chamarFuncao}
-        />
+        {isGestor && (
+          <div className="mt-10">
+            <h2 className='text-3xl'>Dados Bancários</h2>
+            <Cadastro
+              estrutura={estruturaDadosBancarios}
+              dadosPreenchidos={dadosBancariosPreenchidos}
+              setDadosPreenchidos={setDadosBancariosPreenchidos}
+              chamarFuncao={chamarFuncao}
+            />
+          </div>
+        )}
       </div>
     </main>
   );

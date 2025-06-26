@@ -21,7 +21,7 @@ function ModalTipo() {
                         <div className="flex justify-center gap-4 mt-6">
                             <button
                                 onClick={() => {
-                                    router.push("/prae/auxilio/tipos-de-bolsa")
+                                    router.push("/prae/beneficio/tipos-de-bolsa")
                                     setIsOpen(false);
                                 }}
                                 className="px-4 py-2 bg-blue-500 text-white rounded flex-1 hover:bg-blue-600 transition-colors"
