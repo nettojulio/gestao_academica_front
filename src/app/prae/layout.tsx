@@ -56,13 +56,13 @@ export default function PraeLayout({ children }: { children: React.ReactNode }) 
           roles: ["administrador", "gestor", "tecnico"],
         },
         {
-          label: "Estudantes",
+          label: "Gerenciar Estudantes",
           route: "/prae/estudantes",
           icon: <School fontSize="small" className="text-white" />,
           roles: ["administrador", "gestor", "tecnico", "aluno"],
         },
         {
-          label: "Benefícios",
+          label: "Gerenciar Benefícios",
           route: "/prae/beneficios",
           icon: <VolunteerActivism fontSize="small" className="text-white" />,
           roles: ["administrador", "gestor"],
@@ -80,7 +80,7 @@ export default function PraeLayout({ children }: { children: React.ReactNode }) 
           ],
         },
         {
-          label: "Pagamentos",
+          label: "Gerenciar Pagamentos",
           route: "/prae/pagamentos",
           icon: <Payment fontSize="small" className="text-white" />,
           roles: ["administrador", "gestor"],
