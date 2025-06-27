@@ -1,76 +1,119 @@
-"use client"
-import withAuthorization from '@/components/AuthProvider/withAuthorization';
-import Cabecalho from '@/components/Layout/Interno/Cabecalho';
-import Tabela from '@/components/Tabela/Estrutura';
-import { generica } from '@/utils/api';
-import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import { toast } from 'react-toastify';
-import Swal from 'sweetalert2';
-import aplicarMascara from '@/utils/mascaras';
-
-
+"use client";
+import withAuthorization from "@/components/AuthProvider/withAuthorization";
+import Cabecalho from "@/components/Layout/Interno/Cabecalho";
+import Tabela from "@/components/Tabela/Estrutura";
+import { generica } from "@/utils/api";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { toast } from "react-toastify";
+import Swal from "sweetalert2";
+import aplicarMascara from "@/utils/mascaras";
+import AuthTokenService from "@/app/authentication/auth.token";
 
 const estrutura: any = {
-
   uri: "tipo-beneficio", //caminho base
 
-  cabecalho: { //cabecalho da pagina
+  cabecalho: {
+    //cabecalho da pagina
     titulo: "Tipo de Benefício",
     migalha: [
-      { nome: 'Home', link: '/home' },
-      { nome: 'PRAE', link: '/prae' },
-      { nome: 'Tipo de Benefício', link: '/prae/beneficios/tipos' },
-    ]
+      { nome: "Home", link: "/home" },
+      { nome: "PRAE", link: "/prae" },
+      { nome: "Tipo de Benefício", link: "/prae/beneficios/tipos" },
+    ],
   },
 
   tabela: {
     configuracoes: {
-      pesquisar: true,//campo pesquisar nas colunas (booleano)
-      cabecalho: true,//cabecalho da tabela (booleano)
-      rodape: true,//rodape da tabela (booleano)
+      pesquisar: true, //campo pesquisar nas colunas (booleano)
+      cabecalho: true, //cabecalho da tabela (booleano)
+      rodape: true, //rodape da tabela (booleano)
     },
-    botoes: [ //links
-      { nome: 'Adicionar', chave: 'adicionar', bloqueado: false }, //nome(string),chave(string),bloqueado(booleano)
+    botoes: [
+      //links
+      { nome: "Adicionar", chave: "adicionar", bloqueado: false }, //nome(string),chave(string),bloqueado(booleano)
     ],
-    colunas: [ //colunas da tabela
-      { nome: "Tipo do Benefício", chave: "tipo", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
-      { nome: "Descrição", chave: "descricao", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
-      { nome: "Natureza do Benefício", chave: "naturezaBeneficio.descricao", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
-      { nome: "Valor", chave: "valorBeneficio", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
-      { nome: "ações", chave: "acoes", tipo: "button", selectOptions: null, sort: false, pesquisar: false },
+    colunas: [
+      //colunas da tabela
+      {
+        nome: "Tipo do Benefício",
+        chave: "tipo",
+        tipo: "texto",
+        selectOptions: null,
+        sort: false,
+        pesquisar: true,
+      },
+      {
+        nome: "Descrição",
+        chave: "descricao",
+        tipo: "texto",
+        selectOptions: null,
+        sort: false,
+        pesquisar: true,
+      },
+      {
+        nome: "Natureza do Benefício",
+        chave: "naturezaBeneficio",
+        tipo: "texto",
+        selectOptions: null,
+        sort: false,
+        pesquisar: true,
+      },
+      {
+        nome: "Valor",
+        chave: "valorBeneficio",
+        tipo: "texto",
+        selectOptions: null,
+        sort: false,
+        pesquisar: true,
+      },
+      {
+        nome: "ações",
+        chave: "acoes",
+        tipo: "button",
+        selectOptions: null,
+        sort: false,
+        pesquisar: false,
+      },
     ],
-    acoes_dropdown: [ //botão de acoes de cada registro
-      { nome: 'Editar', chave: 'editar' }, //nome(string),chave(string),bloq=ueado(booleano)
-      { nome: 'Deletar', chave: 'deletar' },
-    ]
-  }
-
-}
-
+    acoes_dropdown: [
+      //botão de acoes de cada registro
+      { nome: "Editar", chave: "editar" }, //nome(string),chave(string),bloq=ueado(booleano)
+      { nome: "Deletar", chave: "deletar" },
+    ],
+  },
+};
 
 const PageLista = () => {
   const router = useRouter();
   const [dados, setDados] = useState<any>({ content: [] });
 
+  if (!AuthTokenService.isGestor(true)) {
+    estrutura.tabela.botoes = [];
+    estrutura.tabela.acoes_dropdown = [];
+    // Remove a coluna de ações se o usuário não for gestor
+    estrutura.tabela.colunas = estrutura.tabela.colunas.filter(
+      (coluna: any) => coluna.chave !== "acoes"
+    );
+  }
   const chamarFuncao = (nomeFuncao = "", valor: any = null) => {
     switch (nomeFuncao) {
-      case 'pesquisar':
+      case "pesquisar":
         pesquisarRegistro(valor);
         break;
-      case 'adicionar':
+      case "adicionar":
         adicionarRegistro();
         break;
-      case 'editar':
+      case "editar":
         editarRegistro(valor);
         break;
-      case 'deletar':
+      case "deletar":
         deletarRegistro(valor);
         break;
       default:
         break;
     }
-  }
+  };
 
   const naturezasBeneficio = [
     { id: "BOLSA", nome: "Bolsa" },
@@ -82,10 +125,10 @@ const PageLista = () => {
   const pesquisarRegistro = async (params = null) => {
     try {
       let body = {
-        metodo: 'get',
-        uri: '/prae/' + estrutura.uri,
+        metodo: "get",
+        uri: "/prae/" + estrutura.uri,
         params: params != null ? params : { size: 10, page: 0 },
-        data: {}
+        data: {},
       };
       const response = await generica(body);
 
@@ -99,8 +142,13 @@ const PageLista = () => {
 
           const dadosComMascara = content.map((item: any) => ({
             ...item,
-            valorBeneficio: aplicarMascara(item.valorBeneficio?.toString() || '0', 'valor'),
-            naturezaBeneficio: naturezasBeneficio.find(n => n.id === item.naturezaBeneficio)?.nome || item.naturezaBeneficio,
+            valorBeneficio: aplicarMascara(
+              item.valorBeneficio?.toString() || "0",
+              "valor"
+            ),
+            naturezaBeneficio:
+              naturezasBeneficio.find((n) => n.id === item.naturezaBeneficio)
+                ?.nome || item.naturezaBeneficio,
           }));
 
           setDados({
@@ -110,23 +158,21 @@ const PageLista = () => {
             number: response.data.number,
             size: response.data.size,
           });
-
         }
       }
     } catch (error) {
-      console.error('Erro ao carregar registros:', error);
+      console.error("Erro ao carregar registros:", error);
       toast("Erro ao carregar registros!", { position: "bottom-left" });
     }
   };
 
-
   // Função que redireciona para a tela adicionar
   const adicionarRegistro = () => {
-    router.push('/prae/beneficios/tipos/criar');
+    router.push("/prae/beneficios/tipos/criar");
   };
   // Função que redireciona para a tela editar
   const editarRegistro = (item: any) => {
-    router.push('/prae/beneficios/tipos/' + item.id);
+    router.push("/prae/beneficios/tipos/" + item.id);
   };
   // Função que deleta um registro
   const deletarRegistro = async (item: any) => {
@@ -151,14 +197,13 @@ const PageLista = () => {
       },
     });
 
-
     if (confirmacao.isConfirmed) {
       try {
         const body = {
-          metodo: 'delete',
-          uri: '/prae/' + estrutura.uri + '/' + item.id,
+          metodo: "delete",
+          uri: "/prae/" + estrutura.uri + "/" + item.id,
           params: {},
-          data: {}
+          data: {},
         };
 
         const response = await generica(body);
@@ -171,18 +216,20 @@ const PageLista = () => {
           pesquisarRegistro();
           Swal.fire({
             title: "Tipo de benefício deletado com sucesso!",
-            icon: "success"
+            icon: "success",
           });
         }
       } catch (error) {
-        console.error('Erro ao deletar registro:', error);
-        toast.error("Erro ao deletar registro. Tente novamente!", { position: "top-left" });
+        console.error("Erro ao deletar registro:", error);
+        toast.error("Erro ao deletar registro. Tente novamente!", {
+          position: "top-left",
+        });
       }
     }
   };
 
   useEffect(() => {
-    chamarFuncao('pesquisar', null);
+    chamarFuncao("pesquisar", null);
   }, []);
 
   return (
@@ -204,7 +251,6 @@ const PageLista = () => {
         />
       </div>
     </main>
-
   );
 };
 

@@ -32,7 +32,9 @@ export default function PraeLayout({ children }: { children: React.ReactNode }) 
         {
           label: "Minha conta",
           route: "/conta/perfil",
-          icon: <AccountCircleOutlined fontSize="small" className="text-white" />,
+          icon: (
+            <AccountCircleOutlined fontSize="small" className="text-white" />
+          ),
         },
         {
           label: "Sair",
@@ -53,7 +55,7 @@ export default function PraeLayout({ children }: { children: React.ReactNode }) 
           label: "Início",
           route: "/home",
           icon: <Home fontSize="small" className="text-white" />,
-          roles: ["administrador", "gestor", "tecnico"],
+          roles: ["administrador", "gestor", "tecnico", "aluno", "visitante"],
         },
         {
           label: "Gerenciar Estudantes",
@@ -65,17 +67,22 @@ export default function PraeLayout({ children }: { children: React.ReactNode }) 
           label: "Gerenciar Benefícios",
           route: "/prae/beneficios",
           icon: <VolunteerActivism fontSize="small" className="text-white" />,
-          roles: ["administrador", "gestor"],
+          roles: ["administrador", "gestor", "aluno", "visitante"],
           subItems: [
             {
               label: "Tipos",
               route: "/prae/beneficios/tipos",
-              icon: <VolunteerActivism fontSize="small" className="text-white" />,
+              icon: (
+                <VolunteerActivism fontSize="small" className="text-white" />
+              ),
             },
             {
               label: "Benefícios",
               route: "/prae/beneficios/beneficios",
-              icon: <VolunteerActivism fontSize="small" className="text-white" />,
+              icon: (
+                <VolunteerActivism fontSize="small" className="text-white" />
+              ),
+              roles: ["administrador", "gestor"],
             },
           ],
         },
