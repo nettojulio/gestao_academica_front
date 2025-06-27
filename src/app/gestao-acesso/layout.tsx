@@ -64,7 +64,7 @@ export default function EfrotasLayout({ children }: { children: React.ReactNode 
           label: "Solicitações",
           route: "/gestao-acesso/solicitacoes",
           icon: <PendingActions fontSize="small" className="text-white" />,
-          roles: ["administrador"],
+          roles: ["administrador", "aluno", "professor", "visitante", "tecnico", "gestor"],
           // subItems: [
           //   {
           //     label: "Aguardando",
