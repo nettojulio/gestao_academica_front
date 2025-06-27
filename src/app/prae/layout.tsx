@@ -95,7 +95,7 @@ export default function PraeLayout({ children }: { children: React.ReactNode }) 
               label: "Tipo de Atendimento",
               route: "/prae/agendamentos/tipo",
               icon: <Schedule fontSize="small" className="text-white" />,
-              roles: ["administrador", "gestor"],
+              roles: ["administrador"],
             },
             {
               label: "Gerenciar Cronograma",
