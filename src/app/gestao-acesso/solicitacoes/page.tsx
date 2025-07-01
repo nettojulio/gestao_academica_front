@@ -14,7 +14,7 @@ import { useRole } from '@/context/roleContext';
 const estrutura = {
   uri: "solicitacao", // Caminho base
   cabecalho: {
-    titulo: "Solicitações",
+    titulo: "Minhas Solicitações",
     migalha: [
       { nome: 'Início', link: '/home' },
       { nome: 'Gestão Acesso', link: '/gestao-acesso' },
@@ -28,7 +28,7 @@ const estrutura = {
       rodape: true,
     },
     botoes: [
-      { nome: 'Adicionar', chave: 'adicionar', bloqueado: false },
+      { nome: 'Solicitar Novo Perfil', chave: 'adicionar', bloqueado: false },
     ],
     colunas: [
       { nome: "Nome do Solicitante", chave: "solicitante.nome", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
