@@ -110,11 +110,25 @@ const cadastro = () => {
   };
 
   const handleDateChange = (diasSelecionados: string[]) => {
-    const datasValidas = diasSelecionados.filter((date) => isValidDate(date));
+    // Se não há datas selecionadas, limpa a seleção
+    if (diasSelecionados.length === 0) {
+      setDadosPreenchidos((prev) => ({
+        ...prev,
+        datas: [],
+      }));
+      return;
+    }
 
+    // Pega a última data selecionada
+    const ultimaDataSelecionada = diasSelecionados[diasSelecionados.length - 1];
+
+    // Verifica se é uma data válida
+    if (!isValidDate(ultimaDataSelecionada)) return;
+
+    // Atualiza o estado com apenas a última data selecionada
     setDadosPreenchidos((prev) => ({
       ...prev,
-      datas: datasValidas,
+      datas: [ultimaDataSelecionada],
     }));
   };
 
