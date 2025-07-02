@@ -1,12 +1,13 @@
 "use client"
+import AuthTokenService from '@/app/authentication/auth.token';
 import withAuthorization from '@/components/AuthProvider/withAuthorization';
 import Cabecalho from '@/components/Layout/Interno/Cabecalho';
 import Tabela from '@/components/Tabela/Estrutura';
 import { generica } from '@/utils/api';
 import { useRouter } from 'next/navigation';
+import React from 'react';
 import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
-import Swal from 'sweetalert2';
 
 const estrutura: any = {
 
@@ -47,6 +48,7 @@ const estrutura: any = {
 const PageLista = () => {
   const router = useRouter();
   const [dados, setDados] = useState<any>({ content: [] });
+  const [isAluno, setisAluno] = useState<boolean>(AuthTokenService.isAluno(false));
 
   const chamarFuncao = (nomeFuncao = "", valor: any = null) => {
     switch (nomeFuncao) {
@@ -93,6 +95,10 @@ const PageLista = () => {
   };
 
   useEffect(() => {
+    if (isAluno) {
+      editarRegistro({ id: "atual" });
+      return;
+    }
     chamarFuncao('pesquisar', null);
   }, []);
 
