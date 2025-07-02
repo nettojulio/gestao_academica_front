@@ -3,47 +3,22 @@ import AuthTokenService from '@/app/authentication/auth.token';
 import withAuthorization from '@/components/AuthProvider/withAuthorization';
 import Cabecalho from '@/components/Layout/Interno/Cabecalho';
 import Tabela from '@/components/Tabela/Estrutura';
+import TabelaEstudantes from '@/components/Tabela/Estudantes/TabelaEstudante';
 import { generica } from '@/utils/api';
 import { useRouter } from 'next/navigation';
 import React from 'react';
 import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 
-const estrutura: any = {
-
-  uri: "estudantes", //caminho base
-
-  cabecalho: { //cabecalho da pagina
+const cabecalho: any = {
     titulo: "Estudantes",
     migalha: [
       { nome: 'Home', link: '/home' },
       { nome: 'Prae', link: '/prae' },
       { nome: 'Estudantes', link: '/prae/estudantes' },
     ]
-  },
-
-  tabela: {
-    configuracoes: {
-      pesquisar: true,//campo pesquisar nas colunas (booleano)
-      cabecalho: true,//cabecalho da tabela (booleano)
-      rodape: true,//rodape da tabela (booleano)
-    },
-    botoes: [],
-    colunas: [ //colunas da tabela
-      { nome: "Nome", chave: "aluno.nome", tipo: "texto", selectOptions: null, sort: false, pesquisar: true }, //nome(string),chave(string),tipo(text,select),selectOpcoes([{chave:string, valor:string}]),pesquisar(booleano)
-      { nome: "CPF", chave: "aluno.cpf", tipo: "texto", selectOptions: null, sort: false, pesquisar: true }, //nome(string),chave(string),tipo(text,select),selectOpcoes([{chave:string, valor:string}]),pesquisar(booleano)
-      { nome: "E-mail", chave: "aluno.email", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
-      { nome: "Curso", chave: "aluno.curso.nome", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
-      { nome: "Auxílio", chave: "beneficios", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
-      { nome: "Contato", chave: "aluno.telefone", tipo: "texto", selectOptions: null, sort: false, pesquisar: true }, //nome(string),chave(string),tipo(text,select),selectOpcoes([{chave:string, valor:string}]),pesquisar(booleano)
-      { nome: "ações", chave: "acoes", tipo: "button", selectOptions: null, sort: false, pesquisar: false },
-    ],
-    acoes_dropdown: [ //botão de acoes de cada registro
-      { nome: 'Visualizar', chave: 'editar' }
-    ]
   }
-
-}
+  const acoes: Array<Object> = [ { nome: 'Visualizar', chave: 'editar' }]
 
 const PageLista = () => {
   const router = useRouter();
@@ -67,7 +42,7 @@ const PageLista = () => {
     try {
       let body = {
         metodo: 'get',
-        uri: '/prae/' + estrutura.uri,
+        uri: '/prae/estudantes',
         //+ '/page',
         params: params != null ? params : { size: 10, page: 0 },
         data: {}
@@ -105,11 +80,12 @@ const PageLista = () => {
   return (
     <main className="flex flex-wrap justify-center mx-auto">
       <div className="w-full sm:w-11/12 2xl:w-10/12 p-4 sm:p-6 md:p-8 lg:p-12 :p-16 2xl:p-20 pt-7 md:pt-8 md:pb-8 ">
-        <Cabecalho dados={estrutura.cabecalho} />
-        <Tabela
-          dados={dados}
-          estrutura={estrutura}
+        <TabelaEstudantes
+          botoes={[]}
+          acoes={acoes}
+          dados={dados.content}
           chamarFuncao={chamarFuncao}
+          cabecalho={cabecalho}
         />
       </div>
     </main>

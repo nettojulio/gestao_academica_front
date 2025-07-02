@@ -42,11 +42,12 @@ const cadastro = () => {
       migalha: [
         { nome: 'Home', link: '/home' },
         { nome: 'Prae', link: '/prae' },
-        { nome: 'Estudantes', link: '/prae/estudantes' },
+        isAluno ? { nome: 'Meu Cadastro', link: '/prae/estudantes/atual' } :
+          { nome: 'Estudantes', link: '/prae/estudantes' },
         {
           nome: isEditMode ? "Editar" : "Criar",
-          link: `/prae/pagamentos/${isEditMode ? id : "criar"}`,
-        },
+          link: `/prae/estudantes/${isEditMode ? id : "criar"}`,
+        }
       ],
     },
     cadastro: {

@@ -8,7 +8,8 @@ import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import Swal from "sweetalert2";
 import { generica } from "@/utils/api";
-import Tabela from "@/components/Tabela/Estrutura";
+import TabelaEstudantes from "@/components/Tabela/Estudantes/TabelaEstudante";
+import { set } from "zod";
 
 const cadastro = () => {
   const router = useRouter();
@@ -19,13 +20,7 @@ const cadastro = () => {
   const [estudanteSelecionado, setEstudanteSelecionado] = useState<Object | null>(null);
   const [estudantes, setEstudantes] = useState<any>({ content: [] });
   const [tipoBeneficio, setTipoBeneficio] = useState<any[]>([]);
-
-  const naturezasBeneficio = [
-    { chave: "BOLSA", valor: "Bolsa" },
-    { chave: "AUXILIO", valor: "Auxílio" },
-    { chave: "ISENCAO", valor: "Isenção" },
-    { chave: "OUTROS", valor: "Outros" },
-  ];
+  const acoesEstudante: Array<Object> = [{ nome: 'Selecionar', chave: 'selecionarEstudante' }];
 
   useEffect(() => {
     chamarFuncao('pesquisar', null);
@@ -107,18 +102,7 @@ const cadastro = () => {
           chave: "estudanteId",
           tipo: "number",
           visivel: false,
-        },/*
-        {
-          line: 2,
-          colSpan: "md:col-span-1",
-          nome: "Natureza do Benefício",
-          chave: "naturezasBeneficio",
-          tipo: "select",
-          selectOptions: naturezasBeneficio,
-          mensagem: "Selecione",
-          obrigatorio: true,
-          bloqueado: isEditMode,
-        },*/
+        },
         {
           line: 2,
           colSpan: "md:col-span-1",
@@ -145,7 +129,7 @@ const cadastro = () => {
         {
           line: 3,
           colSpan: "md:col-span-1",
-          nome: "Horas da Bolsa",
+          nome: "Horas do Benefício",
           chave: "horasBeneficio",
           tipo: "text",
           mensagem: "Digite",
@@ -154,7 +138,7 @@ const cadastro = () => {
         {
           line: 3,
           colSpan: "md:col-span-1",
-          nome: "Início da Bolsa",
+          nome: "Início do Benefício",
           chave: "inicioBeneficio",
           tipo: "date",
           mensagem: "Digite",
@@ -163,7 +147,7 @@ const cadastro = () => {
         {
           line: 3,
           colSpan: "md:col-span-1",
-          nome: "Fim da Bolsa",
+          nome: "Fim do Benefício",
           chave: "fimBeneficio",
           tipo: "date",
           mensagem: "Digite",
@@ -198,41 +182,6 @@ const cadastro = () => {
       ],
     },
   };
-
-  const estruturaEstudante: any = {
-
-    uri: "estudantes",
-
-    cabecalho: {
-      titulo: "Estudantes",
-      migalha: [
-        { nome: 'Home', link: '/home' },
-        { nome: 'Prae', link: '/prae' },
-        { nome: 'Estudantes', link: '/prae/estudantes' },
-      ]
-    },
-
-    tabela: {
-      configuracoes: {
-        pesquisar: true,
-        cabecalho: true,
-        rodape: true,
-      },
-      colunas: [ //colunas da tabela
-        { nome: "Nome", chave: "aluno.nome", tipo: "texto", selectOptions: null, sort: false, pesquisar: true }, //nome(string),chave(string),tipo(text,select),selectOpcoes([{chave:string, valor:string}]),pesquisar(booleano)
-        { nome: "CPF", chave: "aluno.cpf", tipo: "texto", selectOptions: null, sort: false, pesquisar: true }, //nome(string),chave(string),tipo(text,select),selectOpcoes([{chave:string, valor:string}]),pesquisar(booleano)
-        { nome: "E-mail", chave: "aluno.email", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
-        { nome: "Curso", chave: "aluno.curso.nome", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
-        { nome: "Auxílio", chave: "beneficios", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
-        { nome: "Contato", chave: "aluno.telefone", tipo: "texto", selectOptions: null, sort: false, pesquisar: true }, //nome(string),chave(string),tipo(text,select),selectOpcoes([{chave:string, valor:string}]),pesquisar(booleano)
-        { nome: "ações", chave: "acoes", tipo: "button", selectOptions: null, sort: false, pesquisar: false },
-      ],
-      acoes_dropdown: [ //botão de acoes de cada registro
-        { nome: 'Selecionar', chave: 'selecionarEstudante' }
-      ]
-    }
-
-  }
 
   const chamarFuncao = async (nomeFuncao = "", valor: any = null) => {
     switch (nomeFuncao) {
@@ -296,8 +245,6 @@ const cadastro = () => {
     router.push("/prae/beneficios/beneficios");
   };
 
-
-
   const pesquisarEstudantes = async (params = null) => {
     try {
       let body = {
@@ -322,46 +269,34 @@ const cadastro = () => {
     }
   };
 
-  const pesquisarEstudante = async (idEstudante: Number) => {
-    try {
-      let body = {
-        metodo: 'get',
-        uri: `/prae/estudantes/${idEstudante}`,
-        data: {}
+  useEffect(() => {
+    if (id && id !== "criar") {
+      if (estudantes && estudantes.length > 0) {
+        pesquisarAluno()
       }
-      const response = await generica(body);
-      //tratamento dos erros
-      if (response && response.data.errors != undefined) {
-        toast("Erro. Tente novamente!", { position: "bottom-left" });
-      } else if (response && response.data.error != undefined) {
-        toast(response.data.error.message, { position: "bottom-left" });
-      } else {
-        return response?.data;
-      }
-    } catch (error) {
-      console.error('Erro ao carregar registros:', error);
     }
-  };
+  }, [estudantes]);
 
-  const pesquisarEstudantesAuxilio = async () => {
+  const pesquisarAluno = async () => {
     try {
       let body = {
         metodo: 'get',
-        uri: `/prae/estudantes/beneficio/${id}`,
+        uri: `auth/aluno/${estudantes[0].userId}`,
         data: {}
       }
       const response = await generica(body);
-      //tratamento dos erros
       if (response && response.data.errors != undefined) {
         toast("Erro. Tente novamente!", { position: "bottom-left" });
       } else if (response && response.data.error != undefined) {
         toast(response.data.error.message, { position: "bottom-left" });
       } else {
-        let estudantes = [];
-        for (let estudante of response?.data.content) {
-          estudantes.push(await pesquisarEstudante(estudante.id));
+        if (response && response.data) {
+          const aluno = response.data;
+          console.log("Bostaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa: Aluno encontrado:", estudantes);
+          estudantes[0].aluno = aluno;
+          chamarFuncao('selecionarEstudante', estudantes[0]);
         }
-        chamarFuncao('selecionarEstudante', estudantes[0]);
+      
       }
 
     } catch (error) {
@@ -394,10 +329,7 @@ const cadastro = () => {
       console.error('Erro ao carregar registros:', error);
     }
   };
-  /**
-   * Salva o registro via POST, transformando os dados para que os itens de endereço
-   * fiquem agrupados em um objeto 'endereco'.
-   */
+
   const salvarRegistro = async (item: any) => {
     const dataToSend = buildFormData();
     if (!dataToSend) {
@@ -473,12 +405,12 @@ const cadastro = () => {
           horasBeneficio: beneficio.horasBeneficio,
           inicioBeneficio: beneficio.inicioBeneficio,
           fimBeneficio: beneficio.fimBeneficio,
-          estudanteId: beneficio.estudante?.id,
+          estudanteId: beneficio.estudantes?.id,
           parecerTermino: beneficio.parecerTermino,
         });
         setTipoBeneficioSelecionado(beneficio.tipoBeneficio.naturezaBeneficio);
+        setEstudantes({content:[beneficio.estudantes]});
         buscarTermo(Number(id));
-        pesquisarEstudantesAuxilio();
       }
     } catch (error) {
       console.error("DEBUG: Erro ao localizar registro:", error);
@@ -541,9 +473,10 @@ const cadastro = () => {
         {!dadosPreenchidos?.estudanteId && (
           <>
             <h2 className='text-3xl'>Estudantes</h2>
-            <Tabela
+            <TabelaEstudantes
+              botoes={[]}
+              acoes={acoesEstudante}
               dados={estudantes}
-              estrutura={estruturaEstudante}
               chamarFuncao={chamarFuncao}
             />
           </>
