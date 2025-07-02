@@ -22,10 +22,6 @@ const cadastro = () => {
   const [tipoBeneficio, setTipoBeneficio] = useState<any[]>([]);
   const acoesEstudante: Array<Object> = [{ nome: 'Selecionar', chave: 'selecionarEstudante' }];
 
-  useEffect(() => {
-    chamarFuncao('pesquisar', null);
-  }, []);
-
   const isEditMode = id && id !== "criar";
 
   useEffect(() => {
@@ -45,13 +41,12 @@ const cadastro = () => {
   // Efeito exclusivo para o modo de edição
   useEffect(() => {
     pesquisarTipoBeneficio();
-
-    if (id && id !== "criar") {
+    if (isEditMode) {
       chamarFuncao("editar", id);
     } else {
-      pesquisarEstudantes();
+      chamarFuncao('pesquisar', null);
     }
-  }, [id]);
+  }, []);
 
   const getOptions = (lista: any[], selecionado: any) => {
     if (!Array.isArray(lista)) return [];
@@ -195,7 +190,9 @@ const cadastro = () => {
         editarRegistro(valor);
         break;
       case 'pesquisar':
-        pesquisarEstudantes(valor);
+        if (!isEditMode) {
+          pesquisarEstudantes(valor);
+        }
         pesquisarTipoBeneficio();
         break;
       case 'selecionarEstudante':
@@ -236,8 +233,7 @@ const cadastro = () => {
     fd.append('horasBeneficio', dadosPreenchidos.horasBeneficio?.toString() || '');
     fd.append('inicioBeneficio', dadosPreenchidos.inicioBeneficio || '');
     fd.append('fimBeneficio', dadosPreenchidos.fimBeneficio || '');
-    fd.append('valorPagamento', tipoBeneficioSelecionado?.valorBeneficio || '0');
-    console.log("DEBUG: Dados do FormData:", fd);
+    fd.append('valorPagamento', tipoBeneficioSelecionado?.valorBeneficio || '1');
     return fd;
   }
 
@@ -269,21 +265,14 @@ const cadastro = () => {
     }
   };
 
-  useEffect(() => {
-    if (id && id !== "criar") {
-      if (estudantes && estudantes.length > 0) {
-        pesquisarAluno()
-      }
-    }
-  }, [estudantes]);
-
-  const pesquisarAluno = async () => {
+  const pesquisarEstudante = async (estudanteId:any) => {
     try {
       let body = {
         metodo: 'get',
-        uri: `auth/aluno/${estudantes[0].userId}`,
+        uri: `/prae/estudantes/${estudanteId}`,
         data: {}
       }
+      
       const response = await generica(body);
       if (response && response.data.errors != undefined) {
         toast("Erro. Tente novamente!", { position: "bottom-left" });
@@ -291,14 +280,10 @@ const cadastro = () => {
         toast(response.data.error.message, { position: "bottom-left" });
       } else {
         if (response && response.data) {
-          const aluno = response.data;
-          console.log("Bostaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa: Aluno encontrado:", estudantes);
-          estudantes[0].aluno = aluno;
-          chamarFuncao('selecionarEstudante', estudantes[0]);
+          setEstudantes({ content: [response.data] });
+          chamarFuncao('selecionarEstudante', response.data);
         }
-      
       }
-
     } catch (error) {
       console.error('Erro ao carregar registros:', error);
     }
@@ -321,7 +306,6 @@ const cadastro = () => {
         toast(response.data.error.message, { position: "bottom-left" });
       } else {
         if (response && response.data) {
-          console.log("DEBUG: Tipo de benefício:", response.data);
           setTipoBeneficio(response.data.content);
         }
       }
@@ -375,10 +359,6 @@ const cadastro = () => {
     }
   };
 
-  /**
-   * Localiza o registro para edição e preenche os dados
-   */
-
   const editarRegistro = async (item: any) => {
     try {
       const body = {
@@ -409,14 +389,13 @@ const cadastro = () => {
           parecerTermino: beneficio.parecerTermino,
         });
         setTipoBeneficioSelecionado(beneficio.tipoBeneficio.naturezaBeneficio);
-        setEstudantes({content:[beneficio.estudantes]});
+        pesquisarEstudante(beneficio.estudantes?.id);
         buscarTermo(Number(id));
       }
     } catch (error) {
       console.error("DEBUG: Erro ao localizar registro:", error);
       toast.error("Erro ao localizar registro. Tente novamente!", { position: "top-left" });
     }
-
   };
 
   const buscarTermo = async (id: number) => {
@@ -461,10 +440,6 @@ const cadastro = () => {
   const camposFiltrados = estrutura.cadastro.campos.filter((campo: any) => {
     return campo.visivel === undefined || campo.visivel;
   });
-
-  useEffect(() => {
-    chamarFuncao('pesquisar', null);
-  }, []);
 
   return (
     <main className="flex flex-wrap justify-center mx-auto">
