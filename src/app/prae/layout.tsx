@@ -3,6 +3,7 @@ import { Metadata } from "next";
 import ClientWrapper from "@/components/AuthProvider/ClientWrapper";
 import { School, PendingActions, Groups2, AccountCircleOutlined, CalendarMonth, EventNote, Schedule, Payment, VolunteerActivism, AccountBalance, Diversity3, Home, BusinessCenter } from "@mui/icons-material";
 import { InternalLayoutConfig } from "@/types/InternalLayoutConf";
+import AuthTokenService from "../authentication/auth.token";
 
 
 export const metadata: Metadata = {
@@ -12,8 +13,6 @@ export const metadata: Metadata = {
     icon: "/assets/crosshairs-gps.png",
   },
 };
-
-
 
 export default function PraeLayout({ children }: { children: React.ReactNode }) {
   // config/authLayoutConfig.tsx
@@ -53,13 +52,19 @@ export default function PraeLayout({ children }: { children: React.ReactNode }) 
           label: "Início",
           route: "/home",
           icon: <Home fontSize="small" className="text-white" />,
-          roles: ["administrador", "gestor", "tecnico"],
+          roles: ["administrador", "gestor", "tecnico", "aluno"],
         },
         {
           label: "Gerenciar Estudantes",
           route: "/prae/estudantes",
           icon: <School fontSize="small" className="text-white" />,
-          roles: ["administrador", "gestor", "tecnico", "aluno"],
+          roles: ["administrador", "gestor", "tecnico"],
+        },
+        {
+          label: "Meu Cadastro",
+          route: "/prae/estudantes/atual",
+          icon: <School fontSize="small" className="text-white" />,
+          roles: ["aluno"],
         },
         {
           label: "Gerenciar Benefícios",

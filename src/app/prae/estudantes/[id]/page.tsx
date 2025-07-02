@@ -10,37 +10,28 @@ import { useEnderecoByCep } from "@/utils/brasilianStates";
 import { generica } from "@/utils/api";
 import AuthTokenService from "@/app/authentication/auth.token";
 import React from "react";
-import { useAuth } from "@/components/AuthProvider/AuthProvider";
-
 
 const cadastro = () => {
   const router = useRouter();
   const { id } = useParams();
   // Inicializamos com um objeto contendo 'endereco' para evitar problemas
-  const { isAuthenticated, setIsAuthenticated } = useAuth();
-  const [userRoles, setUserRoles] = useState<string[]>([]);
-  const [isGestor, setIsGestor] = useState<boolean>(false);
-  const [isAluno, setisAluno] = useState<boolean>(false);
-  const [activeRole, setActiveRole] = useState<string>("");
+  const [isGestor, setIsGestor] = useState<boolean>(AuthTokenService.isGestor(false));
+  const [isAluno, setisAluno] = useState<boolean>(AuthTokenService.isAluno(false));
   const [dadosPreenchidos, setDadosPreenchidos] = useState<any>({ endereco: {} });
   const [dadosForm, setDadosForm] = useState<any>({ endereco: {} });
   const [dadosBancariosPreenchidos, setDadosBancariosPreenchidos] = useState<any>({});
-  const [dadosBancariosForm, setDadosBancariosForm] = useState<any>({});
   const [cursos, setCursos] = useState<any[]>([]);
   const [etnia, setEtnia] = useState<any[]>([]);
   const [isDeficiente, setIsDeficiente] = useState<boolean>(false);
-  const isEditMode = id && id !== "criar";
+  const isCreateMode = id == "criar";
+  const isEditMode = !isCreateMode;
 
   const getOptions = (lista: any[], selecionado: any) => {
     if (!Array.isArray(lista)) return [];
-
-    // Mapeia para { chave: id, valor: nome } → Select mostrará "valor" (nome)
     const options = lista.map((item) => ({
       chave: item.id,       // ID (valor salvo no formulário)
       valor: item.nome || item.tipo     // Nome (exibido no select)
     }));
-
-    // Debug: Verifique as opções geradas
     return options;
   };
 
@@ -51,11 +42,12 @@ const cadastro = () => {
       migalha: [
         { nome: 'Home', link: '/home' },
         { nome: 'Prae', link: '/prae' },
-        { nome: 'Estudantes', link: '/prae/estudantes' },
+        isAluno ? { nome: 'Meu Cadastro', link: '/prae/estudantes/atual' } :
+          { nome: 'Estudantes', link: '/prae/estudantes' },
         {
           nome: isEditMode ? "Editar" : "Criar",
-          link: `/prae/pagamentos/${isEditMode ? id : "criar"}`,
-        },
+          link: `/prae/estudantes/${isEditMode ? id : "criar"}`,
+        }
       ],
     },
     cadastro: {
@@ -78,7 +70,7 @@ const cadastro = () => {
           tipo: "text",
           mensagem: "Digite",
           obrigatorio: isEditMode ? false : true,
-          bloqueado: true,
+          bloqueado: !isAluno || isEditMode,
         },
         {
           line: 2,
@@ -88,7 +80,7 @@ const cadastro = () => {
           tipo: "text",
           mensagem: "Digite o nome social",
           obrigatorio: false,
-          bloqueado: true,
+          bloqueado: !isAluno || isEditMode,
         },
         {
           line: 2,
@@ -98,7 +90,7 @@ const cadastro = () => {
           tipo: "text",
           mensagem: "Digite",
           obrigatorio: isEditMode ? false : true,
-          bloqueado: true,
+          bloqueado: !isAluno || isEditMode,
         },
         {
           line: 3,
@@ -108,7 +100,7 @@ const cadastro = () => {
           tipo: "text",
           mensagem: "Digite",
           obrigatorio: isEditMode ? false : true,
-          bloqueado: true,
+          bloqueado: !isAluno || isEditMode,
           mascara: "cpf",
         },
         {
@@ -119,7 +111,7 @@ const cadastro = () => {
           tipo: "text",
           mensagem: "Digite",
           obrigatorio: isEditMode ? false : true,
-          bloqueado: true,
+          bloqueado: !isAluno || isEditMode,
           mascara: "celular",
         },
         {
@@ -129,9 +121,9 @@ const cadastro = () => {
           chave: isEditMode ? "perfil.matricula" : "matricula",
           tipo: "text",
           mensagem: "Digite a matrícula",
-          obrigatorio: isEditMode ? false : true,
+          obrigatorio: !isEditMode || isEditMode,
           exibirPara: ["ALUNO"],
-          bloqueado: isEditMode,
+          bloqueado: !isAluno,
         },
         {
           line: 3,
@@ -140,34 +132,10 @@ const cadastro = () => {
           chave: isEditMode ? "perfil.curso.nome" : "cursoId",
           tipo: isEditMode ? "select" : "text",
           mensagem: "Selecione o curso",
-          obrigatorio: isEditMode ? false : true,
+          obrigatorio: !isEditMode || isEditMode,
           selectOptions: isEditMode ? null : getOptions(cursos, dadosPreenchidos[0]?.cursoId),
           exibirPara: ["ALUNO"],
-          bloqueado: isEditMode,
-        },
-        {
-          line: 3,
-          colSpan: "md:col-span-1",
-          nome: "Cursos",
-          chave: isEditMode ? "perfil.cursos" : "cursoIds",
-          tipo: "multi-select",
-          mensagem: "Selecione cursos",
-          obrigatorio: false,
-          exibirPara: ["PROFESSOR"],
-          selectOptions: isEditMode ? null : getOptions(cursos, Array.isArray(dadosPreenchidos) && dadosPreenchidos[0]?.cursoIds),
-          multiple: true,
-          bloqueado: isEditMode,
-        },
-        {
-          line: 3,
-          colSpan: "md:col-span-1",
-          nome: "SIAPE",
-          chave: isEditMode ? "perfil.siape" : "siape",
-          tipo: "text",
-          mensagem: "Digite o SIAPE",
-          obrigatorio: isEditMode ? false : true,
-          exibirPara: ["ADMINISTRADOR", "GESTOR", "TECNICO", "PROFESSOR"],
-          bloqueado: isEditMode,
+          bloqueado: !isAluno,
         },
         {
           line: 3,
@@ -180,18 +148,17 @@ const cadastro = () => {
           selectOptions: getOptions(etnia, dadosPreenchidos?.tipoEtniaId),
           opcaoChave: "chave",
           opcaoValor: "valor",
-          bloqueado: isEditMode ? true : false,
+          bloqueado: !isAluno,
         },
         {
           line: 4,
           colSpan: "md:col-span-1",
           nome: "Renda Per Capta",
-          chave: isEditMode ? "rendaPercapta" : "rendaPercapta",
+          chave: "rendaPercapta",
           tipo: "text",
           mensagem: "Digite a renda percápita",
           obrigatorio: isEditMode ? false : true,
-          bloqueado: isEditMode,
-          mascara: "valor",
+          bloqueado: !isAluno,
         },
         {
           line: 4,
@@ -201,7 +168,7 @@ const cadastro = () => {
           tipo: "text",
           mensagem: "Digite o CEP",
           obrigatorio: isEditMode ? false : true,
-          bloqueado: isEditMode,
+          bloqueado: !isAluno,
           mascara: "CEP",
         },
         {
@@ -212,7 +179,7 @@ const cadastro = () => {
           tipo: "text",
           mensagem: "Digite o nome da rua",
           obrigatorio: isEditMode ? false : true,
-          bloqueado: isEditMode,
+          bloqueado: !isAluno,
         },
         {
           line: 4,
@@ -222,7 +189,7 @@ const cadastro = () => {
           tipo: "text",
           mensagem: "Digite o bairro",
           obrigatorio: isEditMode ? false : true,
-          bloqueado: isEditMode,
+          bloqueado: !isAluno,
         },
         {
           line: 5,
@@ -232,7 +199,7 @@ const cadastro = () => {
           tipo: "text",
           mensagem: "Digite a cidade",
           obrigatorio: isEditMode ? false : true,
-          bloqueado: isEditMode,
+          bloqueado: !isAluno,
         },
         {
           line: 5,
@@ -242,7 +209,7 @@ const cadastro = () => {
           tipo: "text",
           mensagem: "Digite o estado",
           obrigatorio: isEditMode ? false : true,
-          bloqueado: isEditMode,
+          bloqueado: !isAluno,
         },
         {
           line: 5,
@@ -252,7 +219,7 @@ const cadastro = () => {
           tipo: "text",
           mensagem: "Digite o numero",
           obrigatorio: isEditMode ? false : true,
-          bloqueado: isEditMode,
+          bloqueado: !isAluno,
         },
         {
           line: 5,
@@ -262,7 +229,7 @@ const cadastro = () => {
           tipo: "text",
           mensagem: "Digite o complemento",
           obrigatorio: isEditMode ? false : true,
-          bloqueado: isEditMode,
+          bloqueado: !isAluno,
         },
         {
           line: 6,
@@ -272,7 +239,7 @@ const cadastro = () => {
           tipo: "text",
           mensagem: "Digite o contato familiar",
           obrigatorio: isEditMode ? false : true,
-          bloqueado: isEditMode,
+          bloqueado: !isAluno,
           mascara: "celular",
         },
         {
@@ -287,7 +254,7 @@ const cadastro = () => {
           ],
           mensagem: "Selecione a opção",
           obrigatorio: isEditMode ? false : true,
-          bloqueado: isEditMode,
+          bloqueado: !isAluno,
           mascara: "valor",
         },
         {
@@ -298,8 +265,8 @@ const cadastro = () => {
           tipo: "text",
           mensagem: "Qual o tipo da deficiência",
           obrigatorio: isEditMode ? false : true,
-          bloqueado: isEditMode,
-        },
+          bloqueado: !isAluno,
+        },/*
         {
           line: 7,
           colSpan: "md:col-span-1",
@@ -307,8 +274,8 @@ const cadastro = () => {
           chave: "laudo",
           tipo: "documento",
           obrigatorio: isEditMode ? false : true,
-          bloqueado: isEditMode,
-        },
+          bloqueado: !isAluno,
+        },*/
       ],
       acoes: isAluno ? [
         { nome: "Cancelar", chave: "voltar", tipo: "botao" },
@@ -415,7 +382,6 @@ const cadastro = () => {
       const response = await generica(body);
       if (response && response.data) {
         setDadosPreenchidos(response.data);
-        console.log("----------------------Aqui, viado---------------------");
         console.log("Dados do usuário atual:", response.data);
       }
     } catch (error) {
@@ -455,7 +421,7 @@ const cadastro = () => {
       };
       const response = await generica(body);
       if (response && response.data) {
-        setEtnia(response.data);
+        setEtnia(response.data.content);
       }
     } catch (error) {
       console.error('Erro ao carregar registros:', error);
@@ -463,7 +429,10 @@ const cadastro = () => {
   };
 
   const voltarRegistro = () => {
-    router.push("/prae/estudantes");
+    if (isAluno)
+      router.push("/prae");
+    else
+      router.push("/prae/estudantes");
   };
 
   const transformarDados = (item: any) => {
@@ -493,44 +462,15 @@ const cadastro = () => {
           numero: prev.endereco?.numero || '',
         }
       }));
-      console.log("Dados retornados pelo hook useEnderecoByCep:", endereco);
     }
   }, [endereco]);
 
-  useEffect(() => {
-    const authenticated = AuthTokenService.isAuthenticated(true);
-    setIsAuthenticated(authenticated);
-
-    if (authenticated) {
-      const roles: string[] = [];
-      if (AuthTokenService.isAdmin(false)) roles.push("administrador");
-      if (AuthTokenService.isGestor(false)) { roles.push("gestor"); setIsGestor(true); }
-      if (AuthTokenService.isTecnico(false)) roles.push("tecnico");
-      if (AuthTokenService.isProfessor(false)) roles.push("professor");
-      if (AuthTokenService.isAluno(false)) { roles.push("aluno"); setisAluno(true); }
-      if (AuthTokenService.isVisitante(false)) roles.push("visitante");
-      setUserRoles(roles);
-
-      if (roles.length > 0 && activeRole === "") {
-        setActiveRole(roles[0]);
-      }
-    } else {
-      setUserRoles([]);
-      setActiveRole("");
-    }
-  }, [isAuthenticated]);
-
-
-  /**
-   * Salva o registro via POST, transformando os dados para que os itens de endereço
-   * fiquem agrupados em um objeto 'endereco'.
-   */
   const salvarRegistro = async (item: any) => {
     try {
       const dataToSend = transformarDados(item);
       const body = {
         metodo: `${isEditMode ? "patch" : "post"}`,
-        uri: "/prae/" + `${isEditMode ? estrutura.uri + "/" + item.id : estrutura.uri}`,
+        uri: "/prae/" + `${estrutura.uri}`,
         params: {},
         data: dataToSend,
       };
@@ -553,7 +493,7 @@ const cadastro = () => {
           icon: "success",
         }).then((result) => {
           if (result.isConfirmed) {
-            chamarFuncao("voltar");
+            window.location.reload();
           }
         });
       }
@@ -566,7 +506,6 @@ const cadastro = () => {
   const salvarRegistroDadosBancarios = async (item: any) => {
     try {
       const dataToSend = dadosBancariosPreenchidos;
-      console.log("aqui", item)
       const body = {
         metodo: `${dadosPreenchidos?.dadosBancarios ? "patch" : "post"}`,
         uri: "/prae/" + `${dadosPreenchidos?.dadosBancarios ? estruturaDadosBancarios.uri + "/" + item.id : estruturaDadosBancarios.uri + "/" + dadosPreenchidos.id}`,
@@ -575,9 +514,6 @@ const cadastro = () => {
       };
       const response = await generica(body);
       if (!response || response.status < 200 || response.status >= 300) {
-        if (response) {
-          console.error("DEBUG: Status de erro:", response.status, 'statusText' in response ? response.statusText : "Sem texto de status");
-        }
         toast.error(`Erro na requisição (HTTP ${response?.status || "desconhecido"})`, { position: "top-left" });
         return;
       }
@@ -605,14 +541,11 @@ const cadastro = () => {
     }
   };
 
-  /**
-   * Localiza o registro para edição e preenche os dados
-   */
   const editarRegistro = async (item: any) => {
     try {
       const body = {
         metodo: "get",
-        uri: "/prae/" + estrutura.uri + "/" + item,
+        uri: `/prae/${estrutura.uri}/${item}`,
         params: {},
         data: item,
       };
@@ -634,7 +567,7 @@ const cadastro = () => {
           email: response.data.aluno.email,
           cpf: response.data.aluno.cpf,
           telefone: response.data.aluno.telefone,
-          etnia: response.data.tipoEtnia,
+          rendaPercapta: response.data.rendaPercapta,
           cep: response.data.endereco.cep,
           rua: response.data.endereco.rua,
           cidade: response.data.endereco.cidade,
@@ -643,7 +576,10 @@ const cadastro = () => {
           complemento: response.data.endereco.complemento,
           bairro: response.data.endereco.bairro,
           tipoEtniaId: response.data.tipoEtnia.id,
+          deficiente: response.data.deficiente,
+          tipoDeficiencia: response.data.tipoDeficiencia,
         });
+        setIsDeficiente(response.data.deficiente);
         if (response.data?.dadosBancarios) {
           setDadosBancariosPreenchidos(response.data.dadosBancarios);
         }
@@ -654,13 +590,16 @@ const cadastro = () => {
     }
   };
 
-  // Efeito exclusivo para o modo de edição
   useEffect(() => {
     pesquisarEtnia();
-    if (id && id !== "criar") {
-      chamarFuncao("editar", id);
+    if (isEditMode) {
+      if (!isAluno && !id)
+        chamarFuncao("voltar");
+      else if (isAluno)
+        chamarFuncao("editar", "current");
+      else
+        chamarFuncao("editar", id);
     } else {
-      if (isAluno)
       currentUser();
     }
   }, [id]);

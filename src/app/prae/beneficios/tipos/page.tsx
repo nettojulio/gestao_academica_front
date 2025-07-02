@@ -36,7 +36,7 @@ const estrutura: any = {
     colunas: [ //colunas da tabela
       { nome: "Tipo do Benefício", chave: "tipo", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
       { nome: "Descrição", chave: "descricao", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
-      { nome: "Natureza do Benefício", chave: "naturezaBeneficio.descricao", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
+      { nome: "Natureza do Benefício", chave: "naturezaBeneficio", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
       { nome: "Valor", chave: "valorBeneficio", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
       { nome: "ações", chave: "acoes", tipo: "button", selectOptions: null, sort: false, pesquisar: false },
     ],
@@ -102,6 +102,7 @@ const PageLista = () => {
             valorBeneficio: aplicarMascara(item.valorBeneficio?.toString() || '0', 'valor'),
             naturezaBeneficio: naturezasBeneficio.find(n => n.id === item.naturezaBeneficio)?.nome || item.naturezaBeneficio,
           }));
+          console.log(dadosComMascara);
 
           setDados({
             content: dadosComMascara,
