@@ -11,50 +11,6 @@ import Swal from 'sweetalert2';
 import { AccountCircleOutlined } from '@mui/icons-material';
 import { useRole } from '@/context/roleContext';
 
-const estrutura = {
-  uri: "solicitacao", // Caminho base
-  cabecalho: {
-    titulo: "Minhas Solicitações",
-    migalha: [
-      { nome: 'Início', link: '/home' },
-      { nome: 'Gestão Acesso', link: '/gestao-acesso' },
-      { nome: 'Solicitações', link: '/gestao-acesso/solicitacoes' },
-    ],
-  },
-  tabela: {
-    configuracoes: {
-      pesquisar: true,
-      cabecalho: true,
-      rodape: true,
-    },
-    botoes: [
-      { nome: 'Solicitar Novo Perfil', chave: 'adicionar', bloqueado: false },
-    ],
-    colunas: [
-      { nome: "Nome do Solicitante", chave: "solicitante.nome", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
-      { nome: "CPF", chave: "solicitante.cpf", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
-      { nome: "Perfil", chave: "perfilSolicitado", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
-      {
-        nome: "Status",
-        chave: "status",
-        tipo: "boolean",
-        selectOptions: [
-          { chave: "APROVADA", valor: "Aprovada" },
-          { chave: "PENDENTE", valor: "Pendente" },
-          { chave: "REJEITADA", valor: "Rejeitada" },
-        ],
-        sort: false,
-        pesquisar: true,
-      },
-      { nome: "ações", chave: "acoes", tipo: "button", selectOptions: null, sort: false, pesquisar: false },
-    ],
-    acoes_dropdown: [
-      { nome: 'Visualizar', chave: 'editar' },
-      { nome: 'Deletar', chave: 'deletar' },
-    ],
-  },
-};
-
 const PageLista = () => {
   const router = useRouter();
   const [dados, setDados] = useState({ content: [] });
@@ -65,6 +21,51 @@ const PageLista = () => {
 
   // Verifique se o usuário é privilegiado com base na role ativa
   const isPrivileged = activeRole === "administrador";
+
+
+  const estrutura = {
+    uri: "solicitacao", // Caminho base
+    cabecalho: {
+      titulo: isPrivileged ? "Gerenciar Solicitações" : "Minhas Solicitações",
+      migalha: [
+        { nome: 'Início', link: '/home' },
+        { nome: 'Gestão Acesso', link: '/gestao-acesso' },
+        { nome: 'Solicitações', link: '/gestao-acesso/solicitacoes' },
+      ],
+    },
+    tabela: {
+      configuracoes: {
+        pesquisar: true,
+        cabecalho: true,
+        rodape: true,
+      },
+      botoes: [
+        { nome: 'Solicitar Novo Perfil', chave: 'adicionar', bloqueado: false },
+      ],
+      colunas: [
+        { nome: "Nome do Solicitante", chave: "solicitante.nome", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
+        { nome: "CPF", chave: "solicitante.cpf", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
+        { nome: "Perfil", chave: "perfilSolicitado", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
+        {
+          nome: "Status",
+          chave: "status",
+          tipo: "boolean",
+          selectOptions: [
+            { chave: "APROVADA", valor: "Aprovada" },
+            { chave: "PENDENTE", valor: "Pendente" },
+            { chave: "REJEITADA", valor: "Rejeitada" },
+          ],
+          sort: false,
+          pesquisar: true,
+        },
+        { nome: "ações", chave: "acoes", tipo: "button", selectOptions: null, sort: false, pesquisar: false },
+      ],
+      acoes_dropdown: [
+        { nome: 'Visualizar', chave: 'editar' },
+        { nome: 'Deletar', chave: 'deletar' },
+      ],
+    },
+  };
 
   const chamarFuncao = (nomeFuncao = "", valor: any = null) => {
     switch (nomeFuncao) {
