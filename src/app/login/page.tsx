@@ -11,6 +11,7 @@ import Link from "next/link";
 import AuthTokenService from "@/app/authentication/auth.token";
 import authService from "@/app/authentication/auth.service";
 import { toast } from "react-toastify";
+import Modal from "@/components/Modal/Modal";
 
 const loginSchema = z.object({
   email: z.string().email("Informe um e-mail válido"),
@@ -28,6 +29,7 @@ export default function Login() {
   const [savedEmails, setSavedEmails] = useState<string[]>([]);
   const [showLoginForm, setShowLoginForm] = useState(false);
   const [mostrarSenha, setMostrarSenha] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
   useEffect(() => {
     const isAuthenticated = AuthTokenService.isAuthenticated(false);
@@ -123,14 +125,26 @@ export default function Login() {
     }
   };
 
+  const handleCloseModal = () => setIsModalOpen(false);
+
   return (
     <div className="flex flex-1 bg-white min-h-screen">
+      <Modal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        content="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur et
+          dignissim felis. Nullam porta, libero vel volutpat hendrerit, turpis
+          urna fermentum justo, ut maximus orci ligula ac risus."
+      />
       {/* Seção Esquerda - Descrição */}
       <section className="hidden md:flex flex-col justify-center px-16 bg-white w-1/2">
-        <h1 className="text-primary-700 text-display-small font-bold mb-4">Sistema de Gestão</h1>
+        <h1 className="text-primary-700 text-display-small font-bold mb-4">
+          Sistema de Gestão
+        </h1>
         <p className="text-neutrals-600 text-body-large leading-relaxed">
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur et dignissim felis.
-          Nullam porta, libero vel volutpat hendrerit, turpis urna fermentum justo, ut maximus orci ligula ac risus.
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur et
+          dignissim felis. Nullam porta, libero vel volutpat hendrerit, turpis
+          urna fermentum justo, ut maximus orci ligula ac risus.
         </p>
       </section>
 
@@ -139,10 +153,17 @@ export default function Login() {
         <div className="bg-white shadow-xl rounded-lg px-8 py-10 w-full max-w-sm sm:max-w-md border border-neutrals-200">
           {showLoginForm ? (
             <>
-              <h2 className="text-2xl font-bold text-center text-primary-500 mb-6">Entrar</h2>
+              <h2 className="text-2xl font-bold text-center text-primary-500 mb-6">
+                Entrar
+              </h2>
               <form onSubmit={handleSubmit} className="space-y-5">
                 <div>
-                  <label htmlFor="email" className="block mb-2 text-sm font-medium text-gray-900">E-mail</label>
+                  <label
+                    htmlFor="email"
+                    className="block mb-2 text-sm font-medium text-gray-900"
+                  >
+                    E-mail
+                  </label>
                   <input
                     type="email"
                     name="email"
@@ -156,7 +177,12 @@ export default function Login() {
                 </div>
 
                 <div>
-                  <label htmlFor="password" className="block mb-2 text-sm font-medium text-gray-900">Senha</label>
+                  <label
+                    htmlFor="password"
+                    className="block mb-2 text-sm font-medium text-gray-900"
+                  >
+                    Senha
+                  </label>
                   <div className="relative">
                     <input
                       type={mostrarSenha ? "text" : "password"}
@@ -174,9 +200,20 @@ export default function Login() {
                       className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-600 hover:text-primary-500"
                     >
                       {mostrarSenha ? (
-                        <Image src="/assets/icons/eyeOff.svg" alt="Facebook Icon" width={24} height={24} />
+                        <Image
+                          src="/assets/icons/eyeOff.svg"
+                          alt="Facebook Icon"
+                          width={24}
+                          height={24}
+                        />
                       ) : (
-                        <Image src="/assets/icons/eyeOn.svg" className="text-purple-900" alt="Facebook Icon" width={25} height={25} />
+                        <Image
+                          src="/assets/icons/eyeOn.svg"
+                          className="text-purple-900"
+                          alt="Facebook Icon"
+                          width={25}
+                          height={25}
+                        />
                       )}
                     </button>
                   </div>
@@ -189,17 +226,26 @@ export default function Login() {
                         id="remember"
                         aria-describedby="remember"
                         type="checkbox"
-                        className={`w-4 h-4 ${errorMessage ? 'border-red-500' : 'border-gray-300'} rounded bg-gray-50 focus:ring-3 focus:ring-primary-300`}
+                        className={`w-4 h-4 ${
+                          errorMessage ? "border-red-500" : "border-gray-300"
+                        } rounded bg-gray-50 focus:ring-3 focus:ring-primary-300`}
                         checked={remember}
                         onChange={(e) => setRemember(e.target.checked)}
                       />
                     </div>
                     <div className="ml-3 text-sm">
-                      <label htmlFor="remember" className="text-gray-500">Lembrar</label>
+                      <label htmlFor="remember" className="text-gray-500">
+                        Lembrar
+                      </label>
                     </div>
                   </div>
                   <div>
-                    <Link href="/conta/recuperar-senha" className="text-primary-500 hover:underline text-sm">Esqueceu a senha?</Link>
+                    <Link
+                      href="/conta/recuperar-senha"
+                      className="text-primary-500 hover:underline text-sm"
+                    >
+                      Esqueceu a senha?
+                    </Link>
                   </div>
                 </div>
 
@@ -211,7 +257,10 @@ export default function Login() {
                 </button>
 
                 <div className="text-center mt-4">
-                  <Link href="/conta/criar-conta" className="text-primary-500 font-semibold hover:underline text-sm">
+                  <Link
+                    href="/conta/criar-conta"
+                    className="text-primary-500 font-semibold hover:underline text-sm"
+                  >
                     Não possui conta? Faça o cadastro
                   </Link>
                 </div>
@@ -219,15 +268,26 @@ export default function Login() {
             </>
           ) : (
             <>
-              <h2 className="text-2xl font-bold text-center text-primary-500 mb-4">Selecione um e-mail para login</h2>
+              <h2 className="text-2xl font-bold text-center text-primary-500 mb-4">
+                Selecione um e-mail para login
+              </h2>
               {savedEmails.length > 0 ? (
                 <ul className="bg-white border border-gray-300 rounded-lg mt-2">
                   {savedEmails.map((email) => (
-                    <li key={email} className="p-2 flex justify-between items-center hover:bg-gray-200">
-                      <span className="cursor-pointer" onClick={() => handleEmailSelect(email)}>
+                    <li
+                      key={email}
+                      className="p-2 flex justify-between items-center hover:bg-gray-200"
+                    >
+                      <span
+                        className="cursor-pointer"
+                        onClick={() => handleEmailSelect(email)}
+                      >
                         {email}
                       </span>
-                      <button className="text-red-500 ml-2" onClick={() => handleRemoveEmail(email)}>
+                      <button
+                        className="text-red-500 ml-2"
+                        onClick={() => handleRemoveEmail(email)}
+                      >
                         X
                       </button>
                     </li>
