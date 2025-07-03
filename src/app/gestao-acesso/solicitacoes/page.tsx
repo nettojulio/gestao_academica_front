@@ -64,7 +64,7 @@ const PageLista = () => {
   const { activeRole, userRoles } = useRole();
 
   // Verifique se o usuário é privilegiado com base na role ativa
-  const isPrivileged = activeRole === "administrador" || activeRole === "gestor";
+  const isPrivileged = activeRole === "administrador";
 
   const chamarFuncao = (nomeFuncao = "", valor: any = null) => {
     switch (nomeFuncao) {
