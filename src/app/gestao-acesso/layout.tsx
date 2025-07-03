@@ -64,7 +64,7 @@ export default function EfrotasLayout({ children }: { children: React.ReactNode 
           label: "Minhas Solicitações",
           route: "/gestao-acesso/solicitacoes",
           icon: <PendingActions fontSize="small" className="text-white" />,
-          roles: ["administrador", "aluno", "professor", "visitante", "tecnico", "gestor"],
+          roles: ["aluno", "professor", "visitante", "tecnico", "gestor"],
           // subItems: [
           //   {
           //     label: "Aguardando",
@@ -77,6 +77,12 @@ export default function EfrotasLayout({ children }: { children: React.ReactNode 
           //     icon: <PendingActions fontSize="small"className="text-white" />,
           //   },
           // ],
+        },
+        {
+          label: "Gerenciar Solicitações",
+          route: "/gestao-acesso/solicitacoes",
+          icon: <PendingActions fontSize="small" className="text-white" />,
+          roles: ["administrador"],
         },
         {
           label: "Tipos de Unidades Administrativas",
