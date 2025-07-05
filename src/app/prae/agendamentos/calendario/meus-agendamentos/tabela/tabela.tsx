@@ -175,11 +175,7 @@ const Tabela = ({ dados = null, estrutura = null, chamarFuncao = null }: any) =>
                         title={item.hint || ""}
                       >
                         <div
-                          className={
-                            item.nome.toUpperCase() === "AÇÕES"
-                              ? "flex items-center justify-center gap-2"
-                              : "flex items-center gap-2"
-                          }
+                          className="flex items-center justify-center gap-2"
                         >
                           {item.nome}
                           {item.hint && (
@@ -231,15 +227,14 @@ const Tabela = ({ dados = null, estrutura = null, chamarFuncao = null }: any) =>
                       <tr key={item.id} className="hover:bg-neutrals-100">
                         {estrutura.tabela.colunas.map(({ chave, tipo, selectOptions }: any) => {
                           if (chave === 'acoes') {
-                            // MODIFICAÇÃO: botão direto ao invés de dropdown
                             return (
                               <td
                                 key="acoes"
-                                className="px-6 py-2 whitespace-nowrap relative border-l border-neutrals-200 flex items-center justify-center"
+                                className="px-2 py-2 whitespace-nowrap relative border-l border-neutrals-200 w-24 text-center" // Alterações aqui
                               >
                                 <button
                                   onClick={() => chamarFuncao('deletar', item)}
-                                  className="px-4 py-2 text-sm text-white bg-red-600 hover:bg-red-700 rounded-md"
+                                  className="py-2 text-xs text-white bg-red-600 hover:bg-red-700 rounded-md w-full" // Alterações aqui
                                 >
                                   Cancelar
                                 </button>
@@ -256,7 +251,7 @@ const Tabela = ({ dados = null, estrutura = null, chamarFuncao = null }: any) =>
                                   element = (
                                     <td
                                       key={chave}
-                                      className="px-6 py-2 whitespace-nowrap flex items-center font-normal"
+                                      className="px-6 py-2 whitespace-nowrap flex items-center justify-center font-normal"
                                     >
                                       <span className="px-2 inline-flex text-sm leading-5 font-normal rounded-full bg-green-100 text-green-800">
                                         {selectOption.valor}
@@ -268,7 +263,7 @@ const Tabela = ({ dados = null, estrutura = null, chamarFuncao = null }: any) =>
                                   element = (
                                     <td
                                       key={chave}
-                                      className="px-6 py-2 whitespace-nowrap flex items-center font-normal"
+                                      className="px-6 py-2 whitespace-nowrap flex items-center justify-center font-normal"
                                     >
                                       <span className="px-2 inline-flex text-sm leading-5 font-normal rounded-full bg-red-100 text-red-800">
                                         {selectOption.valor}
@@ -280,7 +275,7 @@ const Tabela = ({ dados = null, estrutura = null, chamarFuncao = null }: any) =>
                                   element = (
                                     <td
                                       key={chave}
-                                      className="px-6 py-2 whitespace-nowrap flex items-center font-normal"
+                                      className="px-6 py-2 whitespace-nowrap flex items-center justify-center font-normal"
                                     >
                                       <span className="px-3 inline-flex text-sm leading-6 font-normal rounded-full bg-neutrals-100 text-neutrals-800">
                                         {selectOption.valor}
@@ -296,7 +291,7 @@ const Tabela = ({ dados = null, estrutura = null, chamarFuncao = null }: any) =>
                             );
                             if (selectOption) {
                               return (
-                                <td key={chave} className="px-6 py-2 whitespace-nowrap font-normal">
+                                <td key={chave} className="px-6 py-2 whitespace-nowrap font-normal text-center">
                                   <div className={`py-2 text-center rounded-md text-label-medium font-normal ${selectOption.chave === true || selectOption.chave === "APROVADA" ? "bg-success-100 text-success-900" : selectOption.chave === "PENDENTE" ? "bg-warning-100 text-warning-900" : "bg-danger-100 text-danger-900"}`}>
                                     {selectOption.valor}
                                   </div>
@@ -312,31 +307,31 @@ const Tabela = ({ dados = null, estrutura = null, chamarFuncao = null }: any) =>
                             let jsonItem = JSON.parse(item[key]);
                             if (jsonItem && typeof jsonItem[jsonKey] !== 'object') {
                               return (
-                                <td key={chave} className="px-6 py-2 whitespace-nowrap font-normal">
+                                <td key={chave} className="px-6 py-2 whitespace-nowrap font-normal text-center">
                                   {verificaTexto(jsonItem[jsonKey])}
                                 </td>
                               );
                             } else {
-                              return <td key={chave} className="px-6 py-2 whitespace-nowrap font-normal"></td>;
+                              return <td key={chave} className="px-6 py-2 whitespace-nowrap font-normal text-center"></td>;
                             }
                           } else if (tipo === "quantidade" && Array.isArray(item[chave])) {
                             // SUPORTE À QUANTIDADE DE ITENS DO ARRAY
                             return (
-                              <td key={chave} className="px-6 py-2 whitespace-nowrap font-normal">
+                              <td key={chave} className="px-6 py-2 whitespace-nowrap font-normal text-center">
                                 {item[chave].length}
                               </td>
                             );
                           } else if (item[chave] !== undefined) {
                             if (typeof item[chave] !== 'object') {
                               return (
-                                <td key={chave} className="px-6 py-2 whitespace-nowrap font-normal">
+                                <td key={chave} className="px-6 py-2 whitespace-nowrap font-normal text-center">
                                   {verificaTexto(item[chave])}
                                 </td>
                               );
                             } else if (Array.isArray(item[chave])) {
                               // SUPORTE A ARRAYS
                               return (
-                                <td key={chave} className="px-6 py-2 whitespace-nowrap font-normal">
+                                <td key={chave} className="px-6 py-2 whitespace-nowrap font-normal text-center">
                                   {item[chave].length > 0 ? (
                                     <ul className="list-disc pl-4">
                                       {item[chave].map((element: any, idx: number) => (
@@ -353,7 +348,7 @@ const Tabela = ({ dados = null, estrutura = null, chamarFuncao = null }: any) =>
                                 </td>
                               );
                             } else {
-                              return <td key={chave} className="px-6 py-2 whitespace-nowrap font-normal"></td>;
+                              return <td key={chave} className="px-6 py-2 whitespace-nowrap font-normal text-center"></td>;
                             }
                           } else if (item[chave] === undefined) {
                             const keys = chave.split('.');
@@ -367,25 +362,25 @@ const Tabela = ({ dados = null, estrutura = null, chamarFuncao = null }: any) =>
                             if (tipo === "quantidade" && Array.isArray(nestedValue)) {
                               // SUPORTE À QUANTIDADE DE ITENS DO ARRAY ANINHADO
                               return (
-                                <td key={chave} className="px-6 py-2 whitespace-nowrap font-normal">
+                                <td key={chave} className="px-6 py-2 whitespace-nowrap font-normal text-center">
                                   {nestedValue.length}
                                 </td>
                               );
                             }
                             if (typeof nestedValue !== 'object' && nestedValue !== undefined) {
                               return (
-                                <td key={chave} className="px-6 py-2 whitespace-nowrap font-normal">
+                                <td key={chave} className="px-6 py-2 whitespace-nowrap font-normal text-center">
                                   {verificaTexto(nestedValue)}
                                 </td>
                               );
                             } else if (Array.isArray(nestedValue)) {
                               // SUPORTE A ARRAYS EM OBJETOS ANINHADOS
                               return (
-                                <td key={chave} className="px-6 py-2 whitespace-nowrap font-normal">
+                                <td key={chave} className="px-6 py-2 whitespace-nowrap font-normal text-center">
                                   {nestedValue.length > 0 ? (
-                                    <ul className="list-disc pl-4">
+                                    <ul className="list-disc pl-4 mx-auto">
                                       {nestedValue.map((element: any, idx: number) => (
-                                        <li key={idx}>
+                                        <li key={idx} className='text-left'>
                                           {element.horaInicio && element.horaFim
                                             ? `${element.horaInicio} - ${element.horaFim}`
                                             : JSON.stringify(element)}
@@ -398,7 +393,7 @@ const Tabela = ({ dados = null, estrutura = null, chamarFuncao = null }: any) =>
                                 </td>
                               );
                             } else {
-                              return <td key={chave} className="px-6 py-2 whitespace-nowrap font-normal"></td>;
+                              return <td key={chave} className="px-6 py-2 whitespace-nowrap font-normal text-center"></td>;
                             }
                           }
                           return null;
@@ -420,8 +415,8 @@ const Tabela = ({ dados = null, estrutura = null, chamarFuncao = null }: any) =>
 
         {/* Layout Stacked (Mobile) */}
         <div className="block md:hidden">
-          {dados && dados && dados.length > 0 ? (
-            dados.map((item: any) => (
+          {dados && dados.content && dados.content.length > 0 ? (
+            dados.content.map((item: any) => (
               <div
                 key={item.id}
                 className="bg-white border border-neutrals-200 rounded-md p-4 mb-4 shadow"
