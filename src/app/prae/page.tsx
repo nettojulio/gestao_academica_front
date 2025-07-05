@@ -5,56 +5,59 @@ import { useRouter } from "next/navigation";
 import AuthTokenService from "../authentication/auth.token";
 import { generica } from "@/utils/api";
 import { toast } from "react-toastify";
-import SuccessModal from '@/components/Cadastro/modalSucesso';
+import SuccessModal from "@/components/Cadastro/modalSucesso";
 import Swal from "sweetalert2";
 
 export default function PageEFrotas() {
   const router = useRouter();
-  const [isAluno, setisAluno] = useState<boolean>(AuthTokenService.isAluno(false));
+  const [isAluno, setisAluno] = useState<boolean>(
+    AuthTokenService.isAluno(false)
+  );
 
   useEffect(() => {
-    if (isAluno)  {
+    if (isAluno) {
       buscarEstudanteAtual();
       console.log();
     }
   }, [isAluno]);
 
   const buscarEstudanteAtual = async () => {
-      try {
-        const body = {
-          metodo: "get",
-          uri: '/prae/estudantes/current',
-          params: {}
-        };
-        const response = await generica(body);
-        if (!response) throw new Error("Resposta inválida do servidor.");
-        if (response.status === 404) {
-          criarEstudante();
-          return;
-        }
-      } catch (error) {
-        console.error("DEBUG: Erro ao localizar registro:", error);
-        alert("Erro ao localizar registro. Tente novamente!");
-        toast.error("Erro ao localizar registro. Tente novamente!", { position: "top-left" });
+    try {
+      const body = {
+        metodo: "get",
+        uri: "/prae/estudantes/current",
+        params: {},
+      };
+      const response = await generica(body);
+      if (!response) throw new Error("Resposta inválida do servidor.");
+      if (response.status === 404) {
+        criarEstudante();
+        return;
       }
-    };
+    } catch (error) {
+      console.error("DEBUG: Erro ao localizar registro:", error);
+      alert("Erro ao localizar registro. Tente novamente!");
+      toast.error("Erro ao localizar registro. Tente novamente!", {
+        position: "top-left",
+      });
+    }
+  };
 
-    const criarEstudante = async () => {
-      
-  Swal.fire({
-            title: "Para usar o módulo da Prae conclua seu cadastro!",
-            icon: "warning",
-            customClass: {
-              popup: "my-swal-popup",
-              title: "my-swal-title",
-              htmlContainer: "my-swal-html",
-            },
-          }).then((result) => {
-            if (result.isConfirmed) {
-              router.push("/prae/estudantes/criar");
-            }
-          });
-    };
+  const criarEstudante = async () => {
+    Swal.fire({
+      title: "Para usar o módulo da Prae conclua seu cadastro!",
+      icon: "warning",
+      customClass: {
+        popup: "my-swal-popup",
+        title: "my-swal-title",
+        htmlContainer: "my-swal-html",
+      },
+    }).then((result) => {
+      if (result.isConfirmed) {
+        router.push("/prae/estudantes/criar");
+      }
+    });
+  };
 
   useEffect(() => {
     // Se já houver efrotas_authenticated_user no localStorage, redireciona para dashboard
@@ -72,10 +75,5 @@ export default function PageEFrotas() {
     }
   }, [router]);
 
-  
-
-  return (
-    <>
-    </>
-  ); // ou um spinner de "Verificando..."
+  return <></>; // ou um spinner de "Verificando..."
 }

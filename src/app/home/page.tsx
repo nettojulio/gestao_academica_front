@@ -4,9 +4,46 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Star, StarBorder } from "@mui/icons-material";
 import IconButton from "@mui/material/IconButton";
+import Modal from "@/components/Modal/Modal";
+import AuthTokenService from "../authentication/auth.token";
+import { generica } from "@/utils/api";
 
 export default function HomePage() {
   const router = useRouter();
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [isAluno, setisAluno] = useState<boolean>(
+    AuthTokenService.isAluno(false)
+  );
+  const [notification, setNotification] = useState<{
+    title: string;
+    content: string;
+    level: "success" | "error" | "warning" | "info";
+  }>({ title: "", content: "", level: "warning" });
+
+  useEffect(() => {
+    if (isAluno) {
+      buscarEstudanteAtual();
+      console.log();
+    }
+  }, [isAluno]);
+
+  const buscarEstudanteAtual = async () => {
+    try {
+      const body = {
+        metodo: "get",
+        uri: "/prae/estudantes/current",
+        params: {},
+      };
+      const response = await generica(body);
+      if (!response) throw new Error("Resposta inválida do servidor.");
+      if (response.status === 404) {
+        handleNoitify();
+        return;
+      }
+    } catch (error) {
+      console.error("DEBUG: Erro ao localizar registro:", error);
+    }
+  };
 
   // Inicializa o estado lendo do localStorage (se disponível)
   const [pinnedModules, setPinnedModules] = useState<string[]>(() => {
@@ -69,8 +106,27 @@ export default function HomePage() {
     (mod) => !pinnedModules.includes(mod.id)
   );
 
+  const handleCloseModal = () => setIsModalOpen(false);
+
+  const handleNoitify = () => {
+    const notificationContent = {
+      title: "Atenção",
+      content: "Efetue o seu cadastro no módulo PRAE!",
+      level: "warning" as "success" | "error" | "warning" | "info",
+    };
+    setNotification(notificationContent);
+    setIsModalOpen(true);
+  };
+
   return (
     <div className="container mx-auto px-4 py-8">
+      <Modal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        title={notification.title}
+        content={notification.content}
+        level={notification.level}
+      />
       <p className="text-[20px] font-semibold text-primary-500">
         Escolha um módulo para acessar:
       </p>
