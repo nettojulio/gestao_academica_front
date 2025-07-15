@@ -251,101 +251,6 @@ const cadastro = () => {
     }
   };
 
-
-  //Corrigir a consulta para gestores
-  const pesquisarGestores = async (item: any, params = null) => {
-    try {
-      let body = {
-        metodo: 'get',
-        uri: '/auth/unidade-administrativa/' + item + "/gestores",
-        //+ '/page',
-        params: params != null ? params : { size: 25, page: 0 },
-        data: {}
-      }
-      const response = await generica(body);
-      //tratamento dos erros
-      if (response && response.data.errors != undefined) {
-        toast.error("Erro. Tente novamente!", { position: "top-left" });
-      } else if (response && response.data && response.data.error != undefined) {
-        if (response && response.data && response.data.error) {
-          toast(response.data.error.message, { position: "top-left" });
-        }
-      } else {
-        if (response && response.data) {
-          setDadosTabela(response.data);
-        }
-      }
-    } catch (error) {
-      console.error('Erro ao carregar registros:', error);
-    }
-  };
-
-  const pesquisarColaborador = async () => {
-    try {
-      let tecnicos: any[] = [];
-      let professores: any[] = [];
-
-      // Buscar técnicos
-      const responseTecnicos = await generica({
-        metodo: "get",
-        uri: "/auth/tecnico",
-        params: { size: 10, page: 0 },
-        data: {},
-      });
-
-      if (responseTecnicos?.data && !responseTecnicos.data.errors) {
-        tecnicos = responseTecnicos.data.content.map((item: any) => ({
-          ...item,
-          tipo: "Técnico",
-        }));
-      }
-
-      // Buscar professores
-      const responseProfessores = await generica({
-        metodo: "get",
-        uri: "/auth/professor",
-        params: { size: 10, page: 0 },
-        data: {},
-      });
-
-      if (responseProfessores?.data && !responseProfessores.data.errors) {
-        professores = responseProfessores.data.content.map((item: any) => ({
-          ...item,
-          tipo: "Professor",
-        }));
-      }
-
-      const uniao = [...tecnicos, ...professores];
-
-      // Adaptando para o formato esperado pela Tabela
-      const dadosAdaptados = {
-        content: uniao,
-        pageable: {
-          pageNumber: 0,
-          pageSize: 20,
-        },
-        totalElements: uniao.length,
-        totalPages: 1,
-        number: 0,
-        size: 50,
-        sort: { sorted: false, unsorted: true, empty: true },
-        numberOfElements: uniao.length,
-        first: true,
-        last: true,
-        empty: false,
-      };
-
-      setDadosTabela(dadosAdaptados);
-    } catch (error) {
-      console.error("Erro ao carregar colaboradores:", error);
-      toast.error("Erro ao carregar colaboradores!", { position: "top-left" });
-    }
-  };
-
-
-  /**
-   * Localiza o registro para edição e preenche os dados
-   */
   const editarRegistro = async (item: any) => {
     try {
       const body = {
@@ -417,24 +322,78 @@ const cadastro = () => {
     }
   };
 
+
+  const pesquisarTodosGestores = async (unidadeId: string) => {
+    try {
+      const response = await generica({
+        metodo: 'get',
+        uri: `/auth/unidade-administrativa/${unidadeId}/gestores`,
+        params: {
+          size: 20,
+          page: 0,
+        },
+        data: {}
+      });
+
+      if (response?.data?.errors) {
+        toast.error("Erro ao carregar gestores", { position: "bottom-left" });
+      } else if (response?.data) {
+        // Mapeia os dados para o formato esperado pela tabela
+        const dadosMapeados = response.data.content.map((item: any) => ({
+          id: item.id,
+          papel: item.papel,
+          gestor: {
+            id: item.gestor.id,
+            nome: item.gestor.nome,
+            nomeSocial: item.gestor.nomeSocial,
+            cpf: item.gestor.cpf,
+            email: item.gestor.email,
+            telefone: item.gestor.telefone,
+            siape: item.gestor.siape
+          }
+        }));
+
+        // Atualiza os estados
+        setColaboradores(response.data.content); // Guarda os dados brutos se necessário
+        setDadosTabela({
+          content: dadosMapeados,
+          pageable: response.data.pageable,
+          totalElements: response.data.totalElements,
+          last: response.data.last,
+          totalPages: response.data.totalPages,
+          size: response.data.size,
+          number: response.data.number,
+          sort: response.data.sort,
+          first: response.data.first,
+          numberOfElements: response.data.numberOfElements,
+          empty: response.data.empty
+        });
+
+        console.log('Dados mapeados para tabela:', dadosMapeados);
+      }
+    } catch (error) {
+      console.error('Erro ao carregar gestores:', error);
+      toast.error("Falha ao buscar gestores", { position: "bottom-left" });
+    }
+  };
+
   // Se estiver em modo de edição, carrega os dados ao montar
   useEffect(() => {
-    pesquisarTipoUnidades();
-    pesquisarUnidadesPai();
+    const carregarDados = async () => {
+      await pesquisarTipoUnidades();
+      await pesquisarUnidadesPai();
 
-    if (activeRole === "administrador") {
-      pesquisarGestores(id);
-    } else {
-      pesquisarColaborador(); // aqui está o correto
-    }
+      if (id && id !== "criar") {
+        await chamarFuncao("editar", id);
+        // Verifica se id é uma string antes de passar para pesquisarTodosGestores
+        if (typeof id === 'string') {
+          await pesquisarTodosGestores(id);
+        }
+      }
+    };
 
-    if (id && id !== "criar") {
-      chamarFuncao("editar", id);
-    }
+    carregarDados();
   }, [id, activeRole]);
-
-
-
 
   return (
     <main className="flex flex-wrap justify-center mx-auto">
@@ -456,8 +415,8 @@ const cadastro = () => {
           <div className="rounded-lg shadow-sm p-4 md:p-6 mt-6">
             <span className="block text-center text-2xl font-semibold mb-4">
               {isPrivileged === "administrador"
-                ? "Consultar Gestores"
-                : "Consultar Colaborador"}
+                ? "Gestores Alocados"
+                : "Colaboradores Alocados"}
             </span>
             <Tabela
               dados={dadosTabela}
