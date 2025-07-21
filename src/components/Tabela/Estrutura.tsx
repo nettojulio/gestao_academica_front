@@ -235,8 +235,10 @@ const Tabela = ({ dados = null, estrutura = null, chamarFuncao = null }: any) =>
                                 {estrutura.tabela.acoes_dropdown.map((acao: any, index_acao: any) => (
                                   <button
                                     key={index_acao}
-                                    className="block px-3 py-2 text-sm text-neutrals-700 hover:bg-neutrals-100 w-full text-center
-                                    justify-center"
+                                    className={`block px-3 py-2 text-sm w-full text-center justify-center
+                                    ${acao.nome === 'Selecionar' || acao.nome === 'Alocar'
+                                        ? 'bg-primary-100 text-primary-700 font-bold rounded hover:bg-primary-100'
+                                        : 'text-neutrals-700 hover:bg-neutrals-100'}`}
                                     role="menuitem"
                                     onClick={() => chamarFuncao(acao.chave, item)}
                                   >
@@ -250,7 +252,10 @@ const Tabela = ({ dados = null, estrutura = null, chamarFuncao = null }: any) =>
                                       <Delete className='text-danger-500' />
                                     )}
                                     {acao.nome === 'Selecionar' && (
-                                      <span className='text-primary-700'>Selecionar</span>
+                                      <span>Selecionar</span>
+                                    )}
+                                    {acao.nome === 'Alocar' && (
+                                      <span>Alocar Colaborador</span>
                                     )}
                                   </button>
                                 ))}

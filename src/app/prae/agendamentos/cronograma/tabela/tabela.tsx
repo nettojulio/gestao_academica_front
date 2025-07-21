@@ -166,19 +166,11 @@ const Tabela = ({ dados = null, estrutura = null, chamarFuncao = null }: any) =>
                     {estrutura.tabela.colunas.map((item: any, index: any) => (
                       <td
                         key={"menu_" + index}
-                        className={
-                          item.nome.toUpperCase() === "AÇÕES"
-                            ? "px-6 py-3 whitespace-nowrap text-sm font-bold uppercase text-neutrals-900 text-center"
-                            : "px-6 py-3 whitespace-nowrap text-sm font-bold uppercase text-neutrals-900"
-                        }
+                        className="px-6 py-3 whitespace-nowrap text-sm font-bold uppercase text-neutrals-900 text-center"
                         title={item.hint || ""}
                       >
                         <div
-                          className={
-                            item.nome.toUpperCase() === "AÇÕES"
-                              ? "flex items-center justify-center gap-2"
-                              : "flex items-center gap-2"
-                          }
+                          className="flex items-center justify-center gap-2"
                         >
                           {item.nome}
                           {item.hint && (
