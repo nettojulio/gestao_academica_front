@@ -1,21 +1,17 @@
+'use client';
+
 import React from "react";
-import { Metadata } from "next";
 import ClientWrapper from "@/components/AuthProvider/ClientWrapper";
-import { School, PendingActions, Groups2, AccountCircleOutlined, CalendarMonth, EventNote, Schedule, Payment, VolunteerActivism, AccountBalance, Diversity3, Home, BusinessCenter } from "@mui/icons-material";
+import AuthTokenService from "../authentication/auth.token"; // ajuste o path se necessário
+import {
+  School, PendingActions, Groups2, AccountCircleOutlined,
+  CalendarMonth, EventNote, Schedule, Payment, VolunteerActivism,
+  AccountBalance, Diversity3, Home, BusinessCenter
+} from "@mui/icons-material";
 import { InternalLayoutConfig } from "@/types/InternalLayoutConf";
-import AuthTokenService from "../authentication/auth.token";
-
-
-export const metadata: Metadata = {
-  title: "Gestão PRAE",
-  description: "Modulo de Gestão de PRAE",
-  icons: {
-    icon: "/assets/crosshairs-gps.png",
-  },
-};
 
 export default function PraeLayout({ children }: { children: React.ReactNode }) {
-  // config/authLayoutConfig.tsx
+  const isAluno = AuthTokenService.isAluno(false); // <- obtém se é aluno
 
   const layoutConfig: InternalLayoutConfig = {
     header: {
@@ -85,13 +81,39 @@ export default function PraeLayout({ children }: { children: React.ReactNode }) 
           ],
         },
         {
-          label: "Gerenciar Pagamentos",
+          label: isAluno ? "Pagamentos" : "Gerenciar Pagamentos",
           route: "/prae/pagamentos",
           icon: <Payment fontSize="small" className="text-white" />,
-          roles: ["administrador", "gestor"],
+          roles: ["gestor", "aluno"],
+          subItems: [
+            {
+              label: "Pagamentos Pendentes",
+              route: "/prae/pagamentos/pagamentos-pendentes",
+              icon: <Payment fontSize="small" className="text-white" />,
+              roles: ["administrador", "gestor"],
+            },
+            {
+              label: "Pagamentos Realizados",
+              route: "/prae/pagamentos/pagamentos-realizados",
+              icon: <Payment fontSize="small" className="text-white" />,
+              roles: ["administrador", "gestor"],
+            },
+            {
+              label: "Meus Recebimentos",
+              route: "/prae/pagamentos/meus-recebimentos",
+              icon: <Payment fontSize="small" className="text-white" />,
+              roles: ["aluno"],
+            },
+            {
+              label: "Relatório Financeiro",
+              route: "/prae/pagamentos/relatorio-financeiro",
+              icon: <Payment fontSize="small" className="text-white" />,
+              roles: ["gestor"],
+            },
+          ]
         },
         {
-          label: "Gerenciar Agendamentos",
+          label: isAluno ? "Agendamentos" : "Gerenciar Agendamentos",
           route: "/prae/agendamentos",
           icon: <EventNote fontSize="small" className="text-white" />,
           roles: ["administrador", "gestor", "aluno"],
@@ -100,7 +122,7 @@ export default function PraeLayout({ children }: { children: React.ReactNode }) 
               label: "Tipo de Atendimento",
               route: "/prae/agendamentos/tipo",
               icon: <Schedule fontSize="small" className="text-white" />,
-              roles: ["administrador"],
+              roles: ["administrador"], //Admin vai virar profissional aqui
             },
             {
               label: "Gerenciar Cronograma",
@@ -109,22 +131,10 @@ export default function PraeLayout({ children }: { children: React.ReactNode }) 
               roles: ["administrador", "gestor"],
             },
             {
-              label: "Calendário",
+              label: "Calendário de Agendamentos",
               route: "/prae/agendamentos/calendario",
               icon: <CalendarMonth fontSize="small" className="text-white" />,
               roles: ["administrador", "gestor", "aluno"],
-            },
-            {
-              label: "Todos os Agendamentos",
-              route: "/prae/agendamentos/calendario/todos-agendamentos",
-              icon: <EventNote fontSize="small" className="text-white" />,
-              roles: ["administrador", "gestor"],
-            },
-            {
-              label: "Todos os Cancelamentos",
-              route: "/prae/agendamentos/calendario/todos-cancelamentos",
-              icon: <EventNote fontSize="small" className="text-white" />,
-              roles: ["administrador", "gestor"],
             },
             {
               label: "Meus Agendamentos",
@@ -143,8 +153,6 @@ export default function PraeLayout({ children }: { children: React.ReactNode }) 
       ],
     },
   };
-  return (
-    <ClientWrapper layoutConfig={layoutConfig}>{children}</ClientWrapper>
-  )
-}
 
+  return <ClientWrapper layoutConfig={layoutConfig}>{children}</ClientWrapper>;
+}

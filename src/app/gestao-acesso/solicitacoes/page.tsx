@@ -62,7 +62,6 @@ const PageLista = () => {
       ],
       acoes_dropdown: [
         { nome: 'Visualizar', chave: 'editar' },
-        { nome: 'Deletar', chave: 'deletar' },
       ],
     },
   };

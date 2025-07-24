@@ -90,7 +90,7 @@ const cadastro = () => {
   };
 
   const voltarRegistro = () => {
-    router.push("/prae/etnia");
+    router.push("/gestao-acesso/etnia");
   };
 
   /**

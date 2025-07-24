@@ -53,6 +53,8 @@ const Calendar: React.FC<CalendarProps> = ({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedDaySlots, setSelectedDaySlots] = useState<DaySlot[]>([]);
   const [selectedDayString, setSelectedDayString] = useState<string>('');
+  const [selectedTipoAtendimento, setSelectedTipoAtendimento] = useState<string>('');
+
 
   useEffect(() => {
     // Qualquer efeito extra ao mudar o mês pode ser implementado aqui.
@@ -99,8 +101,10 @@ const Calendar: React.FC<CalendarProps> = ({
     if (!cronogramaDay || cronogramaDay.slots.length === 0) return;
     setSelectedDayString(formatDate(date));
     setSelectedDaySlots(cronogramaDay.slots);
+    setSelectedTipoAtendimento(cronogramaDay.tipoAtendimentoNome); // aqui!
     setIsModalOpen(true);
   };
+
 
   // Para usuários comuns: Agendar ou Cancelar um horário
   const handleAgendarSlot = (horario: string) => {
@@ -220,7 +224,7 @@ const Calendar: React.FC<CalendarProps> = ({
                           : "text-white bg-green-500")
                       }
                     >
-                      {`${vagasDisponiveis} vaga${vagasDisponiveis > 1 ? 's' : ''}`}
+                      {`${vagasDisponiveis} Vaga${vagasDisponiveis > 1 ? 's' : ''}`}
                     </button>
                   );
                 } else if (vagasAgendadas > 0) {
@@ -229,7 +233,7 @@ const Calendar: React.FC<CalendarProps> = ({
                       onClick={() => handleDayClick(day)}
                       className="mt-2 px-2 py-1 text-sm text-white bg-red-500 rounded-md"
                     >
-                      {`${vagasAgendadas} agendamento${vagasAgendadas > 1 ? 's' : ''}`}
+                      {`${vagasAgendadas} Agendamento${vagasAgendadas > 1 ? 's' : ''}`}
                     </button>
                   );
                 } else {
@@ -270,7 +274,7 @@ const Calendar: React.FC<CalendarProps> = ({
           >
             Agendamentos por Aluno
           </button>
-                    <button
+          <button
             onClick={() => router.push('/prae/agendamentos/calendario/todos-cancelamentos')}
             className="px-4 py-2 bg-primary-500 text-white rounded-md"
           >
@@ -305,6 +309,9 @@ const Calendar: React.FC<CalendarProps> = ({
         overlayClassName="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center"
       >
         <h2 className="text-xl font-bold mb-4">Agendamentos para {selectedDayString}</h2>
+        <p className="text-md text-gray-700 mb-4">
+          Tipo de atendimento: <span className="font-semibold">{selectedTipoAtendimento}</span>
+        </p>
         <div className="flex flex-col gap-2">
           {selectedDaySlots.map((slot, idx) => {
             // Verifica se o slot é de um dia passado
