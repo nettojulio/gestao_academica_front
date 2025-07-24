@@ -84,7 +84,7 @@ export default function PraeLayout({ children }: { children: React.ReactNode }) 
           label: isAluno ? "Pagamentos" : "Gerenciar Pagamentos",
           route: "/prae/pagamentos",
           icon: <Payment fontSize="small" className="text-white" />,
-          roles: ["administrador", "gestor", "aluno"],
+          roles: ["gestor", "aluno"],
           subItems: [
             {
               label: "Pagamentos Pendentes",
@@ -104,6 +104,12 @@ export default function PraeLayout({ children }: { children: React.ReactNode }) 
               icon: <Payment fontSize="small" className="text-white" />,
               roles: ["aluno"],
             },
+            {
+              label: "Relatório Financeiro",
+              route: "/prae/pagamentos/relatorio-financeiro",
+              icon: <Payment fontSize="small" className="text-white" />,
+              roles: ["gestor"],
+            },
           ]
         },
         {
@@ -116,7 +122,7 @@ export default function PraeLayout({ children }: { children: React.ReactNode }) 
               label: "Tipo de Atendimento",
               route: "/prae/agendamentos/tipo",
               icon: <Schedule fontSize="small" className="text-white" />,
-              roles: ["administrador"],
+              roles: ["administrador"], //Admin vai virar profissional aqui
             },
             {
               label: "Gerenciar Cronograma",
