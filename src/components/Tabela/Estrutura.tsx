@@ -236,9 +236,11 @@ const Tabela = ({ dados = null, estrutura = null, chamarFuncao = null }: any) =>
                                   <button
                                     key={index_acao}
                                     className={`block px-3 py-2 text-sm w-full text-center justify-center
-                                    ${acao.nome === 'Selecionar' || acao.nome === 'Alocar'
+  ${acao.nome === 'Selecionar' || acao.nome === 'Alocar'
                                         ? 'bg-primary-100 text-primary-700 font-bold rounded hover:bg-primary-100'
-                                        : 'text-neutrals-700 hover:bg-neutrals-100'}`}
+                                        : acao.nome === 'Remover'
+                                          ? 'bg-danger-50 text-danger-500 font-bold rounded hover:bg-danger-50'
+                                          : 'text-neutrals-700 hover:bg-neutrals-100'}`}
                                     role="menuitem"
                                     onClick={() => chamarFuncao(acao.chave, item)}
                                   >
@@ -256,6 +258,9 @@ const Tabela = ({ dados = null, estrutura = null, chamarFuncao = null }: any) =>
                                     )}
                                     {acao.nome === 'Alocar' && (
                                       <span>Alocar Colaborador</span>
+                                    )}
+                                    {acao.nome === 'Remover' && (
+                                      <span>Remover Colaborador</span>
                                     )}
                                   </button>
                                 ))}
