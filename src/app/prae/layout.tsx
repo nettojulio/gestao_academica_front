@@ -6,7 +6,13 @@ import AuthTokenService from "../authentication/auth.token"; // ajuste o path se
 import {
   School, PendingActions, Groups2, AccountCircleOutlined,
   CalendarMonth, EventNote, Schedule, Payment, VolunteerActivism,
-  AccountBalance, Diversity3, Home, BusinessCenter
+  AccountBalance, Diversity3, Home, BusinessCenter,
+  DoneAll,
+  AccountBalanceWallet,
+  Assessment,
+  EventAvailable,
+  EventBusy,
+  Category
 } from "@mui/icons-material";
 import { InternalLayoutConfig } from "@/types/InternalLayoutConf";
 
@@ -89,28 +95,28 @@ export default function PraeLayout({ children }: { children: React.ReactNode }) 
             {
               label: "Pagamentos Pendentes",
               route: "/prae/pagamentos/pagamentos-pendentes",
-              icon: <Payment fontSize="small" className="text-white" />,
+              icon: <PendingActions fontSize="small" className="text-white" />,
               roles: ["administrador", "gestor"],
             },
             {
               label: "Pagamentos Realizados",
               route: "/prae/pagamentos/pagamentos-realizados",
-              icon: <Payment fontSize="small" className="text-white" />,
+              icon: <DoneAll fontSize="small" className="text-white" />,
               roles: ["administrador", "gestor"],
             },
             {
               label: "Meus Recebimentos",
               route: "/prae/pagamentos/meus-recebimentos",
-              icon: <Payment fontSize="small" className="text-white" />,
+              icon: <AccountBalanceWallet fontSize="small" className="text-white" />,
               roles: ["aluno"],
             },
             {
               label: "Relatório Financeiro",
               route: "/prae/pagamentos/relatorio-financeiro",
-              icon: <Payment fontSize="small" className="text-white" />,
+              icon: <Assessment fontSize="small" className="text-white" />,
               roles: ["gestor"],
             },
-          ]
+          ],
         },
         {
           label: isAluno ? "Agendamentos" : "Gerenciar Agendamentos",
@@ -121,35 +127,35 @@ export default function PraeLayout({ children }: { children: React.ReactNode }) 
             {
               label: "Tipo de Atendimento",
               route: "/prae/agendamentos/tipo",
-              icon: <Schedule fontSize="small" className="text-white" />,
-              roles: ["administrador"], //Admin vai virar profissional aqui
+              icon: <Category fontSize="small" className="text-white" />, // Ícone para categorias/tipos
+              roles: ["administrador"],
             },
             {
               label: "Gerenciar Cronograma",
               route: "/prae/agendamentos/cronograma",
-              icon: <EventNote fontSize="small" className="text-white" />,
+              icon: <Schedule fontSize="small" className="text-white" />, // Ícone de cronograma
               roles: ["administrador", "gestor"],
             },
             {
               label: "Calendário de Agendamentos",
               route: "/prae/agendamentos/calendario",
-              icon: <CalendarMonth fontSize="small" className="text-white" />,
+              icon: <CalendarMonth fontSize="small" className="text-white" />, // Ícone de calendário
               roles: ["administrador", "gestor", "aluno"],
             },
             {
               label: "Meus Agendamentos",
               route: "/prae/agendamentos/calendario/meus-agendamentos",
-              icon: <EventNote fontSize="small" className="text-white" />,
+              icon: <EventAvailable fontSize="small" className="text-white" />, // Ícone para eventos confirmados
               roles: ["administrador", "gestor", "aluno"],
             },
             {
               label: "Meus Cancelamentos",
               route: "/prae/agendamentos/calendario/meus-cancelamentos",
-              icon: <EventNote fontSize="small" className="text-white" />,
+              icon: <EventBusy fontSize="small" className="text-white" />, // Ícone para eventos cancelados
               roles: ["administrador", "gestor", "aluno"],
             },
-          ],
-        },
+          ]
+        }
       ],
     },
   };
