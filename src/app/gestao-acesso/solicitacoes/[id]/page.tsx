@@ -94,19 +94,7 @@ const cadastro = () => {
     },
     cadastro: {
       campos: [
-        // {
-        //   line: 1,
-        //   colSpan: "md:col-span-1",
-        //   nome: "Foto Perfil",
-        //   chave: "perfil.fotoPerfil",
-        //   tipo: "foto", // ou outro tipo apropriado
-        //   mensagem: "Anexe os documentos",
-        //   obrigatorio: false,
-        //   bloqueado: isEditMode,
-
-        // },
         {
-
           line: 2,
           colSpan: "md:col-span-1",
           nome: "Tipo de Perfil",
@@ -122,19 +110,6 @@ const cadastro = () => {
           ],
           obrigatorio: true,
           bloqueado: isEditMode,
-
-        },
-        {
-          line: 3,
-          colSpan: "md:col-span-1",
-          nome: "Nome do Solicitante",
-          chave: "solicitante.nome",
-          tipo: "text",
-          mensagem: "Digite",
-          obrigatorio: true,
-          bloqueado: isEditMode,
-          pesquisar: true,
-
         },
         {
           line: 2,
@@ -144,8 +119,18 @@ const cadastro = () => {
           tipo: "text",
           mensagem: "Digite o nome social",
           obrigatorio: false,
-          bloqueado: isEditMode,
-
+          bloqueado: true,
+        },
+        {
+          line: 3,
+          colSpan: "md:col-span-1",
+          nome: "Nome do Solicitante",
+          chave: "solicitante.nome",
+          tipo: "text",
+          mensagem: "Digite",
+          obrigatorio: true,
+          bloqueado: true,
+          pesquisar: true,
         },
         {
           line: 3,
@@ -155,7 +140,7 @@ const cadastro = () => {
           tipo: "text",
           mensagem: "Digite",
           obrigatorio: true,
-          bloqueado: isEditMode,
+          bloqueado: true,
 
         },
         {
@@ -166,7 +151,7 @@ const cadastro = () => {
           tipo: "text",
           mensagem: "Digite",
           obrigatorio: true,
-          bloqueado: isEditMode,
+          bloqueado: true,
           mascara: "cpf",
 
         },
@@ -178,7 +163,7 @@ const cadastro = () => {
           tipo: "text",
           mensagem: "Digite",
           obrigatorio: true,
-          bloqueado: isEditMode,
+          bloqueado: true,
           mascara: "celular",
 
         },
@@ -260,7 +245,7 @@ const cadastro = () => {
 
       ],
       acoes: isEditMode
-        ? isPrivileged
+        ? isPrivileged && !dadosPreenchidos?.solicitadoPorProprioUsuario // Adicione esta verificação
           ? [
             { nome: "Rejeitar", chave: "rejeitar", tipo: "submit" },
             { nome: "Aprovar", chave: "aprovar", tipo: "submit" },
@@ -557,10 +542,23 @@ const cadastro = () => {
         data: {},
       });
       const dto = responseSolicitacao?.data;
+
+      // 2) Carrega o usuário atual para verificar se é o solicitante
+      const responseUsuario = await generica({
+        metodo: "get",
+        uri: "/auth/usuario/current",
+        params: {},
+        data: {},
+      });
+      const usuarioAtual = responseUsuario?.data;
+
+      // Verifica se o usuário atual é o solicitante
+      const solicitadoPorProprioUsuario = usuarioAtual?.id === dto.solicitante?.id;
+
       // Clareza: perfilSolicitado pode vir de dto.perfilSolicitado ou dto.tipoUsuario
       const perfilReq = (dto.perfilSolicitado ?? dto.tipoUsuario ?? "").toUpperCase();
 
-      // 2) Atualiza o estado com **tudo** que veio do servidor
+      // 3) Atualiza o estado com tudo que veio do servidor
       setDadosPreenchidos({
         id: dto.id,
         solicitante: {
@@ -571,42 +569,44 @@ const cadastro = () => {
           telefone: dto.solicitante.telefone,
         },
         perfil: {
-          // fotoPerfil você pode preencher se vier no dto.perfil
-          fotoPerfil: dto.perfil.fotoPerfil ?? null,
+          fotoPerfil: dto.perfil?.fotoPerfil ?? null,
           tipo: perfilReq,
-          matricula: dto.perfil.matricula ?? "",
-          curso: dto.perfil.curso
+          matricula: dto.perfil?.matricula ?? "",
+          curso: dto.perfil?.curso
             ? { id: dto.perfil.curso.id, nome: dto.perfil.curso.nome }
             : { id: "", nome: "" },
-          cursos: Array.isArray(dto.perfil.cursos)
+          cursos: Array.isArray(dto.perfil?.cursos)
             ? dto.perfil.cursos.map((c: any) => ({ id: c.id, nome: c.nome }))
             : [],
-          siape: dto.perfil.siape ?? "",
+          siape: dto.perfil?.siape ?? "",
         },
         parecer: dto.parecer ?? "",
-        perfilSolicitado: perfilReq,     // campo raiz só leitura em modo edição
-        tipoUsuario: perfilReq,          // para o select, se precisar
-        matricula: dto.perfil.matricula ?? "",
-        cursoId: dto.perfil.curso?.id ?? "",
-        cursoIds: Array.isArray(dto.perfil.cursos)
+        perfilSolicitado: perfilReq,
+        tipoUsuario: perfilReq,
+        matricula: dto.perfil?.matricula ?? "",
+        cursoId: dto.perfil?.curso?.id ?? "",
+        cursoIds: Array.isArray(dto.perfil?.cursos)
           ? dto.perfil.cursos.map((c: any) => c.id)
           : [],
-        siape: dto.perfil.siape ?? "",
-        documentos: [],                  // vai montar após buscar documentos
+        siape: dto.perfil?.siape ?? "",
+        documentos: [],
+        solicitadoPorProprioUsuario, // Flag indicando se o usuário atual é o solicitante
       });
 
-      // 3) Busca e converte documentos (se houver)
+      // 4) Busca e converte documentos (se houver)
       const responseDocumentos = await generica({
         metodo: "get",
         uri: `/auth/${estrutura.uri}/${item}/documentos`,
         params: {},
         data: {},
       });
+
       const docList = responseDocumentos && Array.isArray(responseDocumentos.data)
         ? responseDocumentos.data
         : responseDocumentos?.data
           ? [responseDocumentos.data]
           : [];
+
       const arquivosConvertidos = docList
         .map((doc: any) => {
           if (doc.base64) {
@@ -628,11 +628,12 @@ const cadastro = () => {
         })
         .filter((f) => f !== null) as File[];
 
-      // 4) Finaliza preenchendo os docs
+      // 5) Finaliza preenchendo os docs
       setDadosPreenchidos((prev: any) => ({
         ...prev,
         documentos: arquivosConvertidos,
       }));
+
     } catch (error) {
       console.error("DEBUG: Erro ao localizar registro:", error);
       toast.error("Erro ao localizar registro. Tente novamente!", {
@@ -640,7 +641,6 @@ const cadastro = () => {
       });
     }
   };
-
 
   // 2) Refatore currentUser para mapear o response.data nesse shape:
   const currentUser = async () => {
