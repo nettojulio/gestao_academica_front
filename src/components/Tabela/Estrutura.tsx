@@ -9,6 +9,11 @@ const Tabela = ({ dados = null, estrutura = null, chamarFuncao = null }: any) =>
   const [showFilters, setShowFilters] = useState(false);
   const [isDesktop, setIsDesktop] = useState(false);
 
+  // Função auxiliar para gerar keys únicas
+  const generateUniqueKey = (base: string, suffix?: string) => {
+    return `${base || 'key'}_${suffix || Math.random().toString(36).substr(2, 9)}`;
+  };
+
   // NORMALIZA os dados recebidos:
   const linhas = Array.isArray(dados) ? dados : (dados?.content ?? []);
 
@@ -61,18 +66,17 @@ const Tabela = ({ dados = null, estrutura = null, chamarFuncao = null }: any) =>
     };
   }, []);
 
-  // Renderiza os filtros em um grid responsivo:
   const renderFiltros = () => {
     const filters = estrutura.tabela.colunas.filter((col: any) => col.pesquisar);
     return (
       <div className="flex flex-wrap gap-4 w-full">
-        {filters?.map((item: any, index: any) => (
+        {filters?.map((item: any) => (
           <div
-            key={`filtro_${index}`}
+            key={generateUniqueKey('filtro', item.chave)}
             className="w-full sm:w-auto flex-1 min-w-[200px] flex flex-col"
           >
             <label
-              htmlFor={`filtro_${index}`}
+              htmlFor={`filtro_${item.chave}`}
               className="mb-1 text-sm font-bold text-neutrals-900"
             >
               {item.nome}
@@ -82,7 +86,7 @@ const Tabela = ({ dados = null, estrutura = null, chamarFuncao = null }: any) =>
               !(item.selectOptions && item.selectOptions.length > 0) && (
                 <input
                   type="text"
-                  id={`filtro_${index}`}
+                  id={`filtro_${item.chave}`}
                   className="pl-2 py-1 border rounded-md text-sm"
                   placeholder="Pesquisar"
                   onChange={(e) => paramsColuna(item.chave, e.target.value)}
@@ -92,7 +96,7 @@ const Tabela = ({ dados = null, estrutura = null, chamarFuncao = null }: any) =>
             {(item.tipo === 'booleano' ||
               (item.tipo === 'texto' && item.selectOptions && item.selectOptions.length > 0)) && (
                 <select
-                  id={`filtro_${index}`}
+                  id={`filtro_${item.chave}`}
                   className="pl-2 py-1 border rounded-md text-sm bg-white"
                   onChange={(e) => paramsColuna(item.chave, e.target.value)}
                 >
@@ -100,7 +104,7 @@ const Tabela = ({ dados = null, estrutura = null, chamarFuncao = null }: any) =>
                     <option value="">Selecionar</option>
                   )}
                   {item.selectOptions.map((option: { chave: any; valor: any }) => (
-                    <option key={option.chave} value={option.chave}>
+                    <option key={generateUniqueKey(option.chave, 'option')} value={option.chave}>
                       {option.valor}
                     </option>
                   ))}
@@ -135,9 +139,9 @@ const Tabela = ({ dados = null, estrutura = null, chamarFuncao = null }: any) =>
             {estrutura.tabela.botoes &&
               estrutura.tabela.botoes
                 .filter((botao: any) => botao.nome !== 'Filtrar')
-                .map((botao: any, index: number) => (
+                .map((botao: any) => (
                   <button
-                    key={index}
+                    key={generateUniqueKey('botao', botao.chave)}
                     className="ml-2 mb-2 px-4 py-2 text-sm text-neutrals-50 bg-primary-500 hover:bg-primary-700 border rounded-md"
                     disabled={botao.bloqueado}
                     hidden={botao.oculto}
@@ -164,19 +168,16 @@ const Tabela = ({ dados = null, estrutura = null, chamarFuncao = null }: any) =>
                   hidden={estrutura.tabela.configuracoes && !estrutura.tabela.configuracoes.cabecalho}
                 >
                   <tr>
-                    {estrutura.tabela.colunas.map((item: any, index: any) => (
+                    {estrutura.tabela.colunas.map((item: any) => (
                       <td
-                        key={"menu_" + index}
+                        key={generateUniqueKey('cabecalho', item.chave)}
                         className={
                           item.nome.toUpperCase() === "AÇÕES"
                             ? "w-24 px-2 py-3 whitespace-nowrap text-sm font-bold uppercase text-neutrals-900 text-right"
                             : "px-6 py-3 whitespace-nowrap text-sm font-bold uppercase text-neutrals-900 text-center"
                         }
-
                       >
-                        <div
-                          className="flex items-center justify-center gap-2"
-                        >
+                        <div className="flex items-center justify-center gap-2">
                           {item.nome}
                           {item.hint && (
                             <div className="ml-2 relative group">
@@ -223,168 +224,172 @@ const Tabela = ({ dados = null, estrutura = null, chamarFuncao = null }: any) =>
                 </thead>
                 <tbody className="divide-y divide-neutrals-200">
                   {linhas.length > 0 ? (
-                    linhas.map((item: any) => (
-                      <tr key={item.id} className="hover:bg-neutrals-100">
-                        {estrutura.tabela.colunas.map(({ chave, tipo, selectOptions }: any) => {
-                          if (chave === 'acoes') {
-                            return (
-                              <td
-                                key="acoes"
-                                className="px-2 py-2 whitespace-nowrap relative border-l border-neutrals-200 flex items-center justify-center"
-                              >
-                                {estrutura.tabela.acoes_dropdown.map((acao: any, index_acao: any) => (
-                                  <button
-                                    key={index_acao}
-                                    className={`block px-3 py-2 text-sm w-full text-center justify-center
-  ${acao.nome === 'Selecionar' || acao.nome === 'Alocar'
-                                        ? 'bg-primary-100 text-primary-700 font-bold rounded hover:bg-primary-100'
-                                        : acao.nome === 'Remover'
-                                          ? 'bg-danger-50 text-danger-500 font-bold rounded hover:bg-danger-50'
-                                          : 'text-neutrals-700 hover:bg-neutrals-100'}`}
-                                    role="menuitem"
-                                    onClick={() => chamarFuncao(acao.chave, item)}
-                                  >
-                                    {acao.nome === 'Editar' && (
-                                      <Edit className='text-primary-700' />
-                                    )}
-                                    {acao.nome === 'Visualizar' && (
-                                      <Visibility className='text-primary-700' />
-                                    )}
-                                    {acao.nome === 'Deletar' && (
-                                      <Delete className='text-danger-500' />
-                                    )}
-                                    {acao.nome === 'Selecionar' && (
-                                      <span>Selecionar</span>
-                                    )}
-                                    {acao.nome === 'Alocar' && (
-                                      <span>Alocar Colaborador</span>
-                                    )}
-                                    {acao.nome === 'Remover' && (
-                                      <span>Remover Colaborador</span>
-                                    )}
-                                  </button>
-                                ))}
-                              </td>
-                            );
-                          } else if (item[chave] !== undefined && tipo === "status") {
-                            const selectOption = selectOptions.find(
-                              (option: any) => option.chave === item[chave]
-                            );
-                            if (selectOption) {
-                              let element;
-                              switch (selectOption.valor) {
-                                case 'Finalizado':
-                                  element = (
-                                    <td
-                                      key={chave}
-                                      className="px-6 py-2 whitespace-nowrap flex justify-center items-center font-normal"
-                                    >
-                                      <span className="px-2 inline-flex text-sm leading-5 font-normal rounded-full bg-green-100 text-green-800">
-                                        {selectOption.valor}
-                                      </span>
-                                    </td>
-                                  );
-                                  break;
-                                case 'Erro':
-                                  element = (
-                                    <td
-                                      key={chave}
-                                      className="px-6 py-2 whitespace-nowrap flex justify-center items-center font-normal"
-                                    >
-                                      <span className="px-2 inline-flex text-sm leading-5 font-normal rounded-full bg-red-100 text-red-800">
-                                        {selectOption.valor}
-                                      </span>
-                                    </td>
-                                  );
-                                  break;
-                                default:
-                                  element = (
-                                    <td
-                                      key={chave}
-                                      className="px-6 py-2 whitespace-nowrap flex justify-center items-center font-normal"
-                                    >
-                                      <span className="px-3 inline-flex text-sm leading-6 font-normal rounded-full bg-neutrals-100 text-neutrals-800">
-                                        {selectOption.valor}
-                                      </span>
-                                    </td>
-                                  );
-                              }
-                              return element;
-                            }
-                          } else if (item[chave] !== undefined && (tipo === "booleano" || selectOptions)) {
-                            const selectOption = selectOptions.find(
-                              (option: any) => option.chave === item[chave]
-                            );
-                            if (selectOption) {
-                              return (
-                                <td key={chave} className="px-4 py-3 whitespace-nowrap text-center">
-                                  <span className={`text-sm ${selectOption.chave === true || selectOption.chave === "APROVADA"
-                                    ? "text-green-600"
-                                    : selectOption.chave === "PENDENTE"
-                                      ? "text-yellow-600"
-                                      : "text-red-600"}`}>
-                                    {selectOption.valor}
-                                  </span>
-                                </td>
-                              );
-                            } else {
-                              return null;
-                            }
-                          } else if (tipo === "json") {
-                            const partes = chave.split('|');
-                            let key = partes[0];
-                            let jsonKey = partes[1];
-                            let jsonItem = JSON.parse(item[key]);
-                            if (jsonItem && typeof jsonItem[jsonKey] !== 'object') {
-                              return (
-                                <td key={chave} className="px-6 py-2 whitespace-nowrap font-normal text-center">
-                                  {verificaTexto(jsonItem[jsonKey])}
-                                </td>
-                              );
-                            } else {
-                              return <td key={chave} className="px-6 py-2 whitespace-nowrap font-normal"></td>;
-                            }
-                          } else if (item[chave] !== undefined) {
-                            if (typeof item[chave] !== 'object') {
-                              return (
-                                <td key={chave} className="px-6 py-2 whitespace-nowrap font-normal text-center">
-                                  {verificaTexto(item[chave])}
-                                </td>
-                              );
-                            } else if (chave === 'beneficios') { // gambiarra especificamente para beneficios retornando do back como array, (detalhe se for corrigido no back remover)
-                              const beneficio = item.beneficios?.[0];
-                              return (
-                                <td key={beneficio?.tipoAuxilio?.id || 'sem-id'} className="px-6 py-2 whitespace-nowrap font-normal text-center">
-                                  {verificaTexto(beneficio?.tipoAuxilio?.tipo)}
-                                </td>
+                    linhas.map((item: any) => {
+                      const rowKey = item.id || generateUniqueKey('row');
+                      return (
+                        <tr key={rowKey} className="hover:bg-neutrals-100">
+                          {estrutura.tabela.colunas.map(({ chave, tipo, selectOptions }: any) => {
+                            const cellKey = generateUniqueKey(rowKey, chave);
 
-                              );
-                            } else {
-                              return <td key={chave} className="px-6 py-2 whitespace-nowrap font-normal"></td>;
-                            }
-                          } else if (item[chave] === undefined) {
-                            const keys = chave.split('.');
-                            let nestedValue = item;
-                            for (let key of keys) {
-                              if (nestedValue) {
-                                nestedValue = nestedValue[key];
-                                if (nestedValue === undefined) break;
-                              }
-                            }
-                            if (typeof nestedValue !== 'object' && nestedValue !== undefined) {
+                            if (chave === 'acoes') {
                               return (
-                                <td key={chave} className="px-6 py-2 whitespace-nowrap font-normal text-center">
-                                  {verificaTexto(nestedValue)}
+                                <td
+                                  key={cellKey}
+                                  className="px-2 py-2 whitespace-nowrap relative border-l border-neutrals-200 flex items-center justify-center"
+                                >
+                                  {estrutura.tabela.acoes_dropdown.map((acao: any) => (
+                                    <button
+                                      key={generateUniqueKey(cellKey, acao.chave)}
+                                      className={`block px-3 py-2 text-sm w-full text-center justify-center
+                                        ${acao.nome === 'Selecionar' || acao.nome === 'Alocar'
+                                          ? 'bg-primary-100 text-primary-700 font-bold rounded hover:bg-primary-100'
+                                          : acao.nome === 'Remover'
+                                            ? 'bg-danger-50 text-danger-500 font-bold rounded hover:bg-danger-50'
+                                            : 'text-neutrals-700 hover:bg-neutrals-100'}`}
+                                      role="menuitem"
+                                      onClick={() => chamarFuncao(acao.chave, item)}
+                                    >
+                                      {acao.nome === 'Editar' && (
+                                        <Edit className='text-primary-700' />
+                                      )}
+                                      {acao.nome === 'Visualizar' && (
+                                        <Visibility className='text-primary-700' />
+                                      )}
+                                      {acao.nome === 'Deletar' && (
+                                        <Delete className='text-danger-500' />
+                                      )}
+                                      {acao.nome === 'Selecionar' && (
+                                        <span>Selecionar</span>
+                                      )}
+                                      {acao.nome === 'Alocar' && (
+                                        <span>Alocar Colaborador</span>
+                                      )}
+                                      {acao.nome === 'Remover' && (
+                                        <span>Remover Colaborador</span>
+                                      )}
+                                    </button>
+                                  ))}
                                 </td>
                               );
-                            } else {
-                              return <td key={chave} className="px-6 py-2 whitespace-nowrap font-normal text-center"></td>;
+                            } else if (item[chave] !== undefined && tipo === "status") {
+                              const selectOption = selectOptions.find(
+                                (option: any) => option.chave === item[chave]
+                              );
+                              if (selectOption) {
+                                let element;
+                                switch (selectOption.valor) {
+                                  case 'Finalizado':
+                                    element = (
+                                      <td
+                                        key={cellKey}
+                                        className="px-6 py-2 whitespace-nowrap flex justify-center items-center font-normal"
+                                      >
+                                        <span className="px-2 inline-flex text-sm leading-5 font-normal rounded-full bg-green-100 text-green-800">
+                                          {selectOption.valor}
+                                        </span>
+                                      </td>
+                                    );
+                                    break;
+                                  case 'Erro':
+                                    element = (
+                                      <td
+                                        key={cellKey}
+                                        className="px-6 py-2 whitespace-nowrap flex justify-center items-center font-normal"
+                                      >
+                                        <span className="px-2 inline-flex text-sm leading-5 font-normal rounded-full bg-red-100 text-red-800">
+                                          {selectOption.valor}
+                                        </span>
+                                      </td>
+                                    );
+                                    break;
+                                  default:
+                                    element = (
+                                      <td
+                                        key={cellKey}
+                                        className="px-6 py-2 whitespace-nowrap flex justify-center items-center font-normal"
+                                      >
+                                        <span className="px-3 inline-flex text-sm leading-6 font-normal rounded-full bg-neutrals-100 text-neutrals-800">
+                                          {selectOption.valor}
+                                        </span>
+                                      </td>
+                                    );
+                                }
+                                return element;
+                              }
+                            } else if (item[chave] !== undefined && (tipo === "booleano" || selectOptions)) {
+                              const selectOption = selectOptions.find(
+                                (option: any) => option.chave === item[chave]
+                              );
+                              if (selectOption) {
+                                return (
+                                  <td key={cellKey} className="px-4 py-3 whitespace-nowrap text-center">
+                                    <span className={`text-sm ${selectOption.chave === true || selectOption.chave === "APROVADA"
+                                      ? "text-green-600"
+                                      : selectOption.chave === "PENDENTE"
+                                        ? "text-yellow-600"
+                                        : "text-red-600"}`}>
+                                      {selectOption.valor}
+                                    </span>
+                                  </td>
+                                );
+                              } else {
+                                return null;
+                              }
+                            } else if (tipo === "json") {
+                              const partes = chave.split('|');
+                              let key = partes[0];
+                              let jsonKey = partes[1];
+                              let jsonItem = JSON.parse(item[key]);
+                              if (jsonItem && typeof jsonItem[jsonKey] !== 'object') {
+                                return (
+                                  <td key={cellKey} className="px-6 py-2 whitespace-nowrap font-normal text-center">
+                                    {verificaTexto(jsonItem[jsonKey])}
+                                  </td>
+                                );
+                              } else {
+                                return <td key={cellKey} className="px-6 py-2 whitespace-nowrap font-normal"></td>;
+                              }
+                            } else if (item[chave] !== undefined) {
+                              if (typeof item[chave] !== 'object') {
+                                return (
+                                  <td key={cellKey} className="px-6 py-2 whitespace-nowrap font-normal text-center">
+                                    {verificaTexto(item[chave])}
+                                  </td>
+                                );
+                              } else if (chave === 'beneficios') {
+                                const beneficio = item.beneficios?.[0];
+                                return (
+                                  <td key={generateUniqueKey(cellKey, 'beneficio')} className="px-6 py-2 whitespace-nowrap font-normal text-center">
+                                    {verificaTexto(beneficio?.tipoAuxilio?.tipo)}
+                                  </td>
+                                );
+                              } else {
+                                return <td key={cellKey} className="px-6 py-2 whitespace-nowrap font-normal"></td>;
+                              }
+                            } else if (item[chave] === undefined) {
+                              const keys = chave.split('.');
+                              let nestedValue = item;
+                              for (let key of keys) {
+                                if (nestedValue) {
+                                  nestedValue = nestedValue[key];
+                                  if (nestedValue === undefined) break;
+                                }
+                              }
+                              if (typeof nestedValue !== 'object' && nestedValue !== undefined) {
+                                return (
+                                  <td key={cellKey} className="px-6 py-2 whitespace-nowrap font-normal text-center">
+                                    {verificaTexto(nestedValue)}
+                                  </td>
+                                );
+                              } else {
+                                return <td key={cellKey} className="px-6 py-2 whitespace-nowrap font-normal text-center"></td>;
+                              }
                             }
-                          }
-                          return null;
-                        })}
-                      </tr>
-                    ))
+                            return null;
+                          })}
+                        </tr>
+                      );
+                    })
                   ) : (
                     <tr>
                       <td colSpan={estrutura.tabela.colunas.length} className="text-center py-4 font-normal">
@@ -401,88 +406,93 @@ const Tabela = ({ dados = null, estrutura = null, chamarFuncao = null }: any) =>
         {/* Layout Stacked (Mobile) */}
         <div className="block md:hidden">
           {linhas.length > 0 ? (
-            linhas.map((item: any) => (
-              <div
-                key={item.id}
-                className="bg-white border border-neutrals-200 rounded-md p-4 mb-4 shadow"
-              >
-                {estrutura.tabela.colunas.map((col: any, index: number) => {
-                  if (col.chave === 'acoes') {
-                    return (
-                      <div key={col.chave} className="mt-2 flex justify-end gap-2">
-                        {estrutura.tabela.acoes_dropdown.map((acao: any, index_acao: any) => (
-                          <button
-                            key={index_acao}
-                            className="px-4 py-2 text-sm text-neutrals-50 bg-primary-500 hover:bg-primary-700 border rounded-md"
-                            onClick={() => chamarFuncao(acao.chave, item)}
-                          >
-                            {acao.nome}
-                          </button>
-                        ))}
-                      </div>
-                    );
-                  } else {
-                    let label = col.nome;
-                    let value: any = '';
-                    if (item[col.chave] !== undefined) {
-                      if (typeof item[col.chave] !== 'object') {
-                        value = verificaTexto(item[col.chave]);
-                      }
+            linhas.map((item: any) => {
+              const rowKey = item.id || generateUniqueKey('row');
+              return (
+                <div
+                  key={rowKey}
+                  className="bg-white border border-neutrals-200 rounded-md p-4 mb-4 shadow"
+                >
+                  {estrutura.tabela.colunas.map((col: any) => {
+                    const cellKey = generateUniqueKey(rowKey, col.chave);
+
+                    if (col.chave === 'acoes') {
+                      return (
+                        <div key={generateUniqueKey(cellKey, 'actions')} className="mt-2 flex justify-end gap-2">
+                          {estrutura.tabela.acoes_dropdown.map((acao: any) => (
+                            <button
+                              key={generateUniqueKey(cellKey, acao.chave)}
+                              className="px-4 py-2 text-sm text-neutrals-50 bg-primary-500 hover:bg-primary-700 border rounded-md"
+                              onClick={() => chamarFuncao(acao.chave, item)}
+                            >
+                              {acao.nome}
+                            </button>
+                          ))}
+                        </div>
+                      );
                     } else {
-                      const keys = col.chave.split('.');
-                      let nestedValue = item;
-                      for (let key of keys) {
-                        if (nestedValue) {
-                          nestedValue = nestedValue[key];
+                      let label = col.nome;
+                      let value: any = '';
+                      if (item[col.chave] !== undefined) {
+                        if (typeof item[col.chave] !== 'object') {
+                          value = verificaTexto(item[col.chave]);
+                        }
+                      } else {
+                        const keys = col.chave.split('.');
+                        let nestedValue = item;
+                        for (let key of keys) {
+                          if (nestedValue) {
+                            nestedValue = nestedValue[key];
+                          }
+                        }
+                        if (nestedValue !== undefined && typeof nestedValue !== 'object') {
+                          value = verificaTexto(nestedValue);
                         }
                       }
-                      if (nestedValue !== undefined && typeof nestedValue !== 'object') {
-                        value = verificaTexto(nestedValue);
+                      if (col.tipo === "status" && col.selectOptions) {
+                        const selectOption = col.selectOptions.find((option: any) => option.chave === item[col.chave]);
+                        if (selectOption) {
+                          value = (
+                            <span
+                              className={
+                                selectOption.valor === 'Finalizado'
+                                  ? 'px-2 inline-flex text-sm leading-5 font-normal rounded-full bg-green-100 text-green-800'
+                                  : selectOption.valor === 'Erro'
+                                    ? 'px-2 inline-flex text-sm leading-5 font-normal rounded-full bg-red-100 text-red-800'
+                                    : 'px-3 inline-flex text-sm leading-6 font-normal rounded-full bg-neutrals-100 text-neutrals-800'
+                              }
+                            >
+                              {selectOption.valor}
+                            </span>
+                          );
+                        }
+                      } else if (item[col.chave] !== undefined && (col.tipo === "booleano" || col.selectOptions)) {
+                        const selectOption = col.selectOptions.find((option: any) => option.chave === item[col.chave]);
+                        if (selectOption) {
+                          value = selectOption.valor;
+                        }
+                      } else if (col.tipo === "json") {
+                        const partes = col.chave.split('|');
+                        let key = partes[0];
+                        let jsonKey = partes[1];
+                        let jsonItem = JSON.parse(item[key]);
+                        if (jsonItem && typeof jsonItem[jsonKey] !== 'object') {
+                          value = verificaTexto(jsonItem[jsonKey]);
+                        }
                       }
-                    }
-                    if (col.tipo === "status" && col.selectOptions) {
-                      const selectOption = col.selectOptions.find((option: any) => option.chave === item[col.chave]);
-                      if (selectOption) {
-                        value = (
-                          <span
-                            className={
-                              selectOption.valor === 'Finalizado'
-                                ? 'px-2 inline-flex text-sm leading-5 font-normal rounded-full bg-green-100 text-green-800'
-                                : selectOption.valor === 'Erro'
-                                  ? 'px-2 inline-flex text-sm leading-5 font-normal rounded-full bg-red-100 text-red-800'
-                                  : 'px-3 inline-flex text-sm leading-6 font-normal rounded-full bg-neutrals-100 text-neutrals-800'
-                            }
-                          >
-                            {selectOption.valor}
+                      return (
+                        <div key={cellKey} className="mb-2">
+                          <span className="block text-sm font-bold text-neutrals-900">
+                            {label}:
                           </span>
-                        );
-                      }
-                    } else if (item[col.chave] !== undefined && (col.tipo === "booleano" || col.selectOptions)) {
-                      const selectOption = col.selectOptions.find((option: any) => option.chave === item[col.chave]);
-                      if (selectOption) {
-                        value = selectOption.valor;
-                      }
-                    } else if (col.tipo === "json") {
-                      const partes = col.chave.split('|');
-                      let key = partes[0];
-                      let jsonKey = partes[1];
-                      let jsonItem = JSON.parse(item[key]);
-                      if (jsonItem && typeof jsonItem[jsonKey] !== 'object') {
-                        value = verificaTexto(jsonItem[jsonKey]);
-                      }
+                          <span className="block text-sm text-neutrals-700 font-normal">{value}</span>
+                        </div>
+                      );
                     }
-                    return (
-                      <div key={index} className="mb-2">
-                        <span className="block text-sm font-bold text-neutrals-900">
-                          {label}:
-                        </span>
-                        <span className="block text-sm text-neutrals-700 font-normal">{value}</span>
-                      </div>
-                    );
-                  }
-                })}
-              </div>
-            ))
+                  })}
+                </div>
+              );
+            })
           ) : (
             <div className="text-center py-4 font-normal">
               <h6 className="text-neutrals-600">Nenhum registro encontrado.</h6>
